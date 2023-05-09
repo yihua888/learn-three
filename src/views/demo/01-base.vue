@@ -13,6 +13,8 @@ const container = ref(null);
 onMounted(() => {
     // 渲染器
     const renderer = new THREE.WebGLRenderer({ canvas: container.value });
+    document.querySelector('#app').appendChild(renderer.domElement);
+    renderer.setClearColor(0xeeeeee, 0.5)
     // 创建透视相机
     const fov = 40 // 视野范围
     const aspect = 2 // 相机默认值 画布的宽高比
@@ -67,3 +69,13 @@ onMounted(() => {
 
 })
 </script>
+
+<style lang="scss" scoped>
+div{
+    height: 100%;
+    canvas{
+        height: 100%;
+        width: 100%;
+    }
+}
+</style>

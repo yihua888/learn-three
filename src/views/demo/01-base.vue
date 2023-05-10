@@ -5,14 +5,14 @@
 </template>
 
 <script setup>
-import * as THREE from 'three';
+import THREE from '@/global/three';
 import { onMounted, ref } from 'vue';
 
 const container = ref(null);
 
 onMounted(() => {
     // 渲染器
-    const renderer = new THREE.WebGLRenderer({ canvas: container.value });
+    const renderer = new THREE.WebGLRenderer({ canvas: container.value , antialias :true });
     document.querySelector('#app').appendChild(renderer.domElement);
     renderer.setClearColor(0xeeeeee, 0.5)
     // 创建透视相机

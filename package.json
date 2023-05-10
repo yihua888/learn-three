@@ -7,9 +7,10 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "camera-controls": "^2.3.4",
     "core-js": "^3.8.3",
+    "dat.gui": "^0.7.9",
     "normalize.css": "^8.0.1",
-    "orbit-controls-es6": "^2.0.1",
     "three": "^0.152.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

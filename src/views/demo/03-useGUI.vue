@@ -1,18 +1,17 @@
 <template>
   <div>
     <canvas ref="container"></canvas>
-    <button @click="changeCamera">切换相机</button>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import dat from 'dat.gui';
 import THREE from '@/global/three';
 const container = ref(null);
-let cameraBol = true;
-const changeCamera = () => {
-  cameraBol = !cameraBol;
-};
+
+const gui = new dat.GUI();
+
 
 onMounted(() => {
   const clock = new THREE.Clock();
@@ -29,17 +28,34 @@ onMounted(() => {
   // 控制相机
   const controls = new THREE.CameraControls(camera, container.value)
 
+  // 使用GUI控制相机
+  function updateCamera() {
+    camera.updateProjectionMatrix()
+  }
+  gui.add(camera, 'fov', 1, 80).onChange(updateCamera)
+  gui.add(camera, 'near', 1, 200).onChange(updateCamera)
+  gui.add(camera, 'far', 1, 200).onChange(updateCamera)
+
+  class PositionGUI {
+    constructor(obj, name) {
+      this.obj = obj
+      this.name = name
+    }
+    get modify() {
+      return this.obj[this.name]
+    }
+    set modify(v) {
+      this.obj[this.name] = v
+    }
+  }
+  const folder = gui.addFolder('全局Position')
+  folder.add(new PositionGUI(camera.position, 'x'), 'modify', 0, 200).name('x')
+  folder.add(new PositionGUI(camera.position, 'y'), 'modify', 0, 200).name('y')
+  folder.add(new PositionGUI(camera.position, 'z'), 'modify', 0, 200).name('z')
+
   // 场景
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('black')
-
-  // 添加辅助相机
-  const camera1 = new THREE.PerspectiveCamera(20, aspect, 10, 50)
-  camera1.position.set(0, 5, 20)
-  camera1.lookAt(0, 0, 0)
-  const cameraHelper = new THREE.CameraHelper(camera1)
-  // 辅助线加入 场景
-  scene.add(cameraHelper)
 
   // 地面
   const planeSize = 20;
@@ -85,12 +101,7 @@ onMounted(() => {
   function render() {
     const delta = clock.getDelta();
     controls.update(delta)
-    cameraHelper.update()
-    if (cameraBol) {
-      renderer.render(scene, camera)
-    } else {
-      renderer.render(scene, camera1)
-    }
+    renderer.render(scene, camera)
     requestAnimationFrame(render)
   }
 

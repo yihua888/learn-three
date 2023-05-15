@@ -117,10 +117,3 @@ onMounted(() => {
 <style lang="scss" scoped>
 div {
     height: 100%;
-
-    canvas {
-        height: 100%;
-        width: 100%;
-    }
-}
-</style>

@@ -6,7 +6,6 @@
 
 <script setup>
 import THREE from "@/global/three";
-import { color } from "dat.gui";
 import { onMounted, ref } from "vue";
 
 const container = ref(null);
@@ -28,48 +27,51 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
   // 相机位置  正上方向下看
-  camera.position.set(0, 0, 10); // 相机位置
+  camera.position.set(0, 50, 50); // 相机位置
   camera.lookAt(0, 0, 0); // 相机朝向
   // 控制相机
   const controls = new THREE.CameraControls(camera, container.value);
   // 创建场景
   const scene = new THREE.Scene();
 
-  //   {
-  //     // 创建fog
-  //     const near = 1;
-  //     const far = 11;
-  //     const color = "lightblue";
-  //     scene.fog = new THREE.Fog(color, near, far);
-  //     scene.background = new THREE.Color(color);
-  //   }
   {
-    const color = "lightblue";
-    const density = 0.1;
-    scene.fog = new THREE.FogExp2(color, density);
-    scene.background = new THREE.Color(color);
-  }
-
-  {
-    // 灯光
-    const color = 0xffffff;
+    // 半球光
+    const skyColor = 0xb1e1ff; // 蓝色
+    const groundColor = 0xffffff; // 白色
     const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
   }
 
-  const geometry = new THREE.BoxGeometry(3, 3, 3);
-  const material = new THREE.MeshPhongMaterial({ color: 0x8844aa });
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+  {
+    // 方向光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
+    scene.add(light);
+    scene.add(light.target);
+  }
+
+  const mtlLoader = new THREE.MTLLoader();
+  mtlLoader.load("./windmill/windmill.mtl", (mtl) => {
+    mtl.preload();
+    const objLoader = new THREE.OBJLoader();
+    objLoader.setMaterials(mtl);
+    objLoader.load("./windmill/windmill.obj", (root) => {
+      scene.add(root);
+    });
+    for (const material of Object.values(mtl.materials)) {
+      console.log("material", material);
+      // 设置材质双面
+      material.side = THREE.DoubleSide;
+    }
+  });
 
   function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
-    time *= 0.001;
-    cube.rotation.x = time;
-    cube.rotation.y = time;
 
     // 加载渲染器
     renderer.render(scene, camera);

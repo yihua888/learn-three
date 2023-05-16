@@ -6,12 +6,31 @@
 
 <script setup>
 import THREE from "@/global/three";
-import { color } from "dat.gui";
 import { onMounted, ref } from "vue";
-
 const container = ref(null);
 
 onMounted(() => {
+  // 创建渲染器。
+  const rtWidth = 512;
+  const rtHeight = 512;
+  const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+
+  const rtFov = 75;
+  const rtAspect = rtWidth / rtHeight;
+  const rtNear = 0.1;
+  const rtFar = 5;
+  const rtCamera = new THREE.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar);
+  rtCamera.position.z = 2;
+  const rtScene = new THREE.Scene();
+  rtScene.background = new THREE.Color("white");
+
+  // 几何体
+  const rtBox = 1;
+  const rtGeometry = new THREE.BoxGeometry(rtBox, rtBox, rtBox);
+  const rtMaterial = new THREE.MeshBasicMaterial({ color: 0x44aa88 });
+  const rtCube = new THREE.Mesh(rtGeometry, rtMaterial);
+  rtScene.add(rtCube);
+
   const clock = new THREE.Clock();
   // 渲染器
   const renderer = new THREE.WebGLRenderer({
@@ -28,27 +47,12 @@ onMounted(() => {
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
   // 相机位置  正上方向下看
-  camera.position.set(0, 0, 10); // 相机位置
+  camera.position.set(10, 10, 20); // 相机位置
   camera.lookAt(0, 0, 0); // 相机朝向
   // 控制相机
   const controls = new THREE.CameraControls(camera, container.value);
   // 创建场景
   const scene = new THREE.Scene();
-
-  //   {
-  //     // 创建fog
-  //     const near = 1;
-  //     const far = 11;
-  //     const color = "lightblue";
-  //     scene.fog = new THREE.Fog(color, near, far);
-  //     scene.background = new THREE.Color(color);
-  //   }
-  {
-    const color = "lightblue";
-    const density = 0.1;
-    scene.fog = new THREE.FogExp2(color, density);
-    scene.background = new THREE.Color(color);
-  }
 
   {
     // 灯光
@@ -60,7 +64,9 @@ onMounted(() => {
   }
 
   const geometry = new THREE.BoxGeometry(3, 3, 3);
-  const material = new THREE.MeshPhongMaterial({ color: 0x8844aa });
+  const material = new THREE.MeshPhongMaterial({
+    map: renderTarget.texture,
+  });
   const cube = new THREE.Mesh(geometry, material);
   scene.add(cube);
 
@@ -70,7 +76,11 @@ onMounted(() => {
     time *= 0.001;
     cube.rotation.x = time;
     cube.rotation.y = time;
-
+    rtCube.rotation.y = time;
+    rtCube.rotation.x = time;
+    renderer.setRenderTarget(renderTarget);
+    renderer.render(rtScene, rtCamera);
+    renderer.setRenderTarget(null);
     // 加载渲染器
     renderer.render(scene, camera);
 

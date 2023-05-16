@@ -2032,3 +2032,722 @@ div {
 ```
 
 ## 13.  阴影
+
+- three.js中使用的是阴影贴图，阴影贴图的工作方式就是具有投射阴影的光能对所有能被投射阴影的物体从光源渲染阴影。
+- 注意事项：
+  - 每多一个能投射阴影光源，就会重复绘制一次场景。阴影的计算是一个光源一个光源的依次计算的。
+  - 要展示阴影需要，渲染器开启阴影渲染、灯光投开启投射阴影、物体开启接收阴影
+  - 只有DirectionalLight、PointLight、RectAreaLight、SpotLight这4种光源才能投谁阴影。
+  - MeshLambertMaterial材质是不能接受投射阴影的。
+
+### 13.1 开启阴影想过配置
+
+```js
+// 开启阴影渲染
+renderer.shadowMap.enabled = true;
+```
+
+### 13.2 添加灯光并开启投射阴影
+
+```js
+{
+    // 灯光
+    const color = 0xffffff
+    const intensity = 2
+    const light = new THREE.DirectionalLight(color, intensity)
+    light.castShadow = true // 投射阴影
+    light.position.set(10, 10, 10)
+    light.target.position.set(-4, 0, -4)
+    scene.add(light)
+    scene.add(light.target)
+
+    const helper = new THREE.DirectionalLightHelper(light)
+    scene.add(helper)
+}
+```
+
+### 13.3 绘制物体开启接收阴影
+
+```js
+  {
+    // 平面几何
+    const groundGeometry = new THREE.PlaneGeometry(50, 50)
+    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866, side: THREE.DoubleSide })
+    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
+    groundMesh.rotation.x = Math.PI * -0.5
+    groundMesh.receiveShadow = true // 接受阴影
+    scene.add(groundMesh)
+  }
+  {
+    // 几何体
+    const cubeSize = 4
+    const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
+    const cubeMat = new THREE.MeshPhongMaterial({ color: '#8AC' })
+    const mesh = new THREE.Mesh(cubeGeo, cubeMat)
+    mesh.castShadow = true // 投射阴影
+    mesh.receiveShadow = true // 接受阴影
+    mesh.position.set(cubeSize + 1, cubeSize / 2, 0)
+    scene.add(mesh)
+  }
+```
+
+- 从结果中看，阴影少了一部分。是因为光源阴影相机决定了阴影投射的区域。使用`.CameraHelper(light.shadow.camera)`来获取光源的阴影相机的辅助线。
+
+```js
+const cameraHelper = new THREE.CameraHelper(light.shadow.camera)
+scene.add(cameraHelper)
+```
+
+### 13.4 设置阴影相机
+
+- 通过设置`light.shadow.camera`修改阴影相机的区域。
+
+```js
+const d = 50
+light.shadow.camera.left = -d
+light.shadow.camera.right = d
+light.shadow.camera.top = d
+light.shadow.camera.bottom = -d
+light.shadow.camera.near = 1
+light.shadow.camera.far = 60
+```
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 10); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+  {
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 2;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.castShadow = true; // 投射阴影
+    light.position.set(10, 10, 10);
+    light.target.position.set(-4, 0, -4);
+    scene.add(light);
+    scene.add(light.target);
+
+    const helper = new THREE.DirectionalLightHelper(light);
+    scene.add(helper);
+    const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+    scene.add(cameraHelper);
+
+    const d = 50;
+    light.shadow.camera.left = -d;
+    light.shadow.camera.right = d;
+    light.shadow.camera.top = d;
+    light.shadow.camera.bottom = -d;
+    light.shadow.camera.near = 1;
+    light.shadow.camera.far = 60;
+  }
+
+  {
+    // 平面几何
+    const groundGeometry = new THREE.PlaneGeometry(50, 50);
+    const groundMaterial = new THREE.MeshPhongMaterial({
+      color: 0xcc8866,
+      side: THREE.DoubleSide,
+    });
+    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    groundMesh.rotation.x = Math.PI * -0.5;
+    groundMesh.receiveShadow = true; // 接受阴影
+    scene.add(groundMesh);
+  }
+  {
+    // 几何体
+    const cubeSize = 4;
+    const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+    const cubeMat = new THREE.MeshPhongMaterial({ color: "#8AC" });
+    const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+    mesh.castShadow = true; // 投射阴影
+    mesh.receiveShadow = true; // 接受阴影
+    mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
+    scene.add(mesh);
+  }
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 14. 雾
+
+- 雾通常是基于离摄像机的距离褪色至某种特定颜色的方式。
+- 在three.js中有两种设置雾的对象：
+  - .Fog() 定义了线性雾。简单来说就是雾的密度是随着距离线性增大的。
+  - .FogExp2() 定义了指数雾。在相机附近提供清晰的视野，且距离相机越远，雾的浓度随着指数增长越快。
+
+### 14.1 Fog
+
+**属性**
+
+- .name 对象的名称。
+- .color 雾的颜色。
+- .near 应用雾的最小距离。任何物体比 near 近不会受到影响。
+- .far 应用雾的最大距离。任何物体比 far 远则完全是雾的颜色。
+
+**注意**
+
+- 需要注意雾是作用在渲染的物体上的，想要实现效果就需要设定雾 **和** 场景的背景颜色为同一种颜色。
+- 雾设置的最小距离，最大距离都是以相机所在位置计算的。
+
+```js
+{
+    const near = 1
+    const far = 11
+    const color = 'lightblue'
+    scene.fog = new THREE.Fog(color, near, far)
+    scene.background = new THREE.Color(color)
+}
+
+{
+    const color = 0xffffff
+    const intensity = 1
+    const light = new THREE.DirectionalLight(color, intensity)
+    light.position.set(-1, 2, 4)
+    scene.add(light)
+}
+const box = 3
+const geometry = new THREE.BoxGeometry(box, box, box)
+const material = new THREE.MeshPhongMaterial({ color: 0x8844aa })
+const cube = new THREE.Mesh(geometry, material)
+scene.add(cube)
+```
+
+- fog在材质上有个布尔属性，用来设置材质是否会受到雾的影响。默认是true
+
+```js
+material.fog = false
+```
+
+### 14.2 FogExp2
+
+**属性**
+
+1. `.name` 对象的名称。
+2. `.color` 雾的颜色。
+3. `.density` 定义雾的密度将会增长多块。
+
+**使用方式和`Fog`一样，它效果更接近真实环境。**
+
+```js
+{
+    const color = 'lightblue'
+    const density = 0.1
+    scene.fog = new THREE.FogExp2(color, density)
+    scene.background = new THREE.Color(color)
+}
+```
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { color } from "dat.gui";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 10); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  //   {
+  //     // 创建fog
+  //     const near = 1;
+  //     const far = 11;
+  //     const color = "lightblue";
+  //     scene.fog = new THREE.Fog(color, near, far);
+  //     scene.background = new THREE.Color(color);
+  //   }
+  {
+    const color = "lightblue";
+    const density = 0.1;
+    scene.fog = new THREE.FogExp2(color, density);
+    scene.background = new THREE.Color(color);
+  }
+
+  {
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+  }
+
+  const geometry = new THREE.BoxGeometry(3, 3, 3);
+  const material = new THREE.MeshPhongMaterial({ color: 0x8844aa });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+    time *= 0.001;
+    cube.rotation.x = time;
+    cube.rotation.y = time;
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 15.WebGLRenderTarget 把场景当做纹理渲染
+
+- `WebGLRenderTarget` 是一个渲染器。用于在缓存中为场景绘制像素。
+- 简单理解就是在缓存创建一张图片，我们可以把这张图片当成纹理在几何体上使用。
+
+**使用**
+
+- 创建渲染器。
+
+  ```js
+  const rtWidth = 512;
+  const rtHeight = 512;
+  const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+  ```
+
+- 使用渲染器就需要一个Camera（相机） 和一个 Scene（场景）。
+
+- 这里使用的相机比例（rtAspect）是几何体面的比例，不是画布的比例
+
+  ```js
+  const rtFov = 75
+  const rtAspect = rtWidth / rtHeight
+  const rtNear = 0.1
+  const rtFar = 5
+  const rtCamera = new THREE.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar)
+  rtCamera.position.z = 2
+  const rtScene = new THREE.Scene()
+  rtScene.background = new THREE.Color('white')
+  ```
+
+- 有了场景，需要展示的纹理就和普通的绘制是一样的。
+
+- 添加几何体。
+
+  ```js
+  // 几何体
+  const rtBox = 1
+  const rtGeometry = new THREE.BoxGeometry(rtBox, rtBox, rtBox)
+  const rtMaterial = new THREE.MeshBasicMaterial({ color: 0x44aa88 })
+  const rtCube = new THREE.Mesh(rtGeometry, rtMaterial)
+  rtScene.add(rtCube)
+  ```
+
+-  在几何体中使用缓存画面。
+
+  ```js
+  // 材质
+  const material = new THREE.MeshPhongMaterial({
+      map: renderTarget.texture
+  })
+  ```
+
+- 渲染时，我们首先渲染目标的场景(rtScene)，在渲染要在画布上展示的场景。
+
+  ```js
+  function render(time) {
+      renderer.setRenderTarget(renderTarget)
+      renderer.render(rtScene, rtCamera)
+      renderer.setRenderTarget(null)
+  }
+  ```
+
+- 几何体的表面就是我们绘制的缓存场景。
+
+- 既然是缓存渲染器，我们也可以为纹理添加动画。
+
+  ```js
+  function render(time) {
+      rtCube.rotation.y = time
+      rtCube.rotation.x = time
+  }
+  ```
+
+**总结**
+
+`WebGLRenderTarget`可以用在各种各样的物体上，比如在开发中绘制镜子反射场景，这一类物体就需要。需要注意，`WebGLRenderTarget`会创建两个纹理。 颜色纹理和深度、模版纹理。如果你不需要深度或者模版纹理，设置`depthBuffer: false,stencilBuffer: false`。
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { color } from "dat.gui";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  // 创建渲染器。
+  const rtWidth = 512;
+  const rtHeight = 512;
+  const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
+
+  const rtFov = 75;
+  const rtAspect = rtWidth / rtHeight;
+  const rtNear = 0.1;
+  const rtFar = 5;
+  const rtCamera = new THREE.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar);
+  rtCamera.position.z = 2;
+  const rtScene = new THREE.Scene();
+  rtScene.background = new THREE.Color("white");
+
+  // 几何体
+  const rtBox = 1;
+  const rtGeometry = new THREE.BoxGeometry(rtBox, rtBox, rtBox);
+  const rtMaterial = new THREE.MeshBasicMaterial({ color: 0x44aa88 });
+  const rtCube = new THREE.Mesh(rtGeometry, rtMaterial);
+  rtScene.add(rtCube);
+
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(10, 10, 20); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+  }
+
+  const geometry = new THREE.BoxGeometry(3, 3, 3);
+  const material = new THREE.MeshPhongMaterial({
+    map: renderTarget.texture,
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+    time *= 0.001;
+    cube.rotation.x = time;
+    cube.rotation.y = time;
+    rtCube.rotation.y = time;
+    rtCube.rotation.x = time;
+    renderer.setRenderTarget(renderTarget);
+    renderer.render(rtScene, rtCamera);
+    renderer.setRenderTarget(null);
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 16. 加载 .OBJ 格式模型
+
+- `obj`文件是3D模型文件格式。
+- 它包含的信息都是几何体顶点相关数据，不包含动画、材质特性、粒子等信息。
+
+**使用**
+
+- 引入官方插件OBJLoader解析文件。
+- 创建实例。通过url加载.obj文件，并在回调函数中将已加载完的模型添加到场景里。
+
+```js
+import * as THREE from "three";
+import CameraControls from "camera-controls";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
+
+console.log(MTLLoader);
+console.log(OBJLoader);
+
+// 相机控制器
+CameraControls.install({ THREE: THREE });
+THREE.CameraControls = CameraControls;
+// // 挂载mtl文件加载
+THREE.MTLLoader = MTLLoader;
+// // 挂载OBJ文件加载
+THREE.OBJLoader = OBJLoader;
+
+export default THREE;
+```
+
+```js
+const objLoader = new THREE.OBJLoader();
+objLoader.load("./windmill/windmill.obj", (root) => {
+    scene.add(root);
+});
+```
+
+**加载.mtl文件**
+
+- 因为.obj文件是没有材质信息的，我们还需要加载一个和它配套的.mtl文件。
+- 每一个newmtl Material代表一个材质信息，这里有两个材质。材质里面使用了图片，图片需要和文件在同级目录。
+- 首先要引用 MTLLoader解析文件。
+- 然后实例化，加载.mtl文件。通过OBJLoader的方法.setMaterials()加载材质。
+
+```js
+const mtlLoader = new THREE.MTLLoader();
+  mtlLoader.load("./windmill/windmill.mtl", (mtl) => {
+    mtl.preload();
+    const objLoader = new THREE.OBJLoader();
+    objLoader.setMaterials(mtl);
+    objLoader.load("./windmill/windmill.obj", (root) => {
+      scene.add(root);
+    });
+});
+```
+
+**修改材质**
+
+- 通过MTLLoader对象的.materials属性获取材质。
+
+  ```js
+  for (const material of Object.values(mtl.materials)) {
+      console.log('material', material)
+      // 设置材质双面
+      material.side = THREE.DoubleSide
+  }
+  ```
+
+- 解析完成后，就是创建的一个材质对象，我们可以正常对这个材质对象修改。
+
+**总结**
+
+一般情况下我们都会使用模型进行开发，用代码绘制图像会浪费大量时间。除.OBJ格式，还有很多其他格式的模型。当然我们都是使用官方插件进行加载，不过插件不同代表对象的属性不同，使用的方式就会有差异。
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 50, 50); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    // 半球光
+    const skyColor = 0xb1e1ff; // 蓝色
+    const groundColor = 0xffffff; // 白色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
+
+  {
+    // 方向光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
+    scene.add(light);
+    scene.add(light.target);
+  }
+
+  const mtlLoader = new THREE.MTLLoader();
+  mtlLoader.load("./windmill/windmill.mtl", (mtl) => {
+    mtl.preload();
+    const objLoader = new THREE.OBJLoader();
+    objLoader.setMaterials(mtl);
+    objLoader.load("./windmill/windmill.obj", (root) => {
+      scene.add(root);
+    });
+    for (const material of Object.values(mtl.materials)) {
+      console.log("material", material);
+      // 设置材质双面
+      material.side = THREE.DoubleSide;
+    }
+  });
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 17. 加载 .GLTF 格式模型
+

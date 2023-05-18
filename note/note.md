@@ -2751,3 +2751,368 @@ div {
 
 ## 17. 加载 .GLTF 格式模型
 
+- 用于显示图形的格式。也是各种3D编辑器之间的传输格式。
+- `.gltf格式`本质上是一个JSON文件。它能描述一整个3D场景，比如一个模型使用多少个网格，网格的旋转、位移等信息。
+
+**使用**
+
+- 通常情况下加载和显示`.GLTF文件`比 `.OBJ文件`更简单，因为`.GLTF文件`中材质和几何体信息都是在一起的。
+- 这里加载的`.glb格式`，它是`.GLTF格式`的压缩文件。
+
+```js
+ {
+    const gltfLoader = new THREE.GLTFLoader()
+    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
+      const root = gltf.scene
+      scene.add(root)
+    })
+  }
+```
+
+**修改模型**
+
+- 解析完成后，生成的就是一个场景对象。
+
+  ```js
+  console.log('root', root)
+  ```
+
+- 可以看见最后生成的是一个Group组场景对象。
+
+- 使用.traverse()操作场景中的所有对象。
+
+  ```js
+    // 遍历所有子对象
+    root.traverse((child) => {
+      if (child.isMesh) {
+        // 内部
+        if (child.name === 'oldtiger001') {
+          // 金属度
+          child.material.metalness = 0.5
+          // 粗糙度
+          child.material.roughness = 0.8
+        }
+        // 半透明外壳
+        if (child.name === 'oldtiger002') {
+          // 启用透明
+          child.material.transparent = true
+          // 透明度
+          child.material.opacity = 0.5
+          // 透明反射效果
+          child.material.refractionRatio = 1
+          child.material.metalness = 0.2
+          child.material.roughness = 0
+        }
+      }
+    })
+  ```
+
+- `.isMesh`网格对象的属性，`true`表示是网格对象。
+
+- `.name`在创建模型时定义的网格名。
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 100; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 50, 10); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    // 半球光
+    const skyColor = 0xb1e1ff; // 蓝色
+    const groundColor = 0xffffff; // 白色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
+
+  {
+    // 方向光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
+    scene.add(light);
+    scene.add(light.target);
+  }
+
+  {
+    const gltfLoader = new THREE.GLTFLoader()
+    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
+      const root = gltf.scene
+      scene.add(root)
+      // 遍历所有子对象
+      root.traverse((child) => {
+        if (child.isMesh) {
+          // 内部
+          if (child.name === 'oldtiger001') {
+            // 金属度
+            child.material.metalness = 0.5
+            // 粗糙度
+            child.material.roughness = 0.8
+          }
+          // 半透明外壳
+          if (child.name === 'oldtiger002') {
+            // 启用透明
+            child.material.transparent = true
+            // 透明度
+            child.material.opacity = 0.5
+            // 透明反射效果
+            child.material.refractionRatio = 1
+            child.material.metalness = 0.2
+            child.material.roughness = 0
+          }
+        }
+      })
+    })
+  }
+
+  function render (time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 18. 天空盒
+
+在3D场景中，为了增强场景表现力，我们通常会为场景添加天空盒。就是在整个场景的上方绘制天空这一类图片。
+
+最简单的做法是，制作一个很大的立方体为6个面添加纹理，这里要注意我们渲染的是内部。**纹理是特殊处理了的能组合成一个整体**。当然还有其他的方式比如创建球体或半圆的穹顶等。
+
+**创建**
+
+- 添加几何体，给每个面设置纹理。
+
+- 需要注意材质要设置`THREE.BackSide`渲染内部，相机的远平面必须大于盒子的长度。`directions[]`数组中的图片也是有序的。
+
+  ```js
+        {
+          var directions = [
+            './file/18/pos-x.jpg',
+            './file/18/neg-x.jpg',
+            './file/18/pos-y.jpg',
+            './file/18/neg-y.jpg',
+            './file/18/pos-z.jpg',
+            './file/18/neg-z.jpg'
+          ] // 获取对象
+  
+          const loader = new THREE.TextureLoader()
+          // 创建盒子，并设置盒子的大小为( 5000, 5000, 5000 )
+          const skyGeometry = new THREE.BoxGeometry(5000, 5000, 5000)
+          // 设置盒子材质
+          const materialArray = []
+          for (let i = 0; i < 6; i++)
+            materialArray.push(
+              new THREE.MeshBasicMaterial({
+                map: loader.load(directions[i]), // 将图片纹理贴上
+                side: THREE.BackSide // 镜像翻转
+              })
+            )
+          // 创建一个完整的天空盒，填入几何模型和材质的参数
+          const skyBox = new THREE.Mesh(skyGeometry, materialArray) 
+          scene.add(skyBox) // 在场景中加入天空盒
+        }
+  ```
+
+- three.js提供了一种特殊的纹理CubeTextureLoader，可以模拟正方形的6个边。只需要很少的代码就能实现上面的效果。
+
+  ```js
+  {
+      const loader = new THREE.CubeTextureLoader()
+      const texture = loader.load([
+        './file/18/pos-x.jpg',
+        './file/18//neg-x.jpg',
+        './file/18//pos-y.jpg',
+        './file/18//neg-y.jpg',
+        './file/18//pos-z.jpg',
+        './file/18//neg-z.jpg'
+      ])
+      scene.background = texture
+  }
+  
+  ```
+
+- three.js中除几张图组合的方式，还可以使用360度的全景图来设置天空。
+
+- 使用WebGLCubeRenderTarget渲染器的.fromEquirectangularTexture，把全景图转换为立方体贴图格式。
+
+  ```js
+   {
+      const loader = new THREE.TextureLoader()
+      const texture = loader.load('./file/18/2.webp', () => {
+        const rt = new THREE.WebGLCubeRenderTarget(texture.image.height)
+        rt.fromEquirectangularTexture(renderer, texture)
+        scene.background = rt.texture
+      })
+    }
+  ```
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 50, 50); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  // {
+  //   var directions = [
+  //     './file/18/pos-x.jpg',
+  //     './file/18/neg-x.jpg',
+  //     './file/18/pos-y.jpg',
+  //     './file/18/neg-y.jpg',
+  //     './file/18/pos-z.jpg',
+  //     './file/18/neg-z.jpg'
+  //   ] // 获取对象
+
+  //   const loader = new THREE.TextureLoader()
+  //   // 创建盒子，并设置盒子的大小为( 5000, 5000, 5000 )
+  //   const skyGeometry = new THREE.BoxGeometry(500, 500, 500)
+  //   // 设置盒子材质
+  //   const materialArray = []
+  //   for (let i = 0; i < 6; i++)
+  //     materialArray.push(
+  //       new THREE.MeshBasicMaterial({
+  //         map: loader.load(directions[i]), // 将图片纹理贴上
+  //         side: THREE.BackSide // 镜像翻转
+  //       })
+  //     )
+  //   // 创建一个完整的天空盒，填入几何模型和材质的参数
+  //   const skyBox = new THREE.Mesh(skyGeometry, materialArray)
+  //   scene.add(skyBox) // 在场景中加入天空盒
+  // }
+
+  // {
+  //   const loader = new THREE.CubeTextureLoader()
+  //   const texture = loader.load([
+  //     './file/18/pos-x.jpg',
+  //     './file/18//neg-x.jpg',
+  //     './file/18//pos-y.jpg',
+  //     './file/18//neg-y.jpg',
+  //     './file/18//pos-z.jpg',
+  //     './file/18//neg-z.jpg'
+  //   ])
+  //   scene.background = texture
+  // }
+
+  {
+    const loader = new THREE.TextureLoader()
+    const texture = loader.load('./file/18/2.webp', () => {
+      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height)
+      rt.fromEquirectangularTexture(renderer, texture)
+      scene.background = rt.texture
+    })
+  }
+
+
+  function render (time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+
+

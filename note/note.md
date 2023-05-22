@@ -3114,5 +3114,94 @@ div {
 </style>
 ```
 
+## 19. 鼠标拾取
 
+- 射线追踪法是最常见的方法，因为`three.js`提供了`Raycaster`对象来实现它。
+- 原理：从鼠标处发射一条射线，穿透场景的视椎体，通过计算，找出与射线相交的对象。
 
+**Raycaster**
+
+- 属性
+  - origin 光线投射的原点。
+  - direction 射线的方向。
+  - near 投射近点，不能大于far，不能为负值，其默认值为0。
+  - far 投射远点，不能小于near，其默认值为无穷大。
+- 方法
+  - .setFromCamera(coords,camera) 更新原点坐标和相机视椎。coords原点坐标，camera相机。
+  - .intersectObject(scenes,recursive,optionalTarget) 检查射线与场景对象和其子集是否有交集。scenes 要检查的场景对象数组格式。recursive为true检查所有后代。optionalTarget返回交集结果，可选。
+
+**使用.Raycaster()**
+
+- 第一步获取鼠标的屏幕坐标，将鼠标坐标转化成设备坐标（归一化），后续的操作都交由`.Raycaster()`完成。
+
+- 这里非全屏使用画布，鼠标坐标以画布开始计算。
+
+  ```js
+  // 计算 以画布 开始为（0，0）点 的鼠标坐标
+  function getCanvasRelativePosition(event) {
+      const rect = canvas.getBoundingClientRect()
+      return {
+          x: ((event.clientX - rect.left) * canvas.width) / rect.width,
+          y: ((event.clientY - rect.top) * canvas.height) / rect.height
+      }
+  }
+  
+  ```
+
+- 归一化鼠标坐标。
+
+  ```js
+  /**
+  * 获取鼠标在three.js 中归一化坐标
+  * */
+  function setPickPosition(event) {
+      let pickPosition = { x: 0, y: 0 }
+  
+      // 计算后 以画布 开始为 （0，0）点
+      const pos = getCanvasRelativePosition(event)
+  
+      // 数据归一化
+      pickPosition.x = (pos.x / canvas.width) * 2 - 1
+      pickPosition.y = (pos.y / canvas.height) * -2 + 1
+  
+      return pickPosition
+  }
+  
+  ```
+
+- 监听鼠标事件，获取归一化坐标。使用.intersectObjects()发出射线计算相交对象。
+
+- 需要一个全局对象，用于鼠标离开后恢复对象的原样。
+
+  ```js
+  // 监听鼠标
+  window.addEventListener('mousemove', onRay)
+  // 全局对象
+  let lastPick = null
+  function onRay(event) {
+  let pickPosition = setPickPosition(event)
+  
+  const raycaster = new THREE.Raycaster()
+  raycaster.setFromCamera(pickPosition, camera)
+  // 计算物体和射线的交点
+  const intersects = raycaster.intersectObjects(scene.children, true)
+  
+  // 数组大于0 表示有相交对象
+  if (intersects.length > 0) {
+      if (lastPick) {
+          lastPick.object.material.color.set('yellow')
+      }
+      lastPick = intersects[0]
+      } else {
+          if (lastPick) {
+              // 复原
+              lastPick.object.material.color.set(0x6688aa)
+              lastPick = null
+          }
+      }
+  }
+  ```
+
+- 就这样一个简单鼠标拾取就完成了。
+
+- 除了射线追踪法还可以使用**GPU拾取**，它是利用颜色的6位16进制表示，以颜色作为ID，在后台渲染出纹理后。然后，检查鼠标位置关联的像素的颜色，通过颜色来确认相交的对象是哪个。

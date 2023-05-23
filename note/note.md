@@ -4708,4 +4708,954 @@ div {
    scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
    ```
 
+
+### 22.2 绘制房子
+
+1. 使用绘制地面的方式，绘制房子的地板。
+
+   ```js
+   {
+   // 地板
+       const loader = new THREE.TextureLoader()
+       const texture = loader.load('./file/23/2.jpg')
+       texture.wrapS = THREE.RepeatWrapping
+       texture.wrapT = THREE.RepeatWrapping
+       texture.magFilter = THREE.NearestFilter
+       texture.repeat.set(2, 2)
+       const planeGeo = new THREE.PlaneGeometry(300, 300)
+       const planeMat = new THREE.MeshPhongMaterial({
+           map: texture,
+           side: THREE.DoubleSide
+       })
+       const mesh = new THREE.Mesh(planeGeo, planeMat)
+       mesh.rotation.x = Math.PI * -0.5
+       mesh.position.y = 1
+       scene.add(mesh)
+   }
+   ```
+
+2. 绘制后墙和左右墙。可以使用立方体绘制墙或者使用.Shape()绘制墙的形状，在使用.ExtrudeGeometry()拉伸为三维图形。
+
+   - 添加.ExtrudeGeometry()的全局配置
+
+     ```js
+     // 拉伸配置
+     const extrudeSettings = {
+         amount: 8,
+         bevelSegments: 2,
+         steps: 2,
+         bevelSize: 1,
+         bevelThickness: 1
+     }
+     ```
+
+   - 左右墙形状是相同的可以创建公用方法，多次调用绘制。
+
+     ```js
+     {
+         // 绘制左右墙
+         function wallAdd() {
+             const shape = new THREE.Shape() // 用Shape类绘制二维形状
+             shape.moveTo(-150, 0) // 绘制方法类似canvas中的绘制方法
+             shape.lineTo(150, 0)
+             shape.lineTo(150, 150)
+             shape.lineTo(0, 200)
+             shape.lineTo(-150, 150)
+     
+             const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+     
+             var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
+             const sideWall = new THREE.Mesh(extrudeGeometry, material)
+             sideWall.position.y = 1
+             return sideWall
+         }
+         const sideWall = wallAdd()
+         const sideWall2 = wallAdd()
+         sideWall.position.z = -150
+         sideWall2.position.z = 150
+     
+         scene.add(sideWall)
+         scene.add(sideWall2)
+     }
+     ```
+
+   - 绘制后墙，主要注意坐标的位置能合在一起。
+
+     ```js
+     {
+         // 后墙
+         const shape = new THREE.Shape()
+         shape.moveTo(-150, 0)
+         shape.lineTo(150, 0)
+         shape.lineTo(150, 150)
+         shape.lineTo(-150, 150)
+     
+         const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+     
+         const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
+         const backWall = new THREE.Mesh(extrudeGeometry, material)
+     
+         backWall.position.x = -150
+         backWall.position.y = 1
+         backWall.rotation.y = Math.PI * 0.5
+     
+         scene.add(backWall)
+     }
+     ```
+
+3. 绘制前墙，前墙有门和窗户就需要使用.Shape()的.holes属性来挖洞。
+
+   ```js
+   {
+       // 前墙
+       const shape = new THREE.Shape()
+       shape.moveTo(-150, 0)
+       shape.lineTo(150, 0)
+       shape.lineTo(150, 150)
+       shape.lineTo(-150, 150)
    
+       const shape_a = new THREE.Path()
+       shape_a.moveTo(30, 30)
+       shape_a.lineTo(80, 30)
+       shape_a.lineTo(80, 80)
+       shape_a.lineTo(30, 80)
+       shape_a.lineTo(30, 30)
+       shape.holes.push(shape_a)
+   
+       const shape_b = new THREE.Path()
+       shape_b.moveTo(-20, 0)
+       shape_b.lineTo(-20, 100)
+       shape_b.lineTo(-80, 100)
+       shape_b.lineTo(-80, 0)
+       shape_b.lineTo(-20, 0)
+       shape.holes.push(shape_b)
+   
+       const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+   
+       const material = new THREE.MeshBasicMaterial({ color: 'grey' })
+       const backWall = new THREE.Mesh(extrudeGeometry, material)
+   
+       backWall.position.x = 143
+       backWall.position.y = 1
+       backWall.rotation.y = Math.PI * 0.5
+   
+       scene.add(backWall)
+   }
+   ```
+
+4. 最后就是房顶了，使用BoxGeometry()绘制两个几何体，加上贴图。在旋转和位移到适合的位置就好了。
+
+   ```js
+   {
+       // 房顶
+       function roof() {
+           const roofGeometry = new THREE.BoxGeometry(200, 320, 10)
+           const loader = new THREE.TextureLoader()
+           const roofTexture = loader.load('./file/23/3.jpg')
+           roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping
+           roofTexture.repeat.set(2, 2)
+           const textureMaterial = new THREE.MeshBasicMaterial({ map: roofTexture })
+           const colorMaterial = new THREE.MeshBasicMaterial({ color: 'grey' })
+           const materials = [colorMaterial, colorMaterial, colorMaterial, colorMaterial, colorMaterial, 	                     textureMaterial]
+           const roof = new THREE.Mesh(roofGeometry, materials)
+           return roof
+       }
+   
+       const roof1 = roof()
+   
+       roof1.rotation.x = Math.PI / 2
+       roof1.rotation.y = (-Math.PI / 4) * 0.4
+       roof1.position.y = 170
+       roof1.position.x = 90
+   
+       const roof2 = roof()
+       roof2.rotation.x = Math.PI / 2
+       roof2.rotation.y = (Math.PI / 4) * 0.4
+       roof2.position.y = 170
+       roof2.position.x = -90
+   
+       scene.add(roof1)
+       scene.add(roof2)
+   }
+   ```
+
+### 22.3 添加门和门框
+
+因为门和门框都需要移动到房子门的位置，可以视为一组。使用.group()合并在一起移动。
+
+```js
+{
+    // 门框
+    const shape = new THREE.Shape()
+    shape.moveTo(-20, 0)
+    shape.lineTo(-20, 100)
+    shape.lineTo(-80, 100)
+    shape.lineTo(-80, 0)
+    shape.lineTo(-20, 0)
+
+    const shape_c = new THREE.Path()
+    shape_c.moveTo(-25, 5)
+    shape_c.lineTo(-25, 95)
+    shape_c.lineTo(-75, 95)
+    shape_c.lineTo(-75, 5)
+    shape_c.lineTo(-25, 5)
+
+    shape.holes.push(shape_c)
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+    const material = new THREE.MeshBasicMaterial({ color: 'silver' })
+    const frame = new THREE.Mesh(extrudeGeometry, material)
+
+    // 门
+    const doorGeometry = new THREE.BoxGeometry(50, 90, 4) //门的形状
+    const doorTexture = new THREE.TextureLoader().load('./file/23/4.jpg')
+    const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }) //门的材质
+    const door = new THREE.Mesh(doorGeometry, doorMaterial)
+    door.position.set(-50, 50, 5) // 门相对于group的位移和旋转，开关门动画会用到。
+
+    const group = new THREE.Group() // 创建Group
+    group.add(frame) // 往Group加入门框
+    group.add(door) // 往Group加入门板
+
+    group.position.x = 143
+    group.position.y = 1
+    group.rotation.y = Math.PI / 2
+
+    scene.add(group)
+}
+```
+
+### 22.4 加入模型
+
+使用`GLTFLoader()`插件加载模型，通过`.traverse()`函数遍历所有网格，修改模型材质属性，位置等信息，让他到门口。
+
+```js
+const gltfLoader = new THREE.GLTFLoader();
+gltfLoader.load('./file/bingdundun.glb', (gltf) => {
+  const root = gltf.scene
+  root.scale.set(110, 110, 110)
+  root.position.x = 200
+  root.position.y = -7.5
+  // 遍历所有子对象
+  root.traverse((child) => {
+    if (child.isMesh) {
+      // 内部
+      if (child.name === 'oldtiger001') {
+        // 辅助
+        // const axes = new THREE.AxesHelper(700)
+        // child.add(axes)
+
+        // 金属度
+        child.material.metalness = 0.5
+        // 粗糙度
+        child.material.roughness = 0.8
+      }
+      //  半透明外壳
+      if (child.name === 'oldtiger002') {
+        // 启用透明
+        child.material.transparent = true
+        // 透明度
+        child.material.opacity = 0.5
+        // 透明反射效果
+        child.material.refractionRatio = 1
+        child.material.metalness = 0.2
+        child.material.roughness = 0
+      }
+    }
+    scene.add(root)
+  })
+})
+```
+
+### 22.5 添加键盘监听
+
+1. 添加一个相机到模型局部空间里，查看模型前面的场景。
+2. 我们来通过键盘事件，移动模型，相应的相机在模型里也会移动。
+
+- 创建局部相机并加入模型中。
+
+  ```js
+  ...
+  let cameraBin = new THREE.PerspectiveCamera(40, aspect, near, far)
+  // 透视投影相机
+  cameraBin.position.y = 1
+  cameraBin.position.z = 15
+  cameraBin.position.x = 1
+  cameraBin.rotation.y = Math.PI
+  ...
+  
+  // 辅助
+  const axes = new THREE.AxisHelper(700)
+  child.add(axes)
+  // 在 oldtiger001 模型中加入相机
+  child.add(cameraBin)
+  ...
+  ```
+
+- 因为要操作模型位移，修改模型为全局变量。
+
+  ```js
+  let root = null
+  ```
+
+- 添加键盘监听事件。
+
+  ```js
+  let cameraBinBol = false
+  document.onkeydown = function (e) {
+      if (root) {
+            if (e && e.keyCode == 87) {
+              // w 
+              root.position.x += 1
+            }
+            if (e && e.keyCode == 83) {
+              // s
+              root.position.x -= 1
+            }
+            if (e && e.keyCode == 65) {
+              // a
+              root.position.z += 1
+            }
+            if (e && e.keyCode == 68) {
+              // d
+              root.position.z -= 1
+            }
+      }
+      if (e && e.keyCode == 13) {
+        // 切换相机
+        if (cameraBinBol) {
+          cameraBinBol = false
+        } else {
+          cameraBinBol = true
+        }
+      }
+  }
+  ```
+
+- 修改渲染函数。
+
+  ```js
+  // 渲染
+  function render() {
+      //  cameraBin
+      if (cameraBinBol) {
+          renderer.render(scene, cameraBin)
+      } else {
+          renderer.render(scene, camera)
+      }
+      requestAnimationFrame(render)
+  }
+  ```
+
+### 22.6 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+// 因为要操作模型位移，修改模型为全局变量。
+let root = null
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(1000, 500, 1500); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  // 辅助
+  // const axes = new THREE.AxesHelper(700);
+  // scene.add(axes);
+
+  {
+    // 灯光
+    const skyColor = 0xffffff; // 天空 白色
+    const groundColor = 0x000000; // 地面 黑色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
+
+  {
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/23/1.jpg");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
+    // 纹理 重复
+    texture.repeat.set(100, 100);
+
+    const planeGeo = new THREE.PlaneGeometry(10000, 10000);
+    const planeMat = new THREE.MeshPhongMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
+
+    scene.add(mesh);
+  }
+
+  // 背景
+  scene.background = new THREE.Color(0x87ceeb)
+  // 雾
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+
+  // ================================= 绘制房子 start========================================
+  // 使用绘制地面的方式，绘制房子的地板。
+  {
+    // 地板
+    const loader = new THREE.TextureLoader()
+    const texture = loader.load('./file/23/2.jpg')
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.magFilter = THREE.NearestFilter
+    texture.repeat.set(2, 2)
+    const planeGeo = new THREE.PlaneGeometry(300, 300)
+    const planeMat = new THREE.MeshPhongMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    })
+    const mesh = new THREE.Mesh(planeGeo, planeMat)
+    mesh.rotation.x = Math.PI * -0.5
+    mesh.position.y = 1
+    scene.add(mesh)
+  }
+
+  // 拉伸配置
+  const extrudeSettings = {
+    amount: 8,
+    bevelSegments: 2,
+    steps: 2,
+    bevelSize: 1,
+    bevelThickness: 1
+  }
+
+  {
+    // 绘制左右墙
+    function wallAdd () {
+      const shape = new THREE.Shape() // 用Shape类绘制二维形状
+      shape.moveTo(-150, 0) // 绘制方法类似canvas中的绘制方法
+      shape.lineTo(150, 0)
+      shape.lineTo(150, 150)
+      shape.lineTo(0, 200)
+      shape.lineTo(-150, 150)
+
+      const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+
+      var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
+      const sideWall = new THREE.Mesh(extrudeGeometry, material)
+      sideWall.position.y = 1
+      return sideWall
+    }
+    const sideWall = wallAdd()
+    const sideWall2 = wallAdd()
+    sideWall.position.z = -150
+    sideWall2.position.z = 150
+
+    scene.add(sideWall)
+    scene.add(sideWall2)
+  }
+
+  {
+    // 后墙
+    const shape = new THREE.Shape()
+    shape.moveTo(-150, 0)
+    shape.lineTo(150, 0)
+    shape.lineTo(150, 150)
+    shape.lineTo(-150, 150)
+
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+
+    const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
+    const backWall = new THREE.Mesh(extrudeGeometry, material)
+
+    backWall.position.x = -150
+    backWall.position.y = 1
+    backWall.rotation.y = Math.PI * 0.5
+
+    scene.add(backWall)
+  }
+
+  {
+    // 前墙
+    const shape = new THREE.Shape()
+    shape.moveTo(-150, 0)
+    shape.lineTo(150, 0)
+    shape.lineTo(150, 150)
+    shape.lineTo(-150, 150)
+
+    const shape_a = new THREE.Path()
+    shape_a.moveTo(30, 30)
+    shape_a.lineTo(80, 30)
+    shape_a.lineTo(80, 80)
+    shape_a.lineTo(30, 80)
+    shape_a.lineTo(30, 30)
+    shape.holes.push(shape_a)
+
+    const shape_b = new THREE.Path()
+    shape_b.moveTo(-20, 0)
+    shape_b.lineTo(-20, 100)
+    shape_b.lineTo(-80, 100)
+    shape_b.lineTo(-80, 0)
+    shape_b.lineTo(-20, 0)
+    shape.holes.push(shape_b)
+
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+
+    const material = new THREE.MeshBasicMaterial({ color: 'grey' })
+    const backWall = new THREE.Mesh(extrudeGeometry, material)
+
+    backWall.position.x = 143
+    backWall.position.y = 1
+    backWall.rotation.y = Math.PI * 0.5
+
+    scene.add(backWall)
+  }
+
+  {
+    // 房顶
+    function roof () {
+      const roofGeometry = new THREE.BoxGeometry(200, 320, 10)
+      const loader = new THREE.TextureLoader()
+      const roofTexture = loader.load('./file/23/3.jpg')
+      roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping
+      roofTexture.repeat.set(2, 2)
+      const textureMaterial = new THREE.MeshBasicMaterial({ map: roofTexture })
+      const colorMaterial = new THREE.MeshBasicMaterial({ color: 'grey' })
+      const materials = [colorMaterial, colorMaterial, colorMaterial, colorMaterial, colorMaterial, textureMaterial]
+      const roof = new THREE.Mesh(roofGeometry, materials)
+      return roof
+    }
+
+    const roof1 = roof()
+
+    roof1.rotation.x = Math.PI / 2
+    roof1.rotation.y = (-Math.PI / 4) * 0.4
+    roof1.position.y = 170
+    roof1.position.x = 90
+
+    const roof2 = roof()
+    roof2.rotation.x = Math.PI / 2
+    roof2.rotation.y = (Math.PI / 4) * 0.4
+    roof2.position.y = 170
+    roof2.position.x = -90
+
+    scene.add(roof1)
+    scene.add(roof2)
+  }
+  // ================================= 绘制房子 end  ========================================
+
+
+  // ================================= 添加门和门框 start ========================================
+  {
+    // 门框
+    const shape = new THREE.Shape()
+    shape.moveTo(-20, 0)
+    shape.lineTo(-20, 100)
+    shape.lineTo(-80, 100)
+    shape.lineTo(-80, 0)
+    shape.lineTo(-20, 0)
+
+    const shape_c = new THREE.Path()
+    shape_c.moveTo(-25, 5)
+    shape_c.lineTo(-25, 95)
+    shape_c.lineTo(-75, 95)
+    shape_c.lineTo(-75, 5)
+    shape_c.lineTo(-25, 5)
+
+    shape.holes.push(shape_c)
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+    const material = new THREE.MeshBasicMaterial({ color: 'silver' })
+    const frame = new THREE.Mesh(extrudeGeometry, material)
+
+    // 门
+    const doorGeometry = new THREE.BoxGeometry(50, 90, 4) //门的形状
+    const doorTexture = new THREE.TextureLoader().load('./file/23/4.jpg')
+    const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }) //门的材质
+    const door = new THREE.Mesh(doorGeometry, doorMaterial)
+    door.position.set(-50, 50, 5) // 门相对于group的位移和旋转，开关门动画会用到。
+
+    const group = new THREE.Group() // 创建Group
+    group.add(frame) // 往Group加入门框
+    group.add(door) // 往Group加入门板
+
+    group.position.x = 143
+    group.position.y = 1
+    group.rotation.y = Math.PI / 2
+
+    scene.add(group)
+  }
+  // ================================= 添加门和门框 end   ========================================
+
+
+  // ================================= 加入模型 start ========================================
+  // 创建透视相机
+  let cameraBin = new THREE.PerspectiveCamera(40, aspect, near, far)
+  cameraBin.position.x = 1
+  cameraBin.position.y = 1
+  cameraBin.position.z = 15
+  cameraBin.rotation.y = Math.PI
+  {
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
+      root = gltf.scene
+      root.scale.set(110, 110, 110)
+      root.position.x = 200
+      root.position.y = -7.5
+
+      // 遍历所有子对象
+      root.traverse((child) => {
+        if (child.isMesh) {
+          // 内部
+          if (child.name === 'oldtiger001') {
+            // 辅助
+            // const axes = new THREE.AxesHelper(700)
+            // child.add(axes)
+            child.add(cameraBin)
+            // 金属度
+            child.material.metalness = 0.5
+            // 粗糙度
+            child.material.roughness = 0.8
+          }
+          //  半透明外壳
+          if (child.name === 'oldtiger002') {
+            // 启用透明
+            child.material.transparent = true
+            // 透明度
+            child.material.opacity = 0.5
+            // 透明反射效果
+            child.material.refractionRatio = 1
+            child.material.metalness = 0.2
+            child.material.roughness = 0
+          }
+        }
+        scene.add(root)
+      })
+    })
+  }
+  // ================================= 加入模型 end   ========================================
+  // ====================================键盘事件 start=========================================
+  let cameraBinBol = false
+  document.onkeydown = function (e) {
+    if (root) {
+      if (e && e.keyCode == 87) {
+        // w 
+        root.position.x += 1
+      }
+      if (e && e.keyCode == 83) {
+        // s
+        root.position.x -= 1
+      }
+      if (e && e.keyCode == 65) {
+        // a
+        root.position.z += 1
+      }
+      if (e && e.keyCode == 68) {
+        // d
+        root.position.z -= 1
+      }
+    }
+    if (e && e.keyCode == 13
+    ) {
+      // 切换相机
+      if (cameraBinBol) {
+        cameraBinBol = false
+      } else {
+        cameraBinBol = true
+      }
+    }
+  }
+  // ====================================键盘事件 end  =========================================
+  function render (time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    if (cameraBinBol) {
+      renderer.render(scene, cameraBin)
+    } else {
+      renderer.render(scene, camera)
+    }
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 23.  AnimationMixer 动画混合器
+
+在`three.js`中动画也是很重要的一环。在使用软件创建模型时，一般都会创建模型的骨骼动画用于在开发中使用。下面我们加载`.fbx`格式的文件模型（它除了包含几何、材质信息，可以存储骨骼动画等数据）来实现动画。
+
+- 动画混合器是用于场景中特定对象的动画的播放器。当场景中的多个对象独立动画时，每个对象都可以使用同一个动画混合器。
+- 参数：`rootObject` 混合器播放的动画所属的对象。就是包含动画模型的场景对象。
+- 常用参数和属性：
+  1. `.time` 全局的混合器时间。
+  2. `.clipAction(AnimationClip)` 返回所传入的剪辑参数的`AnimationAction`对象。`AnimationAction`用来调度存储在`AnimationClip`中的动画。
+
+- `AnimationClip` 动画剪辑，是一个可重用的关键帧轨道集，它代表动画。
+  1. `.getRoot()` 返回混合器的根对象。
+  2. `.update()` 推进混合器时间并更新动画。在渲染函数中调用更新动画。
+
+### 23.1 加载.fbx模型
+
+```js
+const loader = new THREE.FBXLoader();
+loader.load('./file/Naruto.fbx', function (mesh) {
+    console.log(mesh);
+    mesh.position.y = 110
+    scene.add(mesh)
+})
+```
+
+- 可以看见解析出来的对象中，存在`animations`属性并且有27条数据，代表有27个动画。
+
+### 23.2 使用AnimationMixer控制动画
+
+1. 创建全局参数获取动画相关对象。
+
+   ```js
+   let actions = [] // 所有的动画数组
+   let gui = {} // 动画控制
+   let mixer = null // AnimationMixer 对象
+   ```
+
+2. 解析动画，并执行第24个动画。
+
+   ```js
+   mixer = new THREE.AnimationMixer(mesh)
+   for (var i = 0; i < mesh.animations.length; i++) {
+       actions[i] = mixer.clipAction(mesh.animations[i])
+   }
+   gui['action'] = function (s) {
+       for (var j = 0; j < actions.length; j++) {
+           if (j === s) {
+               actions[j].play()
+           } else {
+               actions[j].stop()
+           }
+       }
+   }
+   // 第24个动作是鸣人站立的动作
+   gui['action'](24)
+   ```
+
+3. 在渲染函数中执行.update()函数，推进动画进行。
+
+   ```js
+    function render (time) {
+       const delta = clock.getDelta();
+       controls.update(delta);
+       
+       if (mixer) {
+         mixer.update(delta)
+       }
+   
+       // 加载渲染器
+       renderer.render(scene, camera);
+   
+       // 开始动画
+       requestAnimationFrame(render);
+     }
+   ```
+
+### 23.3 通过键盘空格切换动画
+
+- 监听键盘事件，调用`gui`对象执行新的动画。
+
+  ```js
+  let keyNum = 24 // 动作
+  document.onkeydown = function (e) {
+      if (e && e.keyCode == 13) {
+          if (keyNum === 27) {
+              keyNum = 1
+          }
+          keyNum += 1
+          gui['action'](keyNum)
+      }
+  }
+  ```
+
+### 23.4 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(1000, 500, 1500); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  scene.background = new THREE.Color(0x87ceeb)
+  // 雾
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+  // 辅助
+  const axes = new THREE.AxesHelper(700)
+  scene.add(axes)
+  {
+    // 灯光
+    const skyColor = 0xffffff // 天空 白色
+    const groundColor = 0x000000 // 地面 黑色
+    const intensity = 1
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
+    scene.add(light)
+  }
+
+  {
+    // 地面
+    const loader = new THREE.TextureLoader()
+    const texture = loader.load('./file/23/1.jpg')
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.magFilter = THREE.NearestFilter
+    // 纹理 重复
+    texture.repeat.set(100, 100)
+
+    const planeGeo = new THREE.PlaneGeometry(10000, 10000)
+    const planeMat = new THREE.MeshPhongMaterial({
+      map: texture,
+      side: THREE.DoubleSide
+    })
+    const mesh = new THREE.Mesh(planeGeo, planeMat)
+    mesh.rotation.x = Math.PI * -0.5
+
+    scene.add(mesh)
+  }
+  let actions = [] // 所有的动画数组
+  let gui = {} // 动画控制
+  let mixer = null // AnimationMixer 对象
+  {
+    const loader = new THREE.FBXLoader();
+    loader.load('./file/Naruto.fbx', function (mesh) {
+      mesh.position.y = 110
+      scene.add(mesh)
+      mixer = new THREE.AnimationMixer(mesh)
+      for (var i = 0; i < mesh.animations.length; i++) {
+        actions[i] = mixer.clipAction(mesh.animations[i])
+      }
+      gui['action'] = function (s) {
+        for (var j = 0; j < actions.length; j++) {
+          if (j === s) {
+            actions[j].play()
+          } else {
+            actions[j].stop()
+          }
+        }
+      }
+      // 第24个动作是鸣人站立的动作
+      gui['action'](24)
+    })
+  }
+  let keyNum = 24 // 动作
+  document.onkeydown = function (e) {
+    if (e && e.keyCode == 13) {
+      if (keyNum === 27) {
+        keyNum = 1
+      }
+      keyNum += 1
+      gui['action'](keyNum)
+    }
+  }
+
+  function render (time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    if (mixer) {
+      mixer.update(delta)
+    }
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 24. 通过键盘控制模型移动和攻击
+

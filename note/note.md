@@ -3179,19 +3179,19 @@ div {
   // 全局对象
   let lastPick = null
   function onRay(event) {
-  let pickPosition = setPickPosition(event)
+      let pickPosition = setPickPosition(event)
   
-  const raycaster = new THREE.Raycaster()
-  raycaster.setFromCamera(pickPosition, camera)
-  // 计算物体和射线的交点
-  const intersects = raycaster.intersectObjects(scene.children, true)
+      const raycaster = new THREE.Raycaster()
+      raycaster.setFromCamera(pickPosition, camera)
+      // 计算物体和射线的交点
+      const intersects = raycaster.intersectObjects(scene.children, true)
   
-  // 数组大于0 表示有相交对象
-  if (intersects.length > 0) {
-      if (lastPick) {
-          lastPick.object.material.color.set('yellow')
-      }
-      lastPick = intersects[0]
+      // 数组大于0 表示有相交对象
+      if (intersects.length > 0) {
+          if (lastPick) {
+              lastPick.object.material.color.set('yellow')
+          }
+          lastPick = intersects[0]
       } else {
           if (lastPick) {
               // 复原
@@ -3205,3 +3205,1507 @@ div {
 - 就这样一个简单鼠标拾取就完成了。
 
 - 除了射线追踪法还可以使用**GPU拾取**，它是利用颜色的6位16进制表示，以颜色作为ID，在后台渲染出纹理后。然后，检查鼠标位置关联的像素的颜色，通过颜色来确认相交的对象是哪个。
+
+**完整代码**
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+const getCanvasRelativePosition = (e) => {
+  const rect = container.value.getBoundingClientRect();
+  return {
+    x: ((e.clientX - rect.left) * container.value.width) / rect.width,
+    y: ((e.clientY - rect.top) * container.value.height) / rect.height,
+  };
+};
+
+const getPickPosition = (e) => {
+  const pickPosition = { x: 0, y: 0 };
+  // 计算后 以画布 开始为 （0，0）点
+  const pos = getCanvasRelativePosition(e);
+  // 归一化坐标
+  // 数据归一化
+  pickPosition.x = (pos.x / container.value.width) * 2 - 1;
+  pickPosition.y = (pos.y / container.value.height) * -2 + 1;
+  return pickPosition;
+};
+
+let lastPick = null;
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 6, 5); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+  //   添加光
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(-1, 10, 4);
+  scene.add(light);
+  // 添加两个立方体放在场景中
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const material = new THREE.MeshPhongMaterial({ color: 0x6688aa });
+  const material1 = new THREE.MeshPhongMaterial({ color: 0x6688aa });
+  const cube = new THREE.Mesh(geometry, material);
+  cube.position.x = -1;
+  const cube1 = new THREE.Mesh(geometry, material1);
+  cube1.position.x = 1;
+  scene.add(cube);
+  scene.add(cube1);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 事件
+  function onRay(e) {
+    // 将坐标转换为threejs的坐标
+    const pickPosition = getPickPosition(e);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(pickPosition, camera);
+    // 计算物体和射线的交点
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    if (intersects.length) {
+      // 将上一个被点亮的变回去
+      if (lastPick) lastPick.object.material.color.set(0x6688aa);
+      lastPick = intersects[0];
+      if (lastPick) {
+        lastPick.object.material.color.set("yellow");
+      }
+    } else {
+      if (lastPick) {
+        // 复原
+        lastPick.object.material.color.set(0x6688aa);
+        lastPick = null;
+      }
+    }
+  }
+
+  container.value.addEventListener("click", onRay);
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 20. 绘制不规则图形
+
+- 通过路径来绘制二维形状平面。简单理解就是在一个平面上用不规则的线连接成一个图形。
+- 想在`three.js`中展示需要使用`ExtrudeGeometry，ShapeGeometry`来生成几何体。
+- 它有一个`.holes`属性，用于在形状平面中挖洞。`.holes`值是一个[`THREE.Path()`](https://link.juejin.cn?target=https%3A%2F%2Fthreejs.org%2Fdocs%2Findex.html%3Fq%3DShape%23api%2Fzh%2Fextras%2Fcore%2FPath)数组，定义了二维路径。
+
+### 20.1 常用绘图函数
+
+- moveTo(x, y) 将绘图点移动到指定的 x、y 坐标处。
+
+- lineTo(x, y) 从当前位置创建一条到 x、y 坐标的线。
+- quadricCurveTo(cpx, cpy, x, y) 创建一条到x、y 坐标的二次曲线。
+- bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x, y) 创建一条到x、y 坐标的贝塞尔曲线。
+- splineThru(points) 沿着参数指定的坐标集合绘制一条光滑的样条曲线。
+
+### 20.2 ShapeGeometry 形状缓冲几何体
+
+- 从一个或多个路径形状中创建一个单面多边形几何体。
+- `new THREE.ShapeGeometry(shapes, curveSegments)` 两个参数：
+  - `shapes` 一个或多个形状`（THREE.Shape对象）`。
+  - `curveSegments` 形状的分段数。
+
+### 20.3 ExtrudeGeometry 挤压缓冲几何体
+
+- 将一个二维图形拉伸成三维图形。
+- `new THREE.ExtrudeGeometry(shapes, options)` 两个参数：
+  - `shapes` 一个或多个形状`（THREE.Shape对象）`。
+  - `options` 拉伸成三维图形的配置参数。
+
+### 20.4 拉伸三维图形
+
+- 使用`.ExtrudeGeometry`绘制三维图形。
+
+- 增强立体感，在几何体上下都添加灯光。
+
+  ```js
+  {
+      // 灯光
+      const color = 0xffffff
+      const intensity = 1
+      const light = new THREE.DirectionalLight(color, intensity)
+      light.position.set(-1, -10, -4)
+      scene.add(light)
+  }
+  ```
+
+- 配置参数。
+
+  ```js
+  const extrudeSettings = {
+      steps: 2,
+      depth: 3
+  }
+  ```
+
+- 使用.ExtrudeGeometry，拉伸为三维图形。
+
+  ```js
+  const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings)
+  const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, side: THREE.DoubleSide })
+  const mesh = new THREE.Mesh(geometry, material)
+  scene.add(mesh)
+  ```
+
+**挖洞**
+
+- 使用.Path创建路径。放入形状的.holes中。
+
+  ```js
+  const shape_c = new THREE.Path()
+  shape_c.moveTo(-1, 1)
+  shape_c.lineTo(-1, -1)
+  shape_c.lineTo(1, -1)
+  shape_c.lineTo(1, 1)
+  shape_c.lineTo(-1, 1)
+  heartShape.holes.push(shape_c)
+  ```
+
+**完整代码**
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 10, 10); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+  {
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, -10, -4);
+    scene.add(light);
+  }
+  {
+    // 创建心形 路径
+    const heartShape = new THREE.Shape();
+    heartShape.moveTo(0, 1.5);
+    heartShape.bezierCurveTo(2, 3.5, 4, 1.5, 2, -0.5);
+    heartShape.lineTo(0, -2.5);
+    heartShape.lineTo(-2, -0.5);
+    heartShape.bezierCurveTo(-4, 1.5, -2, 3.5, 0, 1.5);
+    // 心形平面
+    const extrudeSettings = {
+      steps: 2,
+      depth: 3,
+    };
+    // const geometry = new THREE.ShapeGeometry(heartShape);
+    const shape_c = new THREE.Path();
+    shape_c.moveTo(-1, 1);
+    shape_c.lineTo(-1, -1);
+    shape_c.lineTo(1, -1);
+    shape_c.lineTo(1, 1);
+    shape_c.lineTo(-1, 1);
+    heartShape.holes.push(shape_c);
+    const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x00ff00,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+  }
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 21. 绘制中国地图
+
+### 21.1 加载几何信息数据
+
+- THREE.FileLoader() 用于加载任何没有对应加载器的文件类型。
+
+  ```js
+  const loader = new THREE.FileLoader()
+  loader.load('./file/100000_full.json', (data) => {
+      const jsondata = JSON.parse(data)
+      console.log('jsondata', jsondata)
+  })
+  ```
+
+- 每个省的数据是分开的，会多次创建图形。创建图形公用方法。
+
+  ```js
+  /**
+  * 立体几何图形
+  * @param polygon 多边形 点数组
+  * @param color 材质颜色
+  * */
+  function drawExtrudeMesh(polygon, color) {
+      const shape = new THREE.Shape()
+      polygon.forEach((row, i) => {
+          const [x, y] = [row[0], row[1]]
+  
+          if (i === 0) {
+              shape.moveTo(x, y)
+          }
+          shape.lineTo(x, y)
+      })
+  
+      // 拉伸
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth: 10,
+          bevelEnabled: false
+      })
+      const material = new THREE.MeshBasicMaterial({
+          color: color,
+          transparent: true,
+          opacity: 0.5
+      })
+      return new THREE.Mesh(geometry, material)
+  }
+  ```
+
+- 添加坐标辅助，更好的绘制图形。
+
+  ```js
+  // 坐标轴 辅助
+  var axes = new THREE.AxesHelper(700);
+  scene.add(axes)
+  ```
+
+- 解析全球几何信息，对每一个多边形绘制图形。
+
+  ```js
+  const map = new THREE.Object3D()
+  // 解析数据
+  function operationData(jsondata) {
+      // 全国信息
+      const features = jsondata.features
+  
+      features.forEach((feature) => {
+          // 单个省份
+          const province = new THREE.Object3D()
+          // 地址
+          province.properties = feature.properties.name
+          const coordinates = feature.geometry.coordinates
+          const color = 'yellow'
+  
+          if (feature.geometry.type === 'MultiPolygon') {
+              // 多个，多边形
+              coordinates.forEach((coordinate) => {
+                  // coordinate 多边形数据
+                  coordinate.forEach((rows) => {
+                      const mesh = drawExtrudeMesh(rows, color)
+                      province.add(mesh)
+                  })
+              })
+          }
+  
+          if (feature.geometry.type === 'Polygon') {
+              // 多边形
+              coordinates.forEach((coordinate) => {
+                  const mesh = drawExtrudeMesh(coordinate, color)
+                  province.add(mesh)
+              })
+          }
+          map.add(province)
+      })
+      scene.add(map)
+  }
+  ```
+
+### 21.2 优化地图
+
+- 引入d3.geoMercator()经纬度坐标转换。使用第三方控件帮助我们计算坐标转换。
+
+  ```js
+  import * as d3 from "d3";
+  // 修改北京的坐标为中心
+    const projection = d3
+      .geoMercator()
+      .center([116.412318, 39.909843])
+      .translate([0, 0]);
+  ```
+
+- 修改drawExtrudeMesh()函数，坐标转换部分。
+
+  ```js
+   ...
+   const shape = new THREE.Shape();
+      polygon.forEach((row, i) => {
+        const [x, y] = projection(row);
+  
+        if (i === 0) {
+          shape.moveTo(x, -y);
+        }
+        shape.lineTo(x, -y);
+      });
+  ...
+  ```
+
+- 添加省份边界线。和图形绘制一样创建公用方法。
+
+  ```js
+  /**
+  * 边框 图形绘制
+  * @param polygon 多边形 点数组
+  * @param color 材质颜色
+  * */
+  function lineDraw(polygon, color) {
+      const lineGeometry = new THREE.BufferGeometry()
+      const pointsArray = new Array()
+      polygon.forEach((row) => {
+          const [x, y] = projection(row)
+          // 创建三维点
+          pointsArray.push(new THREE.Vector3(x, -y, 9))
+      })
+      // 放入多个点
+      lineGeometry.setFromPoints(pointsArray)
+  
+      const lineMaterial = new THREE.LineBasicMaterial({
+          color: color
+      })
+      return new THREE.Line(lineGeometry, lineMaterial)
+  }
+  ```
+
+- 修改operationData()方法，在绘制立体图像（drawExtrudeMesh(rows, color)）的后面绘制边框图形。
+
+  ```js
+  // coordinate 多边形数据
+  coordinate.forEach((rows) => {
+      const mesh = drawExtrudeMesh(rows, color)
+      const line = lineDraw(rows, color)
+      province.add(line)
+      province.add(mesh)
+  })
+  ```
+
+- 在数据操作方法中，我们还可以根据省份名字做一些特殊操作。比如修改省份颜色等。
+
+  ```js
+  const color = ['重庆市', '上海市'].includes(feature.properties.name) ? 'blue' : 'yellow'
+  ```
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import * as d3 from "d3";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 300);
+  camera.lookAt(0, 0, 0);
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    const color = 0xffffff;
+    const intensity = 1;
+    // 环境光
+    const light = new THREE.AmbientLight(color, intensity);
+    // 加入场景
+    scene.add(light);
+  }
+
+  const loader = new THREE.FileLoader();
+  // 修改北京的坐标为中心
+  const projection = d3
+    .geoMercator()
+    .center([116.412318, 39.909843])
+    .translate([0, 0]);
+
+  /**
+   * 立体几何图形
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function drawExtrudeMesh(polygon, color) {
+    const shape = new THREE.Shape();
+    polygon.forEach((row, i) => {
+      const [x, y] = projection(row);
+
+      if (i === 0) {
+        shape.moveTo(x, -y);
+      }
+      shape.lineTo(x, -y);
+    });
+
+    // 拉伸
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 10,
+      bevelEnabled: false,
+    });
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.5,
+    });
+    return new THREE.Mesh(geometry, material);
+  }
+
+  /**
+   * 边框 图形绘制
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function lineDraw(polygon, color) {
+    const lineGeometry = new THREE.BufferGeometry();
+    const pointsArray = new Array();
+    polygon.forEach((row) => {
+      const [x, y] = projection(row);
+      // 创建三维点
+      pointsArray.push(new THREE.Vector3(x, -y, 9));
+    });
+    // 放入多个点
+    lineGeometry.setFromPoints(pointsArray);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: color,
+    });
+    return new THREE.Line(lineGeometry, lineMaterial);
+  }
+
+  // 解析数据
+  function operationData(jsondata, map) {
+    // 全国信息
+    const features = jsondata.features;
+
+    features.forEach((feature) => {
+      // 单个省份
+      const province = new THREE.Object3D();
+      // 地址
+      province.properties = feature.properties.name;
+      const coordinates = feature.geometry.coordinates;
+      //   const color = "yellow";
+      const color = ["重庆市", "上海市"].includes(feature.properties.name)
+        ? "blue"
+        : "yellow";
+
+      if (feature.geometry.type === "MultiPolygon") {
+        // 多个，多边形
+        coordinates.forEach((coordinate) => {
+          // coordinate 多边形数据
+          coordinate.forEach((rows) => {
+            const mesh = drawExtrudeMesh(rows, color);
+            const line = lineDraw(rows, color);
+            province.add(line);
+            province.add(mesh);
+          });
+        });
+      }
+
+      if (feature.geometry.type === "Polygon") {
+        // 多边形
+        coordinates.forEach((coordinate) => {
+          const mesh = drawExtrudeMesh(coordinate, color);
+          province.add(mesh);
+        });
+      }
+      map.add(province);
+    });
+    scene.add(map);
+  }
+
+  loader.load("./file/100000_full.json", (data) => {
+    const jsondata = JSON.parse(data);
+    const map = new THREE.Object3D();
+    operationData(jsondata, map);
+  });
+
+  // 坐标轴 辅助
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+### 21.3 飞线
+
+#### 21.3.1 起始点添加动画
+
+1. 在飞线图的起始点都会有醒目的标识。这里实现一个扩散光圈效果。
+
+2. 起始点会有很多，我们要创建一个公用方法。
+
+3. 先在起始点坐标，绘制一个平面圆和一个平面圆环。在渲染函数中对平面圆环放大和透明。
+
+   ```js
+     // 圆环网格对象组
+     const circleYs = []
+     /**
+      * 目标位置
+      * */
+     function spotCircle(spot) {
+       // 圆
+       const geometry1 = new THREE.CircleGeometry(0.5, 200)
+       const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide })
+       const circle = new THREE.Mesh(geometry1, material1)
+       // 绘制地图时 y轴取反 这里同步
+       circle.position.set(spot[0], -spot[1], spot[2] + 0.1)
+       scene.add(circle)
+   
+       // 圆环
+       const geometry2 = new THREE.RingGeometry(0.5, 0.7, 50)
+       // transparent 设置 true 开启透明
+       const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide, transparent: true })
+       const circleY = new THREE.Mesh(geometry2, material2)\
+       // 绘制地图时 y轴取反 这里同步
+       circleY.position.set(spot[0], -spot[1], spot[2] + 0.1)
+       scene.add(circleY)
+   
+       circleYs.push(circleY)
+     }
+   ```
+
+4. 渲染函数中放大圆环同时修改其透明度。
+
+   ```js
+   // 渲染函数
+   function render() {
+       circleYs.forEach(function (mesh) {
+         // 目标 圆环放大 并 透明
+         mesh._s += 0.01
+         mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s)
+         if (mesh._s <= 2) {
+           mesh.material.opacity = 2 - mesh._s
+         } else {
+           mesh._s = 1
+         }
+       })
+   }
+   ```
+
+#### 21.3.2 起始点连线
+
+1. 使用`.QuadraticBezierCurve3()`创建三维二次贝塞尔曲线。
+
+2. 使用自定义方法`spotCircle()`传入三维坐标，绘制目标点
+
+3. 为了线更好看使用`.BufferGeometry()`对线的每一个顶点设置颜色，让线有渐变色。
+
+   ```js
+     /**
+      * 两点链接飞线
+      * */
+     function lineConnect(posStart, posEnd) {
+       // 根据目标坐标设置3D坐标  z轴位置在地图表面
+       const [x0, y0, z0] = [...posStart, 10.01]
+       const [x1, y1, z1] = [...posEnd, 10.01]
+   
+       // 使用QuadraticBezierCurve3() 创建 三维二次贝塞尔曲线
+       const curve = new THREE.QuadraticBezierCurve3(
+         new THREE.Vector3(x0, -y0, z0),
+         new THREE.Vector3((x0 + x1) / 2, -(y0 + y1) / 2, 20),
+         new THREE.Vector3(x1, -y1, z1)
+       )
+   
+       // 绘制 目标位置
+       spotCircle([x0, y0, z0])
+       spotCircle([x1, y1, z1])
+   
+       const lineGeometry = new THREE.BufferGeometry()
+       // 获取曲线 上的50个点
+       var points = curve.getPoints(50)
+       var positions = []
+       var colors = []
+       var color = new THREE.Color()
+   
+       // 给每个顶点设置演示 实现渐变
+       for (var j = 0; j < points.length; j++) {
+         color.setHSL(0.81666 + j, 0.88, 0.715 + j * 0.0025) // 粉色
+         colors.push(color.r, color.g, color.b)
+         positions.push(points[j].x, points[j].y, points[j].z)
+       }
+       // 放入顶点 和 设置顶点颜色
+       lineGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3, true))
+       lineGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3, true))
+   
+       const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors, side: THREE.DoubleSide })
+       const line = new THREE.Line(lineGeometry, material)
+   
+       return line
+     }
+   ```
+
+4. 使用`projection()`方法，转换经纬度为3D坐标。
+
+   ```js
+   const line = lineConnect(projection([106.557691, 29.559296]), projection([121.495721, 31.236797]))
+   scene.add(line)
+   ```
+
+#### 21.3.3 绘制移动物体
+
+1. 飞线都有一个从起点到终点的移动物体，这里绘制一个简单的几何体。为了好看你也可以加载一个飞机模型在这使用。
+
+2. 移动物体是在飞线上的，这里需要传入三维二次贝塞尔曲线的实例，在渲染函数中使用。
+
+   ```js
+     // 移动物体网格对象组
+     const moveSpots = []
+     /**
+      * 线上移动物体
+      * */
+     function moveSpot(curve) {
+       // 线上的移动物体
+       const aGeo = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+       const aMater = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide })
+       const aMesh = new THREE.Mesh(aGeo, aMater)
+       // 保存曲线实例
+       aMesh.curve = curve
+       aMesh._s = 0
+       scene.add(aMesh)
+   
+       moveSpots.push(aMesh)
+     }
+   ```
+
+3. 在渲染函数中修改移动物体的位置。
+
+4. 这里使用曲线实例的`.getPointAt()`方法，获取[0~1]曲线上点的位置。设置给移动物体让其在线上移动。
+
+5. 在`lineConnect()`函数中调用。
+
+   ```js
+   function lineConnect(posStart, posEnd) {
+       ...
+       
+       // 绘制 目标位置
+       spotCircle([x0, y0, z0])
+       spotCircle([x1, y1, z1])
+       moveSpot(curve)
+       
+       ...
+   }
+   ```
+
+#### 21.3.4 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import * as d3 from "d3";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 300);
+  camera.lookAt(0, 0, 0);
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    const color = 0xffffff;
+    const intensity = 1;
+    // 环境光
+    const light = new THREE.AmbientLight(color, intensity);
+    // 加入场景
+    scene.add(light);
+  }
+  // =================================== 生成地图 start ==========================================
+  const loader = new THREE.FileLoader();
+  // 修改北京的坐标为中心
+  const projection = d3
+    .geoMercator()
+    .center([116.412318, 39.909843])
+    .translate([0, 0]);
+
+  /**
+   * 立体几何图形
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function drawExtrudeMesh(polygon, color) {
+    const shape = new THREE.Shape();
+    polygon.forEach((row, i) => {
+      const [x, y] = projection(row);
+
+      if (i === 0) {
+        shape.moveTo(x, -y);
+      }
+      shape.lineTo(x, -y);
+    });
+
+    // 拉伸
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 10,
+      bevelEnabled: false,
+    });
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide,
+    });
+    return new THREE.Mesh(geometry, material);
+  }
+
+  /**
+   * 边框 图形绘制
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function lineDraw(polygon, color) {
+    const lineGeometry = new THREE.BufferGeometry();
+    const pointsArray = new Array();
+    polygon.forEach((row) => {
+      const [x, y] = projection(row);
+      // 创建三维点
+      pointsArray.push(new THREE.Vector3(x, -y, 9));
+    });
+    // 放入多个点
+    lineGeometry.setFromPoints(pointsArray);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: color,
+    });
+    return new THREE.Line(lineGeometry, lineMaterial);
+  }
+
+  // 解析数据
+  function operationData(jsondata, map) {
+    // 全国信息
+    const features = jsondata.features;
+
+    features.forEach((feature) => {
+      // 单个省份
+      const province = new THREE.Object3D();
+      // 地址
+      province.properties = feature.properties.name;
+      const coordinates = feature.geometry.coordinates;
+      //   const color = "yellow";
+      const color = ["重庆市", "上海市"].includes(feature.properties.name)
+        ? "blue"
+        : "yellow";
+
+      if (feature.geometry.type === "MultiPolygon") {
+        // 多个，多边形
+        coordinates.forEach((coordinate) => {
+          // coordinate 多边形数据
+          coordinate.forEach((rows) => {
+            const mesh = drawExtrudeMesh(rows, color);
+            const line = lineDraw(rows, color);
+            province.add(line);
+            province.add(mesh);
+          });
+        });
+      }
+
+      if (feature.geometry.type === "Polygon") {
+        // 多边形
+        coordinates.forEach((coordinate) => {
+          const mesh = drawExtrudeMesh(coordinate, color);
+          province.add(mesh);
+        });
+      }
+      map.add(province);
+    });
+    scene.add(map);
+  }
+
+  loader.load("./file/100000_full.json", (data) => {
+    const jsondata = JSON.parse(data);
+    const map = new THREE.Object3D();
+    operationData(jsondata, map);
+    const line = lineConnect(
+      projection([106.557691, 29.559296]),
+      projection([121.495721, 31.236797])
+    );
+    scene.add(line);
+    const line2 = lineConnect(
+      projection([106.557691, 29.559296]),
+      projection([104.006215, 30.650055])
+    );
+    scene.add(line2);
+    const line3 = lineConnect(
+      projection([106.557691, 29.559296]),
+      projection([116.396795, 39.93242])
+    );
+    scene.add(line3);
+  });
+
+  // =================================== 生成地图 end ==========================================
+
+  // =================================== 飞线 start ==========================================
+  const circleYs = [];
+
+  //   创建飞线的目标位置
+  function spotCircle(spot) {
+    const geometry1 = new THREE.CircleGeometry(0.5, 200);
+    const material1 = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      side: THREE.DoubleSide,
+    });
+    const circle = new THREE.Mesh(geometry1, material1);
+    // 绘制地图时 y轴取反 这里同步
+    circle.position.set(spot[0], -spot[1], spot[2] + 0.1);
+    scene.add(circle);
+
+    // 圆环
+    const geometry2 = new THREE.RingGeometry(0.5, 0.7, 50);
+    // transparent 设置 true 开启透明
+    const material2 = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const circleY = new THREE.Mesh(geometry2, material2);
+    // 绘制地图时 y轴取反 这里同步
+    circleY.position.set(spot[0], -spot[1], spot[2] + 0.1);
+    scene.add(circleY);
+
+    circleYs.push(circleY);
+  }
+
+  //   亮点连接飞线
+  function lineConnect(posStart, posEnd) {
+    // 根据目标坐标设置3D坐标  z轴位置在地图表面
+    const [x0, y0, z0] = [...posStart, 10.01];
+    const [x1, y1, z1] = [...posEnd, 10.01];
+    // 使用QuadraticBezierCurve3() 创建 三维二次贝塞尔曲线
+    const curve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(x0, -y0, z0),
+      new THREE.Vector3((x0 + x1) / 2, -(y0 + y1) / 2, 20),
+      new THREE.Vector3(x1, -y1, z1)
+    );
+    // 绘制 目标位置
+    spotCircle([x0, y0, z0]);
+    spotCircle([x1, y1, z1]);
+    moveSpot(curve);
+
+    const lineGeometry = new THREE.BufferGeometry();
+    // 获取曲线上的50个点
+    const points = curve.getPoints(50);
+    const positions = [];
+    const colors = [];
+    const color = new THREE.Color();
+
+    // 给每个顶点设置颜色 实现渐变
+    points.forEach((point, i) => {
+      color.setHSL(0.81666 + i, 0.88, 0.75 + i * 0.0025); // 粉色
+      colors.push(color.r, color.g, color.b);
+      positions.push(point.x, point.y, point.z);
+    });
+
+    // 放入顶点 和 设置顶点颜色
+    lineGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(positions), 3, true)
+    );
+    lineGeometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(new Float32Array(positions), 3, true)
+    );
+
+    const material = new THREE.LineBasicMaterial({
+      vertexColors: THREE.VertexColors,
+      side: THREE.DoubleSide,
+    });
+
+    const line = new THREE.Line(lineGeometry, material);
+    return line;
+  }
+
+  // =================================== 飞线 end ==========================================
+
+  // =================================== 移动物体 start ==========================================
+  // 移动物体网格对象组
+  const moveSpots = [];
+  function moveSpot(curve) {
+    const aGeo = new THREE.SphereGeometry(0.4, 0.4, 0.4);
+    const aMater = new THREE.MeshPhongMaterial({
+      color: 0xff0000,
+      side: THREE.DoubleSide,
+    });
+    const aMesh = new THREE.Mesh(aGeo, aMater);
+    // 保存曲线实例
+    aMesh.curve = curve;
+    aMesh._s = 0;
+    scene.add(aMesh);
+    moveSpots.push(aMesh);
+  }
+  // =================================== 移动物体 end ==========================================
+
+  // 坐标轴 辅助
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
+
+  function render(time) {
+    circleYs.forEach((mesh) => {
+      // 目标 圆环放大 并 透明
+      mesh._s += 0.01;
+      mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s);
+      if (mesh._s <= 2) {
+        mesh.material.opacity = 2 - mesh._s;
+      } else {
+        mesh._s = 1;
+      }
+    });
+
+    moveSpots.forEach(function (mesh) {
+      mesh._s += 0.006;
+      let tankPosition = new THREE.Vector3();
+      tankPosition = mesh.curve.getPointAt(mesh._s % 1);
+      mesh.position.set(tankPosition.x, tankPosition.y, tankPosition.z);
+    });
+
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+### 21.4 地图下钻功能
+
+#### 21.4.1 绘制中国地图
+
+- 之前的公用方法中`projection()`函数是全局方法，当地图下钻后中心点是要修改的，所以使用参数的方式传入。
+- 给`drawExtrudeMesh()`方法生成的立体几何添加，唯一标识`.properties`属性。
+
+#### 21.4.2 鼠标拾取
+
+- 使用`Raycaster()`射线追踪法，监听鼠标事件。
+
+  ```js
+    // 计算 以画布 开始为（0，0）点 的鼠标坐标
+    function getCanvasRelativePosition(event) {
+      const rect = canvas.getBoundingClientRect()
+      return {
+        x: ((event.clientX - rect.left) * canvas.width) / rect.width,
+        y: ((event.clientY - rect.top) * canvas.height) / rect.height
+      }
+    }
+    /**
+     * 获取鼠标在three.js 中归一化坐标
+     * */
+    function setPickPosition(event) {
+      let pickPosition = { x: 0, y: 0 }
+      // 计算后 以画布 开始为 （0，0）点
+      const pos = getCanvasRelativePosition(event)
+      // 数据归一化
+      pickPosition.x = (pos.x / canvas.width) * 2 - 1
+      pickPosition.y = (pos.y / canvas.height) * -2 + 1
+      return pickPosition
+    }
+  ```
+
+- 监听鼠标点击事件。
+
+  ```js
+  // 监听鼠标
+  window.addEventListener('click', onRay)
+  // 全局对象
+  let lastPick = null
+  function onRay(event) {
+      let pickPosition = setPickPosition(event)
+      const raycaster = new THREE.Raycaster()
+      raycaster.setFromCamera(pickPosition, camera)
+      // 计算物体和射线的交点
+      const intersects = raycaster.intersectObjects([map], true)
+      // 数组大于0 表示有相交对象
+      if (intersects.length > 0) {
+          if (lastPick) {
+              if (lastPick.object.properties !== intersects[0].object.properties) {
+                  lastPick.object.material.color.set('yellow')
+                  lastPick = null
+              }
+          }
+          
+          if (intersects[0].object.properties) {
+              intersects[0].object.material.color.set('blue')
+          }
+          
+          lastPick = intersects[0]
+      } else {
+          if (lastPick) {
+              // 复原
+              if (lastPick.object.properties) {
+                  lastPick.object.material.color.set('yellow')
+                  lastPick = null
+              }
+          }
+      }
+  }
+  ```
+
+#### 21.4.3 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import * as d3 from "d3";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+const getCanvasRelativePosition = (e) => {
+  const rect = container.value.getBoundingClientRect();
+  return {
+    x: ((e.clientX - rect.left) * container.value.width) / rect.width,
+    y: ((e.clientY - rect.top) * container.value.height) / rect.height,
+  };
+};
+
+const getPickPosition = (e) => {
+  const pickPosition = { x: 0, y: 0 };
+  // 计算后 以画布 开始为 （0，0）点
+  const pos = getCanvasRelativePosition(e);
+  // 归一化坐标
+  // 数据归一化
+  pickPosition.x = (pos.x / container.value.width) * 2 - 1;
+  pickPosition.y = (pos.y / container.value.height) * -2 + 1;
+  return pickPosition;
+};
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 300);
+  camera.lookAt(0, 0, 0);
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    const color = 0xffffff;
+    const intensity = 1;
+    // 环境光
+    const light = new THREE.AmbientLight(color, intensity);
+    // 加入场景
+    scene.add(light);
+  }
+
+  const loader = new THREE.FileLoader();
+  // 修改北京的坐标为中心
+  const projection = d3
+    .geoMercator()
+    .center([116.412318, 39.909843])
+    .translate([0, 0]);
+
+  // 全局对象
+  let lastPick = null;
+  function onRay(e) {
+    // 将坐标转换为threejs的坐标
+    const pickPosition = getPickPosition(e);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(pickPosition, camera);
+    // 计算物体和射线的交点
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    if (intersects.length) {
+      // 将上一个被点亮的变回去
+      if (lastPick) lastPick.object.material.color.set("yellow");
+      lastPick = intersects[0];
+      console.log(lastPick.object.parent.properties);
+      if (lastPick) {
+        lastPick.object.material.color.set(0x00ff00);
+      }
+    } else {
+      if (lastPick) {
+        // 复原
+        lastPick.object.material.color.set("yellow");
+        lastPick = null;
+      }
+    }
+  }
+  container.value.addEventListener("click", onRay);
+
+  /**
+   * 立体几何图形
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function drawExtrudeMesh(polygon, color) {
+    const shape = new THREE.Shape();
+    polygon.forEach((row, i) => {
+      const [x, y] = projection(row);
+
+      if (i === 0) {
+        shape.moveTo(x, -y);
+      }
+      shape.lineTo(x, -y);
+    });
+
+    // 拉伸
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 10,
+      bevelEnabled: false,
+    });
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide,
+    });
+    return new THREE.Mesh(geometry, material);
+  }
+
+  /**
+   * 边框 图形绘制
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
+  function lineDraw(polygon, color) {
+    const lineGeometry = new THREE.BufferGeometry();
+    const pointsArray = new Array();
+    polygon.forEach((row) => {
+      const [x, y] = projection(row);
+      // 创建三维点
+      pointsArray.push(new THREE.Vector3(x, -y, 9));
+    });
+    // 放入多个点
+    lineGeometry.setFromPoints(pointsArray);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: color,
+    });
+    return new THREE.Line(lineGeometry, lineMaterial);
+  }
+
+  // 解析数据
+  function operationData(jsondata) {
+    const map = new THREE.Object3D();
+    // 全国信息
+    const features = jsondata.features;
+
+    features.forEach((feature) => {
+      // 单个省份
+      const province = new THREE.Object3D();
+      // 地址
+      province.properties = feature.properties;
+      const coordinates = feature.geometry.coordinates;
+      const color = "yellow";
+
+      if (feature.geometry.type === "MultiPolygon") {
+        // 多个，多边形
+        coordinates.forEach((coordinate) => {
+          // coordinate 多边形数据
+          coordinate.forEach((rows) => {
+            const mesh = drawExtrudeMesh(rows, color);
+            const line = lineDraw(rows, color);
+            province.add(line);
+            province.add(mesh);
+          });
+        });
+      }
+
+      if (feature.geometry.type === "Polygon") {
+        // 多边形
+        coordinates.forEach((coordinate) => {
+          const mesh = drawExtrudeMesh(coordinate, color);
+          province.add(mesh);
+        });
+      }
+      map.add(province);
+    });
+    scene.add(map);
+  }
+
+  loader.load("./file/100000_full.json", (data) => {
+    const jsondata = JSON.parse(data);
+    operationData(jsondata);
+  });
+
+  // 坐标轴 辅助
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+**思考：点击某个区域如何将地图切换到那个区域。**
+
+- 可以创建不同的场景然后为其添加不同的相机，在场景里面加载地图。render的时候改变相机。
+
+## 22. 绘制一个有房子的场景
+
+### 22.1 绘制地面
+
+1. 添加AxisHelper()增加坐标轴辅助，方便绘制几何体时定位。
+
+   ```js
+   // 辅助
+   const axes = new THREE.AxisHelper(700)
+   scene.add(axes)
+   ```
+
+2. 添加光源，增强场景立体感。
+
+   ```js
+   {
+       // 灯光
+       const skyColor = 0xffffff // 天空 白色
+       const groundColor = 0x000000 // 地面 黑色
+       const intensity = 1
+       const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
+       scene.add(light)
+   }
+   ```
+
+3. 通过TextureLoader加载地面纹理，添加到平面几何体上，旋转平面几，地面就绘制好了。
+
+   ```js
+   {
+       const loader = new THREE.TextureLoader()
+       const texture = loader.load('./file/23/1.jpg')
+       texture.wrapS = THREE.RepeatWrapping
+       texture.wrapT = THREE.RepeatWrapping
+       texture.magFilter = THREE.NearestFilter
+       // 纹理 重复
+       texture.repeat.set(100, 100)
+   
+       const planeGeo = new THREE.PlaneGeometry(10000, 10000)
+       const planeMat = new THREE.MeshPhongMaterial({
+       map: texture,
+       side: THREE.DoubleSide
+       })
+       const mesh = new THREE.Mesh(planeGeo, planeMat)
+       mesh.rotation.x = Math.PI * -0.5
+   
+       scene.add(mesh)
+   }
+   ```
+
+4. 背景是黑色的让场景不太协调，添加背景色和雾的效果
+
+   ```js
+   // 背景
+   scene.background = new THREE.Color(0x87ceeb)
+   // 雾
+   scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+   ```
+
+   

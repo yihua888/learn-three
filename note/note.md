@@ -5659,3 +5659,1218 @@ div {
 
 ## 24. 通过键盘控制模型移动和攻击
 
+### 24.1 修改灯光并添加阴影
+
+1. 开启阴影渲染。
+
+   ```js
+   // 开启阴影
+   renderer.shadowMap.enabled = true
+   ```
+
+2. 添加方向光，开启阴影投射。
+
+   ```js
+   let dLight = null
+   {
+       const light = new THREE.DirectionalLight(0xaaaaaa)
+       light.position.set(0, 200, 100)
+       light.lookAt(new THREE.Vector3())
+   
+       light.castShadow = true
+       light.shadow.camera.top = 300
+       light.shadow.camera.bottom = -300
+       light.shadow.camera.left = -300
+       light.shadow.camera.right = 300
+   
+       // 开启阴影投射
+       light.castShadow = true
+       dLight = light
+       scene.add(light)
+   }
+   ```
+
+3. 在地面网格上开启阴影接收。
+
+   ```js
+   mesh.receiveShadow = true
+   ```
+
+4. 修改模型网格对象，开启阴影投射。并设置方向光的焦点为模型网格对象，用于移动模型时方向光同步移动。
+
+   ```js
+   // 设置模型的每个部位都可以投影
+   mesh.traverse(function (child) {
+       if (child.isMesh) {
+           child.castShadow = true
+           child.receiveShadow = true
+       }
+   })
+   
+   // 设置光线焦点模型
+   dLight.target = mesh
+   ```
+
+5. 取消`OrbitControls`控件修改全局相机位置，用于模型网格对象移动时相机同步移动。
+
+   ```js
+   // camera.position.set(1000, 500, 1500)
+   camera.position.set(-1000, 1000, 100)
+   
+   // 控制相机
+   // const controls = new OrbitControls(camera, canvas)
+   // controls.update()
+   ```
+
+### 24.2 修改键盘监听事件
+
+- 在浏览器中两个按键一起按下时，两个事件都会被监听到，但是只有后面一个事件会被响应。就是说`keydown`只会持续响应最后一个按下的键。
+
+- 我们需要对控制模型移动的键添加状态，`keydown`触发时修改为`true`按下状态，`keyup`触发时修改为`false`非按下状态。以此来判断按下了那几个建。 1.监听`W、A、S、D`来控制方向。
+
+  ```js
+  document.addEventListener(
+  "keydown",
+  (e) => {
+      switch (e.keyCode) {
+      case 87:
+          keyCodeW = true;
+          break;
+      case 83:
+          keyCodeS = true;
+          break;
+      case 65:
+          keyCodeA = true;
+          break;
+      case 68:
+          keyCodeD = true;
+          break;
+      case 75:
+          keyCodeK = true;
+          break;
+      default:
+          break;
+      }
+  },
+  false
+  );
+  document.addEventListener(
+  "keyup",
+  (e) => {
+      switch (e.keyCode) {
+      case 87:
+          keyCodeW = false;
+          break;
+      case 83:
+          keyCodeS = false;
+          break;
+      case 65:
+          keyCodeA = false;
+          break;
+      case 68:
+          keyCodeD = false;
+          break;
+      default:
+          break;
+      }
+  },
+  false
+  );
+  ```
+
+- 根据按键控制模型移动，控制模型的的朝向。同时控制方向光和相机一起跟随模型移动。
+
+  ```js
+   // 控制 移动
+    function onCodeMove(mesh) {
+      if (keyCodeW) {
+        mesh.position.x += 2;
+        camera.position.x += 2;
+        dLight.position.x += 2;
+        mesh.rotation.y = Math.PI * 0.5;
+      }
+      if (keyCodeA) {
+        mesh.position.z -= 2;
+        camera.position.z -= 2;
+        dLight.position.z -= 2;
+        mesh.rotation.y = Math.PI;
+      }
+      if (keyCodeS) {
+        mesh.position.x -= 2;
+        camera.position.x -= 2;
+        dLight.position.x -= 2;
+        mesh.rotation.y = Math.PI * 1.5;
+      }
+      if (keyCodeD) {
+        mesh.position.z += 2;
+        camera.position.z += 2;
+        dLight.position.z += 2;
+        mesh.rotation.y = Math.PI * 2;
+      }
+  
+      if (keyCodeW && keyCodeD) {
+        mesh.rotation.y = Math.PI * 0.25;
+      }
+      if (keyCodeW && keyCodeA) {
+        mesh.rotation.y = Math.PI * 0.75;
+      }
+      if (keyCodeA && keyCodeS) {
+        mesh.rotation.y = Math.PI * 1.25;
+      }
+      if (keyCodeS && keyCodeD) {
+        mesh.rotation.y = Math.PI * 1.75;
+      }
+  
+      if (!keyCodeK) {
+        resetMove();
+      }
+    }
+  
+    let moveNum = false;
+    // 重置移动
+    function resetMove() {
+      // 按下键盘 跑步动画
+      if (keyCodeW || keyCodeS || keyCodeA || keyCodeD) {
+        gui["action"](3);
+        moveNum = true;
+      } else {
+        // 只执行一次
+        if (moveNum) {
+          moveNum = false;
+          gui["action"](24);
+        }
+      }
+    }
+  ```
+
+- 修改模型为全局变量，修改渲染函数。
+
+  ```js
+  ...
+  let meshHY = null
+  ...
+      // 设置光线焦点模型
+      dLight.target = mesh
+      meshHY = mesh
+  ...
+  // 渲染
+  function render() {
+  ...
+      if (meshHY) {
+        onCodeMove(meshHY)
+      }
+  ...
+  ```
+
+### 24.3 添加攻击动作
+
+- 在前面键盘监听事件可以看到**K**的监听进行了特殊处理。当按下**K**时取消移动动作， 并调用`attack()`方法。
+
+- 攻击动作需要的全局变量
+
+  ```js
+  let attackList = [12, 8, 9, 10] // 连招的循序
+  let attackCombo = true
+  let skills = 0 // 下标
+  let clickNum = 0 // 点击次数
+  ```
+
+1. 攻击动作是多个动画组合来的，创建一个数组来保存要执行的动画。
+
+2. 还要设置`attackCombo`状态，保证上一次动画未执行完之前不重复执行。
+
+3. 根据`skills`和`clickNum`判断执行几个动画和动画执行后重置参数。
+
+   ```js
+    function attack() {
+       clickNum++;
+       if (attackCombo) {
+         attackCombo = false;
+         // 执行第一个动画
+         gui["action"](attackList[skills]);
+         timeCallback();
+       }
+     }
+   
+     function timeCallback() {
+       setTimeout(() => {
+         // 进行下一个动作
+         skills++;
+         // 判断点击次数是否还有下一个动作，如果全部动作完成结束循环
+         if (skills === clickNum || skills > attackList.length - 1) {
+           skills = 0;
+           clickNum = 0;
+           attackCombo = true;
+           keyCodeK = false;
+           moveNum = true;
+           resetMove();
+         } else {
+           gui["action"](attackList[skills]);
+           timeCallback();
+         }
+       }, meshHY.animations[attackList[skills]].duration * 1000);
+     }
+   ```
+
+### 24.4 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  let meshHY = null;
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  // 开启阴影
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(109, 206, 300); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  scene.background = new THREE.Color(0x87ceeb);
+  // 雾
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000);
+  // 辅助
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
+  {
+    // 灯光
+    const skyColor = 0xffffff; // 天空 白色
+    const groundColor = 0x000000; // 地面 黑色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
+  }
+  let dLight = null;
+  {
+    // 添加方向光，开启阴影投射。
+    const light = new THREE.DirectionalLight(0xaaaaaa);
+    light.position.set(0, 200, 100);
+    light.lookAt(new THREE.Vector3());
+
+    light.castShadow = true;
+    light.shadow.camera.top = 300;
+    light.shadow.camera.bottom = -300;
+    light.shadow.camera.left = -300;
+    light.shadow.camera.right = 300;
+
+    // 开启阴影投射
+    light.castShadow = true;
+    dLight = light;
+    scene.add(light);
+  }
+
+  {
+    // 地面
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/23/1.jpg");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
+    // 纹理 重复
+    texture.repeat.set(100, 100);
+
+    const planeGeo = new THREE.PlaneGeometry(10000, 10000);
+    const planeMat = new THREE.MeshPhongMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
+    // 在地面网格上开启阴影接收。
+    mesh.receiveShadow = true;
+
+    scene.add(mesh);
+  }
+
+  let actions = []; // 所有的动画数组
+  let gui = {}; // 动画控制
+  let mixer = null; // AnimationMixer 对象
+  {
+    const loader = new THREE.FBXLoader();
+    loader.load("./file/Naruto.fbx", function (mesh) {
+      mesh.position.y = 110;
+      scene.add(mesh);
+      mixer = new THREE.AnimationMixer(mesh);
+      for (var i = 0; i < mesh.animations.length; i++) {
+        actions[i] = mixer.clipAction(mesh.animations[i]);
+      }
+      gui["action"] = function (s) {
+        for (var j = 0; j < actions.length; j++) {
+          if (j === s) {
+            actions[j].play();
+          } else {
+            actions[j].stop();
+          }
+        }
+      };
+      // 第24个动作是鸣人站立的动作
+      gui["action"](24);
+      // 设置模型的每个部位都可以投影
+      mesh.traverse(function (child) {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+
+      // 设置光线焦点模型
+      dLight.target = mesh;
+      meshHY = mesh;
+    });
+  }
+
+  //  监听键盘是否按下
+  let keyCodeW = false;
+  let keyCodeS = false;
+  let keyCodeA = false;
+  let keyCodeD = false;
+  let keyCodeK = false; // 攻击
+
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      switch (e.keyCode) {
+        case 87:
+          keyCodeW = true;
+          break;
+        case 83:
+          keyCodeS = true;
+          break;
+        case 65:
+          keyCodeA = true;
+          break;
+        case 68:
+          keyCodeD = true;
+          break;
+        case 75:
+          keyCodeK = true;
+          attack();
+          break;
+        default:
+          break;
+      }
+    },
+    false
+  );
+  document.addEventListener(
+    "keyup",
+    (e) => {
+      switch (e.keyCode) {
+        case 87:
+          keyCodeW = false;
+          break;
+        case 83:
+          keyCodeS = false;
+          break;
+        case 65:
+          keyCodeA = false;
+          break;
+        case 68:
+          keyCodeD = false;
+          break;
+        default:
+          break;
+      }
+    },
+    false
+  );
+  // 控制 移动
+  function onCodeMove(mesh) {
+    if (keyCodeW) {
+      mesh.position.x += 2;
+      camera.position.x += 2;
+      dLight.position.x += 2;
+      mesh.rotation.y = Math.PI * 0.5;
+    }
+    if (keyCodeA) {
+      mesh.position.z -= 2;
+      camera.position.z -= 2;
+      dLight.position.z -= 2;
+      mesh.rotation.y = Math.PI;
+    }
+    if (keyCodeS) {
+      mesh.position.x -= 2;
+      camera.position.x -= 2;
+      dLight.position.x -= 2;
+      mesh.rotation.y = Math.PI * 1.5;
+    }
+    if (keyCodeD) {
+      mesh.position.z += 2;
+      camera.position.z += 2;
+      dLight.position.z += 2;
+      mesh.rotation.y = Math.PI * 2;
+    }
+
+    if (keyCodeW && keyCodeD) {
+      mesh.rotation.y = Math.PI * 0.25;
+    }
+    if (keyCodeW && keyCodeA) {
+      mesh.rotation.y = Math.PI * 0.75;
+    }
+    if (keyCodeA && keyCodeS) {
+      mesh.rotation.y = Math.PI * 1.25;
+    }
+    if (keyCodeS && keyCodeD) {
+      mesh.rotation.y = Math.PI * 1.75;
+    }
+
+    if (!keyCodeK) {
+      resetMove();
+    }
+  }
+
+  let moveNum = false;
+  // 重置移动
+  function resetMove() {
+    // 按下键盘 跑步动画
+    if (keyCodeW || keyCodeS || keyCodeA || keyCodeD) {
+      gui["action"](3);
+      moveNum = true;
+    } else {
+      // 只执行一次
+      if (moveNum) {
+        moveNum = false;
+        gui["action"](24);
+      }
+    }
+  }
+
+  let attackList = [12, 8, 9, 10]; // 连招的循序
+  let attackCombo = true;
+  let skills = 0; // 下标
+  let clickNum = 0; // 点击次数
+
+  function attack() {
+    clickNum++;
+    if (attackCombo) {
+      attackCombo = false;
+      // 执行第一个动画
+      gui["action"](attackList[skills]);
+      timeCallback();
+    }
+  }
+
+  function timeCallback() {
+    setTimeout(() => {
+      // 进行下一个动作
+      skills++;
+      // 判断点击次数是否还有下一个动作，如果全部动作完成结束循环
+      if (skills === clickNum || skills > attackList.length - 1) {
+        skills = 0;
+        clickNum = 0;
+        attackCombo = true;
+        keyCodeK = false;
+        moveNum = true;
+        resetMove();
+      } else {
+        gui["action"](attackList[skills]);
+        timeCallback();
+      }
+    }, meshHY.animations[attackList[skills]].duration * 1000);
+  }
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    if (meshHY) {
+      onCodeMove(meshHY);
+    }
+
+    if (mixer) {
+      mixer.update(delta);
+    }
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 25. 物体碰撞检测
+
+碰撞检测在`three.js`开发中是很常见的。最常见的两种方式实现：
+
+1. 使用`.Raycaste()`在物体的各个顶点发出射线，计算是否和其他物体相交。
+2. 使用`.Box3`在物体上创建包围盒，计算两个物体包围盒是否相交。
+
+**Raycaster(origin, direction, near, far)**
+
+- origin — 光线投射的原点向量。
+- direction — 射线的方向向量，应该归一化。
+- near — 所有返回的结果应该比 near 远。near不能为负，默认值为0。
+- far — 所有返回的结果应该比 far 近。far 不能小于 near，默认值为无穷大。
+
+> 射线检测法缺点也比较明显，当物体的中心在另一个物体内部时，是不能够检测到碰撞的。而且当两个物体能够互相穿过，且有较大部分重合时，检测效果也不理想。
+
+### 25.1 添加键盘控制
+
+```js
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      var ev = e || window.event;
+      switch (ev.keyCode) {
+        case 87:
+          cube.position.z -= 0.05;
+          break;
+        case 83:
+          cube.position.z += 0.05;
+          break;
+        case 65:
+          cube.position.x -= 0.05;
+          break;
+        case 68:
+          cube.position.x += 0.05;
+          break;
+        default:
+          break;
+      }
+    },
+    false
+  );
+```
+
+### 25.2 创建检测方法
+
+1. 获取移动物体中心点的世界坐标。
+2. 获取移动物体的所有顶点坐标。
+3. 循环所有顶点坐标，根据移动物体的变换矩阵转换顶点坐标。
+4. 通过`Raycaster()`从中心点的世界坐标向转换后的顶点坐标，发出射线检测要碰撞的物体。
+5. 比较射线的长度是否小于物体的长度。
+
+```js
+  function onIntersect() {
+    // 声明一个变量用来表示是否碰撞
+    let bool = false;
+    // .position 对象局部位置
+    // .clone() 复制一个新的三维向量
+    // 网格中心 世界坐标
+    const centerCoord = cube.position.clone();
+    // 获取网格中 几何对象的顶点对象
+    const position = cube.geometry.attributes.position;
+    // 顶点三维向量
+    const vertices = [];
+    // .count 矢量个数
+    for (let i = 0; i < position.count; i++) {
+      // .getX() 获取给定索引的矢量的第一维元素
+      vertices.push(
+        new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i))
+      );
+    }
+
+    for (let i = 0; i < vertices.length; i++) {
+      // .matrixWorld 物体的世界坐标变换 -- 物体旋转、位移 的四维矩阵
+      // .applyMatrix4() 将该向量乘以四阶矩阵
+      // 获取世界坐标下 网格变换后的坐标
+      let vertexWorldCoord = vertices[i].clone().applyMatrix4(cube.matrixWorld);
+      // .sub(x) 从该向量减去x向量
+      // 获得由中心指向顶点的向量
+      var dir = vertexWorldCoord.clone().sub(centerCoord);
+      // .normalize() 将该向量转换为单位向量
+      // 发射光线 centerCoord 为投射的原点向量  dir 向射线提供方向的方向向量
+      let raycaster = new THREE.Raycaster(centerCoord, dir.clone().normalize());
+
+      // 放入要检测的 物体cube2，返回相交物体
+      let intersects = raycaster.intersectObjects([cube2], true);
+      if (intersects.length > 0) {
+        // intersects[0].distance：射线起点与交叉点之间的距离(交叉点：射线和模型表面交叉点坐标)
+        // dir.length()：几何体顶点和几何体中心构成向量的长度
+        // intersects[0].distance小于dir.length() 表示物体相交
+        if (intersects[0].distance < dir.length()) {
+          bool = true;
+        }
+      }
+    }
+
+    return bool;
+  }
+```
+
+在键盘监听事件中添加网格颜色修改。
+
+```js
+if (onIntersect()) {
+    cube.material.color.set('yellow')
+} else {
+    cube.material.color.set(0x6688aa)
+}
+```
+
+> 这种方式存在很多小问题，在需要物理引擎这一类操作的时候，建议大家还是直接使用第三方插件。如官方使用的[ammo.js](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fkripken%2Fammo.js%2F)等。
+
+### 25.3. 完整代码
+
+```js
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 6, 5); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  {
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 10, 4);
+    scene.add(light);
+  }
+
+  // 立方体
+  const boxWidth = 1;
+  const boxHeight = 1;
+  const boxDepth = 1;
+  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+
+  const material = new THREE.MeshPhongMaterial({
+    color: 0x6688aa,
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  cube.position.x = -1;
+  scene.add(cube);
+
+  const material2 = new THREE.MeshPhongMaterial({
+    color: 0x6688aa,
+  });
+  const cube2 = new THREE.Mesh(geometry, material2);
+  cube2.position.x = 1;
+  scene.add(cube2);
+
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      switch (e.keyCode) {
+        case 87:
+          cube.position.z -= 0.05;
+          break;
+        case 83:
+          cube.position.z += 0.05;
+          break;
+        case 65:
+          cube.position.x -= 0.05;
+          break;
+        case 68:
+          cube.position.x += 0.05;
+          break;
+        default:
+          break;
+      }
+      if (onIntersect()) {
+        cube.material.color.set("yellow");
+      } else {
+        cube.material.color.set(0x6688aa);
+      }
+    },
+    false
+  );
+  function onIntersect() {
+    // 声明一个变量用来表示是否碰撞
+    let bool = false;
+    // .position 对象局部位置
+    // .clone() 复制一个新的三维向量
+    // 网格中心 世界坐标
+    const centerCoord = cube.position.clone();
+    // 获取网格中 几何对象的顶点对象
+    const position = cube.geometry.attributes.position;
+    // 顶点三维向量
+    const vertices = [];
+    // .count 矢量个数
+    for (let i = 0; i < position.count; i++) {
+      // .getX() 获取给定索引的矢量的第一维元素
+      vertices.push(
+        new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i))
+      );
+    }
+
+    for (let i = 0; i < vertices.length; i++) {
+      // .matrixWorld 物体的世界坐标变换 -- 物体旋转、位移 的四维矩阵
+      // .applyMatrix4() 将该向量乘以四阶矩阵
+      // 获取世界坐标下 网格变换后的坐标
+      let vertexWorldCoord = vertices[i].clone().applyMatrix4(cube.matrixWorld);
+      // .sub(x) 从该向量减去x向量
+      // 获得由中心指向顶点的向量
+      var dir = vertexWorldCoord.clone().sub(centerCoord);
+      // .normalize() 将该向量转换为单位向量
+      // 发射光线 centerCoord 为投射的原点向量  dir 向射线提供方向的方向向量
+      let raycaster = new THREE.Raycaster(centerCoord, dir.clone().normalize());
+
+      // 放入要检测的 物体cube2，返回相交物体
+      let intersects = raycaster.intersectObjects([cube2], true);
+      if (intersects.length > 0) {
+        // intersects[0].distance：射线起点与交叉点之间的距离(交叉点：射线和模型表面交叉点坐标)
+        // dir.length()：几何体顶点和几何体中心构成向量的长度
+        // intersects[0].distance小于dir.length() 表示物体相交
+        if (intersects[0].distance < dir.length()) {
+          bool = true;
+        }
+      }
+    }
+
+    return bool;
+  }
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 26. 着色器材质
+
+我们知道`three.js`是对`webGL`的封装，不需要我们操作复杂的[着色器](https://link.juejin.cn/?target=https%3A%2F%2Fwebglfundamentals.org%2Fwebgl%2Flessons%2Fzh_cn%2Fwebgl-shaders-and-glsl.html)。有时候需求要我们实现一些十分丰富的图像，比如线条的流光动效等。这时候只使用`three.js`会很麻烦，就出现了**着色器材质**来自定义着色器
+
+### 26.1 ShaderMaterial 着色器材质
+
+使用自定义着色器渲染的材质。着色器材质是一个用**GLSL**编写的小程序 ，在GPU上运行。需要知道**GLSL**是着色器使用的语言，它和`JavaScript`使用方式完全不同，主要目的是为栅格化图形提供常用的计算功能。常用属性和方法：
+
+- `.uniforms` 指定要传递给着色器代码的`uniforms`。`uniforms`是`GLSL`语言中的全局变量，在一次绘制过程中传递给着色器的值都一样。
+- `.fragmentShader` 片元着色器的`GLSL`代码。字符串格式由`webGL`编译。
+- `.vertexShader` 顶点着色器的`GLSL`代码。字符串格式由`webGL`编译。
+- `.defines` 使用 #define 指令在`GLSL`代码为顶点着色器和片段着色器定义自定义常量。
+
+> `ShaderMaterial`只有使用`WebGLRenderer`才可以绘制正常，因为`GLSL`代码必须使用`WebGL`来编译并运行在GPU中。
+
+### 26.1 编写GLSL代码
+
+- 着色器的使用。简单理解，就是通过顶点着色器设置几何体顶点的位置。通过片元着色器设置从顶点出发点与点之间的颜色。**点与点之间会自动计算颜色值**。
+- `position`变量是几何体传入`GLSL`程序中的顶点信息。
+
+```js
+  //   顶点着色器代码
+  const vertexShader = `
+  void main(){
+    // 设置点的大小为50px
+    gl_PointSize = 50;
+    // 设置点的位置
+    gl_Position = vec4(position,1.0);
+  }
+  `;
+  // 片元着色器代码
+  const fragmentShader = `
+  void main() {
+    // 光栅化片元的颜色
+    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+  }`;
+```
+
+### 26.2 使用着色器材质
+
+```js
+// 初始化几何体对象
+const geometry = new THREE.BufferGeometry();
+// 设置顶点数据
+const pos = new Float32Array([0, 0, 0]);
+// 设置几何体顶点信息
+geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+const material = new THREE.ShaderMaterial({
+  vertexShader,
+  fragmentShader,
+});
+
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+```
+
+### 26.3 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 300); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  //   顶点着色器代码
+  const vertexShader = `
+  void main(){
+    // 设置点的大小为50px
+    gl_PointSize   = 50.0;
+    // 设置点的位置
+    gl_Position  = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+  }
+  `;
+  // 片元着色器代码
+  const fragmentShader = `
+  void main() {
+    // 光栅化片元的颜色
+    gl_FragColor  = vec4(1.0, 0.0, 0.0, 1.0);
+  }`;
+
+  // 初始化几何体对象
+  const geometry = new THREE.BufferGeometry();
+  // 设置顶点数据 一个顶点
+  const pos = new Float32Array([0, 0, 0]);
+  // 设置 几何体顶点信息
+  geometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  const mate = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader,
+  });
+  const mesh = new THREE.Points(geometry, mate);
+  scene.add(mesh);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 27. 着色器材质使用变量
+
+### 27.1 着色器变量
+
+着色器中有三种变量：
+
+- `Uniforms` 全局变量。可以传入顶点着色器，也可以传入片元着色器，在整个渲染过程中保持不变的变量。
+- `Varyings` 是从顶点着色器传递到片元着色器的变量。我们需要确保在两个着色器中变量的类型和命名完全一致。
+- `Attributes` 与每个顶点关联的变量。例如，顶点位置，法线和顶点颜色都是存储在`attributes`中的数据。它只能在顶点着色器获取。
+
+### 27.2 绘制一个只有4/1变色的圆
+
+**创建着色器**。
+
+1. `three.js`在顶点着色器中定义好了一下关于顶点信息的变量，如`position、modelViewMatrix`等。
+2. 创建`vPosition`变量把顶点信息传入片元着色器。
+3. 在片元着色器中获取`time`全局变量，用于在不同时间修改颜色。
+4. 根据顶点坐标来判断几何体要修改颜色的位置。
+
+```js
+  // 顶点着色器代码
+  const vertexShader = `
+  varying vec3  position; // 创建变量 在片元着色器 中使用
+  void main(){
+    vPosition = position ; // 赋值 顶点坐标
+    // projectionMatrix 是投影变换矩阵 modelViewMatrix 是相机坐标系的变换矩阵 position 顶点坐标
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+  }
+  `;
+
+  // 片元着色器代码
+  const fragmentShader = `
+  varying vec3 vPosition; // 获取顶点着色器 设置的变量
+  uniform float time; // 获取传入的 全局变量
+  void main(){
+    // mod(x,y)返回x - y * floor (x/y)，即求模计算%
+    float time = mod(time, 3.0); 
+    if(vPosition.x > 0.0 && vPosition.y > 0.0){
+      if(time < 1.0){
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      } else if(time >= 1.0 && time < 2.0){
+        gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+      }else{
+        gl_FragColor = vec4(1.0, 0.7, 0.0, 1.0);
+      }
+    }else{
+      gl_FragColor=vec4(0.2, 0.2, 0.2, 1.0);
+    }
+  }
+  `;
+```
+
+**创建全局变量。**
+
+```js
+  const uniforms = {
+    time: {
+      type: 'f',
+      value: 0.0
+    }
+  }
+```
+
+**创建球几何体，使用着色器材质。**
+
+```js
+const geometry = new THREE.SphereGeometry(15, 32, 16)
+
+const mate = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+})
+const mesh = new THREE.Mesh(geometry, mate)
+scene.add(mesh)
+```
+
+**修改渲染函数。**
+
+1. 通过渲染函数修改全局变量大小。
+2. 每一次执行渲染，着色器会重新执行，获取最新的`uniforms`。
+
+```js
+// 渲染
+function render() {
+    uniforms.time.value += 0.1
+
+    renderer.render(scene, camera)
+    requestAnimationFrame(render)
+}
+```
+
+### 27.3 完整代码
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 0, 300); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+
+  //   ====================================== 着色器源码 start =============================================
+  // 顶点着色器代码
+  const vertexShader = `
+    varying vec3 vPosition;// 创建变量 在片元着色器 中使用
+    void main() {
+        vPosition = position;// 赋值 顶点坐标
+        // projectionMatrix 是投影变换矩阵 modelViewMatrix 是相机坐标系的变换矩阵 position 顶点坐标
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    }
+    `;
+
+  // mod(x,y)返回x – y * floor (x/y)，即求模计算%
+  // 片元着色器代码
+  const fragmentShader = `
+      varying vec3 vPosition;// 获取顶点着色器 设置的变量
+      uniform float time;// 获取传入的 全局变量
+      void main() {
+        float time = mod(time, 3.0); 
+        if(vPosition.x > 0.0 && vPosition.y > 0.0){
+          if(time < 1.0){
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+          } else if(time >= 1.0 && time < 2.0){
+            gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+          }else{
+            gl_FragColor = vec4(1.0, 0.7, 0.0, 1.0);
+          }
+        }else{
+          gl_FragColor=vec4(0.2, 0.2, 0.2, 1.0);
+        }
+      }
+      `;
+  //   ====================================== 着色器源码 end   =============================================
+  //   创建全局变量
+  const uniforms = {
+    time: {
+      type: "f",
+      value: 0.0,
+    },
+  };
+
+  //   创建球几何体，使用着色器材质。
+  const geometry = new THREE.SphereGeometry(15, 32, 16);
+  console.log(geometry);
+
+  const mate = new THREE.ShaderMaterial({
+    uniforms: uniforms,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+  });
+  const mesh = new THREE.Mesh(geometry, mate);
+  scene.add(mesh);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+    uniforms.time.value += 0.1;
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 28. 实现地图边界炫光路径效果

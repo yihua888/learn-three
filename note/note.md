@@ -7117,3 +7117,296 @@ div {
 ```
 
 ## 29. 使用着色器材质绘制立方体
+
+顶点着色器中。`projectionMatrix`是投影变换矩阵，`modelViewMatrix`是相机坐标系的变换矩阵，`position`顶点坐标，都是`three.js`定义好的。
+
+片元着色器中。通过`background`函数计算出当前顶点的颜色，交由片元自动计算各个顶点之间的渐变。
+
+1. 首先要创建一个[基本图元的距离函数](https://link.juejin.cn/?target=https%3A%2F%2Fwww.iquilezles.org%2Fwww%2Farticles%2Fdistfunctions%2Fdistfunctions.htm)。
+
+   ```glsl
+   float sdBox(vec3 p,vec3 b){
+       vec3 q=abs(p)-b;
+       return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);
+   }
+   ```
+
+2. 有了方块，就需要一个[光线步进函数](https://link.juejin.cn/?target=https%3A%2F%2Fwww.iquilezles.org%2Fwww%2Farticles%2Fraymarchingdf%2Fraymarchingdf.htm)来展示它。
+
+   - 光线步进函数，计算出方块。[Ray Marching（光线步进）](https://link.juejin.cn/?target=https%3A%2F%2Fzhuanlan.zhihu.com%2Fp%2F94499619)
+
+     ```glsl
+     float rayMarch(vec3 ro,vec3 rd,float end,int maxIter){
+         float d0 = 0.;
+         for(int i=0;i<maxIter;i++){
+               vec3 pos=ro+d0*rd;
+               float ds=sdBox(pos,vec3(.3));
+               d0+=ds;
+               if(ds >= end || ds < 0.01){
+                   break;
+               }
+         }
+         return d0;
+     }
+     ```
+
+   - 控制片元的颜色，来展示方块。
+
+     ```glsl
+     void main(){
+         ...
+         
+         // 光线位置 位置
+         vec3 eye = vec3(0.,0.,2.5);
+         // 方向
+         vec3 ray = normalize(vec3(vUv,-eye.z));
+         // 最大距离
+         float end = 5.;
+         // 最大步数
+         int maxIter=256;
+         float depth = rayMarch(eye,ray,end,maxIter);
+         if(depth < end){
+             vec3 pos = eye + depth * ray;
+             color = pos;
+         }
+         ...
+     }
+     ```
+
+3. 让方块动起来
+
+   - 开始我们定义了uTime全局变量，通过修改它来实现旋转方块。
+
+   - 矩阵函数。
+
+     ```glsl
+     mat4 rotationMatrix(vec3 axis,float angle){
+         axis=normalize(axis);
+         float s=sin(angle);
+         float c=cos(angle);
+         float oc=1.-c;
+     
+         return mat4(oc*axis.x*axis.x+c,oc*axis.x*axis.y-axis.z*s,oc*axis.z*axis.x+axis.y*s,0.,
+           oc*axis.x*axis.y+axis.z*s,oc*axis.y*axis.y+c,oc*axis.y*axis.z-axis.x*s,0.,
+           oc*axis.z*axis.x-axis.y*s,oc*axis.y*axis.z+axis.x*s,oc*axis.z*axis.z+c,0.,
+         0.,0.,0.,1.);
+     }
+     ```
+
+   - 旋转函数。
+
+     ```glsl
+     vec3 rotate(vec3 v,vec3 axis,float angle){
+         mat4 m=rotationMatrix(axis,angle);
+         return(m*vec4(v,1.)).xyz;
+     }
+     ```
+
+   - 修改rayMarch函数，在加载方块之前先旋转方块。这里要注意rotate()函数需要在rayMarch()函数之前加载。
+
+     ```glsl
+     float rayMarch(vec3 ro,vec3 rd,float end,int maxIter){
+         ...
+         vec3 pos=ro+d0*rd;
+         vec3 p1=rotate(pos,vec3(1.),uTime);
+         float ds=sdBox(p1,vec3(.3));
+         ...
+     }
+     ```
+
+4. 修改方块的位置
+
+   - 修改法线为居中法线。
+
+     ```glsl
+     vec2 centerUv(vec2 uv){
+         uv=2.*uv-1.;
+         float aspect=1;
+         uv.x*=aspect;
+         return uv;
+     }
+     ```
+
+   - 修改光线步进的方向。
+
+     ```glsl
+     ...
+     
+     // 方向
+     vec2 cUv=centerUv(vUv);
+     vec3 ray=normalize(vec3(cUv,-eye.z));
+     // vec3 ray = normalize(vec3(vUv,-eye.z));
+     ...
+     ```
+
+**完整代码**
+
+```vue
+<template>
+  <div>
+    <canvas ref="container"></canvas>
+  </div>
+</template>
+
+<script setup>
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
+
+const container = ref(null);
+
+onMounted(() => {
+  const clock = new THREE.Clock();
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  renderer.shadowMap.enabled = true;
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+
+  // 相机位置  正上方向下看
+  camera.position.set(0, 50, 50); // 相机位置
+  camera.lookAt(0, 0, 0); // 相机朝向
+  // 控制相机
+  const controls = new THREE.CameraControls(camera, container.value);
+  // 创建场景
+  const scene = new THREE.Scene();
+  // 顶点着色器
+  const vertexShader = `
+      varying vec2 vUv;
+      varying vec3 vPosition;
+
+      void main(){
+          gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);
+          
+          vUv=uv;
+          vPosition=position;
+      }
+      `;
+
+  // 片元着色器
+  const fragmentShader = `
+      uniform float uTime;
+      varying vec2 vUv;
+
+      vec3 background(vec2 uv){
+          float dist=length(uv-vec2(.5));
+          vec3 bg=mix(vec3(.3),vec3(.0),dist);
+          return bg;
+      }
+
+      mat4 rotationMatrix(vec3 axis,float angle){
+          axis=normalize(axis);
+          float s=sin(angle);
+          float c=cos(angle);
+          float oc=1.-c;
+          
+          return mat4(oc*axis.x*axis.x+c,oc*axis.x*axis.y-axis.z*s,oc*axis.z*axis.x+axis.y*s,0.,
+              oc*axis.x*axis.y+axis.z*s,oc*axis.y*axis.y+c,oc*axis.y*axis.z-axis.x*s,0.,
+              oc*axis.z*axis.x-axis.y*s,oc*axis.y*axis.z+axis.x*s,oc*axis.z*axis.z+c,0.,
+          0.,0.,0.,1.);
+      }
+      vec3 rotate(vec3 v,vec3 axis,float angle){
+          mat4 m=rotationMatrix(axis,angle);
+          return(m*vec4(v,1.)).xyz;
+      }
+
+      float sdBox(vec3 p,vec3 b){
+          vec3 q=abs(p)-b;
+          return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);
+      }
+      float rayMarch(vec3 ro,vec3 rd,float end,int maxIter){
+          float d0 = 0.;
+          for(int i=0;i<maxIter;i++){
+              vec3 pos=ro+d0*rd;
+              vec3 p1=rotate(pos,vec3(1.),uTime);
+              float ds=sdBox(p1,vec3(.3));
+              d0+=ds;
+              if(ds >= end || ds < 0.01){
+                  break;
+              }
+          }
+          return d0;
+      }
+
+      vec2 centerUv(vec2 uv){
+          uv=2.*uv-1.;
+          float aspect=1.;
+          uv.x*=aspect;
+          return uv;
+      }
+
+
+      void main(){
+          vec3 bg=background(vUv);
+          vec3 color=bg;
+
+          // 光线位置 位置
+          vec3 eye = vec3(0.,0.,2.5);
+          // 方向
+          vec2 cUv=centerUv(vUv);
+          vec3 ray=normalize(vec3(cUv,-eye.z));
+          // vec3 ray = normalize(vec3(vUv,-eye.z));
+          // 最大距离
+          float end = 5.;
+          // 最大步数
+          int maxIter=256;
+          float depth = rayMarch(eye,ray,end,maxIter);
+          if(depth < end){
+            vec3 pos = eye + depth * ray;
+            color = pos;
+          }
+
+          gl_FragColor=vec4(color,1.);
+      }
+    `;
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const shaderMaterial = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uTime: {
+        value: 0,
+      },
+    },
+  });
+
+  const mesh = new THREE.Mesh(geometry, shaderMaterial);
+  scene.add(mesh);
+
+  function render(time) {
+    const delta = clock.getDelta();
+    controls.update(delta);
+    shaderMaterial.uniforms.uTime.value = clock.getElapsedTime();
+    // 加载渲染器
+    renderer.render(scene, camera);
+
+    // 开始动画
+    requestAnimationFrame(render);
+  }
+
+  // 开始渲染
+  requestAnimationFrame(render);
+});
+</script>
+
+<style lang="scss" scoped>
+div {
+  height: 100%;
+  canvas {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
+```
+
+## 30. 实现一个简单的3D地球可视化
+

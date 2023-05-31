@@ -1,64 +1,68 @@
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import THREE from '@/global/three';
+import { onMounted, ref } from "vue";
+import THREE from "@/global/three";
 const container = ref(null);
 
 onMounted(() => {
   const clock = new THREE.Clock();
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 20)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
   // 控制相机
-  const controls = new THREE.CameraControls(camera, container.value)
+  const controls = new THREE.CameraControls(camera, container.value);
 
   // 场景
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('black')
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("black");
 
   {
     // 地面 平铺
-    const planeSize = 20
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png')
+    const planeSize = 20;
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(
+      "https://threejs.org/manual/examples/resources/images/checker.png"
+    );
     // THREE.RepeatWrapping 纹理重复
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
     // 当一个纹素覆盖大于一个像素时，贴图将如何采样。 THREE.NearestFilter，它将使用最接近的纹素的值。
-    texture.magFilter = THREE.NearestFilter
-    const repeats = planeSize / 2
+    texture.magFilter = THREE.NearestFilter;
+    const repeats = planeSize / 2;
     // 重复次数
-    texture.repeat.set(repeats, repeats)
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize)
+    texture.repeat.set(repeats, repeats);
+    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
     // Phong材质
     const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
-      side: THREE.DoubleSide
-    })
-    const mesh = new THREE.Mesh(planeGeo, planeMat)
-    mesh.rotation.x = Math.PI * -0.5
-    scene.add(mesh)
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
+    scene.add(mesh);
   }
 
-
   // 立方体
-  const boxGeometry = new THREE.BoxGeometry(8, 8, 8, 4, 4, 4)
-  const boxMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
-  const boxMesh = new THREE.Mesh(boxGeometry, boxMat)
-  boxMesh.position.y = 2
-  scene.add(boxMesh)
+  const boxGeometry = new THREE.BoxGeometry(8, 8, 8, 4, 4, 4);
+  const boxMat = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
+  const boxMesh = new THREE.Mesh(boxGeometry, boxMat);
+  boxMesh.position.y = 2;
+  scene.add(boxMesh);
 
   {
     // 环境光
@@ -87,33 +91,32 @@ onMounted(() => {
   //   const helper = new THREE.DirectionalLightHelper(light)
   //   scene.add(helper)
   // }
-  renderer.physicallyCorrectLights = true
+  renderer.physicallyCorrectLights = true;
   {
-  // 点光源 PointLight
-    const color = 0xffffff
-    const intensity = 1
-    const light = new THREE.PointLight(color, intensity)
-    light.position.set(0, 5, 10)
-    light.power = 800
-    light.decay = 2
-    scene.add(light)
+    // 点光源 PointLight
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.PointLight(color, intensity);
+    light.position.set(0, 5, 10);
+    light.power = 800;
+    light.decay = 2;
+    scene.add(light);
 
     // 光源辅助线
-    const helper = new THREE.PointLightHelper(light)
-    scene.add(helper)
+    const helper = new THREE.PointLightHelper(light);
+    scene.add(helper);
   }
-
 
   //  渲染
-  function render () {
+  function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+    controls.update(delta);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>

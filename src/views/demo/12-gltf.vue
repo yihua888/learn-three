@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -55,37 +55,37 @@ onMounted(() => {
   }
 
   {
-    const gltfLoader = new THREE.GLTFLoader()
-    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
-      const root = gltf.scene
-      scene.add(root)
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load("./file/bingdundun.glb", (gltf) => {
+      const root = gltf.scene;
+      scene.add(root);
       // 遍历所有子对象
       root.traverse((child) => {
         if (child.isMesh) {
           // 内部
-          if (child.name === 'oldtiger001') {
+          if (child.name === "oldtiger001") {
             // 金属度
-            child.material.metalness = 0.5
+            child.material.metalness = 0.5;
             // 粗糙度
-            child.material.roughness = 0.8
+            child.material.roughness = 0.8;
           }
           // 半透明外壳
-          if (child.name === 'oldtiger002') {
+          if (child.name === "oldtiger002") {
             // 启用透明
-            child.material.transparent = true
+            child.material.transparent = true;
             // 透明度
-            child.material.opacity = 0.5
+            child.material.opacity = 0.5;
             // 透明反射效果
-            child.material.refractionRatio = 1
-            child.material.metalness = 0.2
-            child.material.roughness = 0
+            child.material.refractionRatio = 1;
+            child.material.metalness = 0.2;
+            child.material.roughness = 0;
           }
         }
-      })
-    })
+      });
+    });
   }
 
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 

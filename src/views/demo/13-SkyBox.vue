@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -75,16 +75,15 @@ onMounted(() => {
   // }
 
   {
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('./file/18/2.webp', () => {
-      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height)
-      rt.fromEquirectangularTexture(renderer, texture)
-      scene.background = rt.texture
-    })
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/18/2.webp", () => {
+      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+      rt.fromEquirectangularTexture(renderer, texture);
+      scene.background = rt.texture;
+    });
   }
 
-
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 

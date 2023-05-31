@@ -4,7 +4,7 @@
 
 ### 1.1 渲染器（renderer）
 
-它是Three.js的主要对象，场景(Scene)和摄像机(Camera)都需要传入渲染器(Renderer)中，通过它将摄像机视椎体中的三维场景渲染成一个二维图片显示在画布上。
+它是 Three.js 的主要对象，场景(Scene)和摄像机(Camera)都需要传入渲染器(Renderer)中，通过它将摄像机视椎体中的三维场景渲染成一个二维图片显示在画布上。
 
 ### 1.2 场景(scene)
 
@@ -12,16 +12,16 @@
 
 ### 1.3 相机(camera)
 
-它与其他对象不同的是，它不一定要在场景图中才能起作用，它可以和场景同级。相同的是，摄像机(Camera)作为其他对象的子对象，同样会继承它父对象的位置和朝向。Three.js内置几种摄像机：
+它与其他对象不同的是，它不一定要在场景图中才能起作用，它可以和场景同级。相同的是，摄像机(Camera)作为其他对象的子对象，同样会继承它父对象的位置和朝向。Three.js 内置几种摄像机：
 
-- PerspectiveCamera 透视相机，这一投影模式被用来模拟人眼所看到的景象，它是3D场景的渲染中使用得最普遍的投影模式。
+- PerspectiveCamera 透视相机，这一投影模式被用来模拟人眼所看到的景象，它是 3D 场景的渲染中使用得最普遍的投影模式。
 
 - CubeCamera 立方相机，这一投影模式显示的景象是在一个立方范围内的。
 - OrthographicCamera 正交相机，在这种投影模式下，无论物体距离相机距离远或者近，在最终渲染的图片中物体的大小都保持不变。
 
 ### 1.4 几何体（Geometry）
 
-就是球体、立方体、平面、狗、猫、人、树、建筑等物体的顶点信息。Three.js内置了许多基本几何体:
+就是球体、立方体、平面、狗、猫、人、树、建筑等物体的顶点信息。Three.js 内置了许多基本几何体:
 
 - `CubeGeometry` 立方体
 - `PlaneGeometry` 平面
@@ -36,7 +36,7 @@
 
 - `MeshBasicMaterial` 基础网格材质，不受光照的影响。
 - `MeshDistanceMaterial` 通过点光源实现阴影的材质。
-- `MeshNormalMaterial` 一种把法向量映射到RGB颜色的材质。
+- `MeshNormalMaterial` 一种把法向量映射到 RGB 颜色的材质。
 
 ### 1.6 纹理（Texture）
 
@@ -59,152 +59,155 @@
 
 ```vue
 <template>
-    <div>
-        <canvas ref="container"></canvas>
-    </div>
+  <div>
+    <canvas ref="container" height="600" width="800"></canvas>
+  </div>
 </template>
 
 <script setup>
-import * as THREE from 'three';
-import { onMounted, ref } from 'vue';
+import * as THREE from "three";
+import { onMounted, ref } from "vue";
 
 const container = ref(null);
 
 onMounted(() => {
-    // 渲染器
-    const renderer = new THREE.WebGLRenderer({ canvas: container.value });
-    // 创建透视相机
-    const fov = 40 // 视野范围
-    const aspect = 2 // 相机默认值 画布的宽高比
-    const near = 0.1 // 近平面
-    const far = 1000 // 远平面
-    // 透视投影相机
-    const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+  // 渲染器
+  const renderer = new THREE.WebGLRenderer({ canvas: container.value });
+  // 创建透视相机
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  // 透视投影相机
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
-    // 相机位置  正上方向下看
-    camera.position.set(0, 50, 0)// 相机位置
-    camera.up.set(0, 0, 1)
-    camera.lookAt(0, 0, 0) // 相机朝向
+  // 相机位置  正上方向下看
+  camera.position.set(0, 50, 0); // 相机位置
+  camera.up.set(0, 0, 1);
+  camera.lookAt(0, 0, 0); // 相机朝向
 
-    // 创建场景
-    const scene = new THREE.Scene()
-    // 创建光源，并加入场景。
-    const color = 0xffffff;
-    const intensity = 3
-    const light = new THREE.PointLight(color, intensity)
-    // 光源 加入场景
-    scene.add(light)
-    // 创建网格，并加入场景。
-    // 球体
-    const radius = 2 // 半径
-    const widthSegments = 1 // 经度上的切片数
-    const heightSegments = 1 // 纬度上的切片数
-    // 创建球体
-    const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments)
-    // 材质 emissive 不被光影响的颜色
-    // MeshPhongMaterial 一种用于具有镜面高光的光泽表面的材质。
-    const sunMaterial = new THREE.MeshPhongMaterial({ color: 0x44aa88, emissive: 0xffff00 })
-    // 网格
-    const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial)
-    sunMesh.position.x = 10
-    scene.add(sunMesh)
+  // 创建场景
+  const scene = new THREE.Scene();
+  // 创建光源，并加入场景。
+  const color = 0xffffff;
+  const intensity = 3;
+  const light = new THREE.PointLight(color, intensity);
+  // 光源 加入场景
+  scene.add(light);
+  // 创建网格，并加入场景。
+  // 球体
+  const radius = 2; // 半径
+  const widthSegments = 1; // 经度上的切片数
+  const heightSegments = 1; // 纬度上的切片数
+  // 创建球体
+  const sphereGeometry = new THREE.SphereGeometry(
+    radius,
+    widthSegments,
+    heightSegments
+  );
+  // 材质 emissive 不被光影响的颜色
+  // MeshPhongMaterial 一种用于具有镜面高光的光泽表面的材质。
+  const sunMaterial = new THREE.MeshPhongMaterial({
+    color: 0x44aa88,
+    emissive: 0xffff00,
+  });
+  // 网格
+  const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
+  sunMesh.position.x = 10;
+  scene.add(sunMesh);
 
-    function render(time) {
-        time *= 0.001
+  function render(time) {
+    time *= 0.001;
 
-        sunMesh.rotation.y = time
-        sunMesh.rotation.x = time
+    sunMesh.rotation.y = time;
+    sunMesh.rotation.x = time;
 
-        // 加载渲染器
-        renderer.render(scene, camera)
+    // 加载渲染器
+    renderer.render(scene, camera);
 
-        // 开始动画
-        requestAnimationFrame(render)
-    }
+    // 开始动画
+    requestAnimationFrame(render);
+  }
 
-    // 开始渲染
-    requestAnimationFrame(render)
-
-})
+  // 开始渲染
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
-div{
+div {
+  height: 100%;
+  canvas {
     height: 100%;
-    canvas{
-        height: 100%;
-        width: 100%;
-    }
+    width: 100%;
+  }
 }
 </style>
 ```
 
-
-
 ## 2. 渲染器
 
-WebGLRenderer主要作用就是把相机视椎体中的三维场景渲染成一个二维图片显示在画布上。实例化new WebGLRenderer()接受一个对象参数作为渲染器的行为配置。不传参数都会执行其默认值。常用配置：
+WebGLRenderer 主要作用就是把相机视椎体中的三维场景渲染成一个二维图片显示在画布上。实例化 new WebGLRenderer()接受一个对象参数作为渲染器的行为配置。不传参数都会执行其默认值。常用配置：
 
-- canvas 与渲染器绑定的画布节点。不传内部会自己创建一个新的画布节点，使用.domElement获取。
+- canvas 与渲染器绑定的画布节点。不传内部会自己创建一个新的画布节点，使用.domElement 获取。
 
-- context 渲染上下文(RenderingContext) 对象。就是将渲染器附加到已经创建的WebGL上下文中以便后期操作。默认为null
-- precision 着色器精度。渲染成图片的颜色精度。值：highp/mediump/lowp默认为highp。
-- alpha 是否可以设置背景色透明。默认为false。
-- antialias 是否执行抗锯齿。默认为false。
-- preserveDrawingBuffer 是否保留缓直到手动清除或被覆盖。 默认false。
+- context 渲染上下文(RenderingContext) 对象。就是将渲染器附加到已经创建的 WebGL 上下文中以便后期操作。默认为 null
+- precision 着色器精度。渲染成图片的颜色精度。值：highp/mediump/lowp 默认为 highp。
+- alpha 是否可以设置背景色透明。默认为 false。
+- antialias 是否执行抗锯齿。默认为 false。
+- preserveDrawingBuffer 是否保留缓直到手动清除或被覆盖。 默认 false。
 
 除了实例化的默认配置，我们也可以通过它的属性来控制渲染器。常用属性：
 
 - .autoClear 定义渲染器是否在渲染每一帧之前自动清除其输出。
 
-- .autoClearColor 定义渲染器是否需要清除颜色缓存。默认为true。
-- .autoClearDepth 定义渲染器是否清除深度缓存。 默认是true。
-- .autoClearStencil 定义渲染器是否需要清除模板缓存。默认为true。
-- .domElement 返回画布节点。当配置参数没关联canvas，会自动创建一个新的画布节点，需要手动放入html中。
+- .autoClearColor 定义渲染器是否需要清除颜色缓存。默认为 true。
+- .autoClearDepth 定义渲染器是否清除深度缓存。 默认是 true。
+- .autoClearStencil 定义渲染器是否需要清除模板缓存。默认为 true。
+- .domElement 返回画布节点。当配置参数没关联 canvas，会自动创建一个新的画布节点，需要手动放入 html 中。
 - .shadowMap 是一个对象。当我们需要阴影时就需要开启它。
-- .shadowMap.enabled  是否允许在场景中使用阴影贴图，默认false。
-- .shadowMap.autoUpdate 是否启动场景中的阴影自动更新，默认是true。
-- .shadowMap.type 值是Integer类型，定义阴影贴图类型。可选值有THREE.BasicShadowMap, THREE.PCFShadowMap (默认), THREE.PCFSoftShadowMap 和 THREE.VSMShadowMap THREE全局常量值，代表不同的数字。
+- .shadowMap.enabled 是否允许在场景中使用阴影贴图，默认 false。
+- .shadowMap.autoUpdate 是否启动场景中的阴影自动更新，默认是 true。
+- .shadowMap.type 值是 Integer 类型，定义阴影贴图类型。可选值有 THREE.BasicShadowMap, THREE.PCFShadowMap (默认), THREE.PCFSoftShadowMap 和 THREE.VSMShadowMap THREE 全局常量值，代表不同的数字。
 
 有了参数和属性的控制就还有方法的控制。常用方法：
 
 - .clear(color:Boolean, depth:Boolean, stencil:Boolean ) 渲染器清除颜色、深度或模板缓存。
 
-- .getContext() 返回WebGL上下。
+- .getContext() 返回 WebGL 上下。
 - .render()(scene,camera) 传入场景和相机，在画布上渲染图片。
 - .setClearColor(color,alpha) 设置背景颜色和透明度。
-- .setSize()( width,height) 修改canvas节点的宽高。
+- .setSize()( width,height) 修改 canvas 节点的宽高。
 
 ```js
 // 渲染器 实例化
-const renderer = new THREE.WebGLRenderer()
+const renderer = new THREE.WebGLRenderer();
 // 设置 画布宽高
-renderer.setSize(1000, 500)
+renderer.setSize(1000, 500);
 // 加入html
-document.body.appendChild(renderer.domElement)
+document.body.appendChild(renderer.domElement);
 // 获取上下文
-console.log('getContext()', renderer.getContext())
+console.log("getContext()", renderer.getContext());
 // 设置背景颜色和透明度
-renderer.setClearColor(0xeeeeee, 0.5)
+renderer.setClearColor(0xeeeeee, 0.5);
 ```
 
-渲染器(WebGLRenderer) 简单理解就是，把我们绘制的场景图，通过相机视椎体的范围来截取，转化为一张图片。然后去绑定页面上canvas元素把这张图片绘制到元素上。动画效果就是不断的生成新的图片替换原来的图片来实现的。渲染器上有很多属性和方法，都是配合其他内容一起使用的，比如阴影就需要灯光和几何体来配合才能展示。
+渲染器(WebGLRenderer) 简单理解就是，把我们绘制的场景图，通过相机视椎体的范围来截取，转化为一张图片。然后去绑定页面上 canvas 元素把这张图片绘制到元素上。动画效果就是不断的生成新的图片替换原来的图片来实现的。渲染器上有很多属性和方法，都是配合其他内容一起使用的，比如阴影就需要灯光和几何体来配合才能展示。
 
-## 3.  透视相机
+## 3. 透视相机
 
-在three.js中，摄像机的作用就是不断的拍摄我们创建好的场景，然后通过渲染器渲染到屏幕中。想通过不同的角度观看场景，就需要修改摄像机的位置来拍摄场景。本文详细介绍的是透视相机（PerspectiveCamera） 它是用来模拟人眼所看到的景象，它也是3D场景的渲染中使用得最普遍的投影模式。
+在 three.js 中，摄像机的作用就是不断的拍摄我们创建好的场景，然后通过渲染器渲染到屏幕中。想通过不同的角度观看场景，就需要修改摄像机的位置来拍摄场景。本文详细介绍的是透视相机（PerspectiveCamera） 它是用来模拟人眼所看到的景象，它也是 3D 场景的渲染中使用得最普遍的投影模式。
 
- **透视相机**
+**透视相机**
 
 根据视锥的范围给渲染器提供需要渲染的场景范围。
-实例化new THREE.PerspectiveCamera() 接受4个参数来确认视锥的范围。只要在视锥范围内的场景才会渲染。
+实例化 new THREE.PerspectiveCamera() 接受 4 个参数来确认视锥的范围。只要在视锥范围内的场景才会渲染。
 
-1. 
-   fov  摄像机视锥体垂直视野角度。
+1.  fov 摄像机视锥体垂直视野角度。
 
-2. aspect  摄像机视锥体长宽比。
-3. near  摄像机视锥体近端面。
-4. far  摄像机视锥体远端面。
+2.  aspect 摄像机视锥体长宽比。
+3.  near 摄像机视锥体近端面。
+4.  far 摄像机视锥体远端面。
 
 ![](./img/3.1.透视相机.webp)
 
@@ -226,13 +229,13 @@ renderer.setClearColor(0xeeeeee, 0.5)
 - `.position` 设置相机在三维坐标中的位置。
 
 ```js
-camera.position.set(0,0,0);
+camera.position.set(0, 0, 0);
 ```
 
 - `.up` 设置相机拍摄时相机头顶的方向。
 
 ```js
-camera.up.set(0,1,0);
+camera.up.set(0, 1, 0);
 ```
 
 - `.lookAt` 设置相机拍摄时指向的方向。
@@ -244,117 +247,115 @@ camera.lookAt(0, 0, 0);
 **使用**
 
 ```js
-import * as THREE from 'three';
-import CameraControls from 'camera-controls';
+import * as THREE from "three";
+import CameraControls from "camera-controls";
 
 // 相机控制器
-CameraControls.install( { THREE: THREE } );
+CameraControls.install({ THREE: THREE });
 THREE.CameraControls = CameraControls;
 
-export default THREE
+export default THREE;
 ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
     <button @click="changeCamera">切换相机</button>
   </div>
 </template>
 
 <script setup>
-import THREE from '@/global/three';
-import { onMounted, ref } from 'vue';
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
 const container = ref(null);
 let cameraBol = true;
 const changeCamera = () => {
   cameraBol = !cameraBol;
 };
 
-
 onMounted(() => {
   const clock = new THREE.Clock();
   // 渲染器
   const renderer = new THREE.WebGLRenderer({ canvas: container.value });
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 20)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
   // 控制相机
-  const controls = new THREE.CameraControls(camera, container.value)
+  const controls = new THREE.CameraControls(camera, container.value);
 
   // 场景
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('black')
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("black");
 
   // 添加辅助相机
-  const camera1 = new THREE.PerspectiveCamera(20, aspect, 10, 50)
-  camera1.position.set(0, 5, 20)
-  camera1.lookAt(0, 0, 0)
-  const cameraHelper = new THREE.CameraHelper(camera1)
+  const camera1 = new THREE.PerspectiveCamera(20, aspect, 10, 50);
+  camera1.position.set(0, 5, 20);
+  camera1.lookAt(0, 0, 0);
+  const cameraHelper = new THREE.CameraHelper(camera1);
   // 辅助线加入 场景
-  scene.add(cameraHelper)
+  scene.add(cameraHelper);
 
   // 地面
   const planeSize = 20;
   // 加载纹理
   const loader = new THREE.TextureLoader();
-  const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png')
-  texture.wrapS = THREE.RepeatWrapping
-  texture.wrapT = THREE.RepeatWrapping
-  texture.magFilter = THREE.NearestFilter
-  const repeats = planeSize / 2
-  texture.repeat.set(repeats, repeats)
+  const texture = loader.load(
+    "https://threejs.org/manual/examples/resources/images/checker.png"
+  );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  const repeats = planeSize / 2;
+  texture.repeat.set(repeats, repeats);
   // 创建二维平面作为地面
-  const planGeo = new THREE.PlaneGeometry(planeSize, planeSize)
+  const planGeo = new THREE.PlaneGeometry(planeSize, planeSize);
   const planeMat = new THREE.MeshPhongMaterial({
     map: texture,
-    side: THREE.DoubleSide
-  })
+    side: THREE.DoubleSide,
+  });
   const mesh = new THREE.Mesh(planGeo, planeMat);
-  mesh.rotation.x = Math.PI * -0.5
-  scene.add(mesh)
+  mesh.rotation.x = Math.PI * -0.5;
+  scene.add(mesh);
 
   // 立方体
-  const cubeSize = 4
-  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
-  const cubeMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
-  const cubMesh = new THREE.Mesh(cubeGeo, cubeMat)
-  cubMesh.position.y = 2
-  scene.add(cubMesh)
-
+  const cubeSize = 4;
+  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  const cubeMat = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
+  const cubMesh = new THREE.Mesh(cubeGeo, cubeMat);
+  cubMesh.position.y = 2;
+  scene.add(cubMesh);
 
   // 灯光
-  const color = 0xffffff
-  const intensity = 1
+  const color = 0xffffff;
+  const intensity = 1;
   // 方向光
-  const light = new THREE.DirectionalLight(color, intensity)
-  light.position.set(0, 10, 0)
-  light.target.position.set(-5, 0, 0)
-  scene.add(light)
-  scene.add(light.target)
-
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(0, 10, 0);
+  light.target.position.set(-5, 0, 0);
+  scene.add(light);
+  scene.add(light.target);
 
   //  渲染
   function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
-    cameraHelper.update()
+    controls.update(delta);
+    cameraHelper.update();
     if (cameraBol) {
-      renderer.render(scene, camera)
+      renderer.render(scene, camera);
     } else {
-      renderer.render(scene, camera1)
+      renderer.render(scene, camera1);
     }
-    requestAnimationFrame(render)
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -369,129 +370,131 @@ div {
 </style>
 ```
 
-## 4. 使用GUI
+## 4. 使用 GUI
 
-- 为了能够快速地搭建three.js的交互UI，社区就出现了各种UI 库，其中lil-gui 是 three.js社区中非常流行的 UI 库。选择它是因为语法简单，上手快。
+- 为了能够快速地搭建 three.js 的交互 UI，社区就出现了各种 UI 库，其中 lil-gui 是 three.js 社区中非常流行的 UI 库。选择它是因为语法简单，上手快。
 
 - 主要作用，获取一个对象和该对象上的属性名，并根据属性的类型自动生成一个界面组件来操作该属性。
 - 使用它后，我们可以通过界面组件来控制场景中的物体，提高调试效率。
 
 **常用的方法**
 
-- .add() 将控制器添加到GUI，使用typeof运算符推断控制器类型。
-- .addColor() 将颜色控制器添加到GUI。
-- .addFolder() 以层级的形式创建一个新的GUI。
+- .add() 将控制器添加到 GUI，使用 typeof 运算符推断控制器类型。
+- .addColor() 将颜色控制器添加到 GUI。
+- .addFolder() 以层级的形式创建一个新的 GUI。
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import dat from 'dat.gui';
-import THREE from '@/global/three';
+import { onMounted, ref } from "vue";
+import dat from "dat.gui";
+import THREE from "@/global/three";
 const container = ref(null);
 
 const gui = new dat.GUI();
 
-
 onMounted(() => {
   const clock = new THREE.Clock();
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 20)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
   // 控制相机
-  const controls = new THREE.CameraControls(camera, container.value)
+  const controls = new THREE.CameraControls(camera, container.value);
 
   // 使用GUI控制相机
   function updateCamera() {
-    camera.updateProjectionMatrix()
+    camera.updateProjectionMatrix();
   }
-  gui.add(camera, 'fov', 1, 80).onChange(updateCamera)
-  gui.add(camera, 'near', 1, 200).onChange(updateCamera)
-  gui.add(camera, 'far', 1, 200).onChange(updateCamera)
+  gui.add(camera, "fov", 1, 80).onChange(updateCamera);
+  gui.add(camera, "near", 1, 200).onChange(updateCamera);
+  gui.add(camera, "far", 1, 200).onChange(updateCamera);
 
   class PositionGUI {
     constructor(obj, name) {
-      this.obj = obj
-      this.name = name
+      this.obj = obj;
+      this.name = name;
     }
     get modify() {
-      return this.obj[this.name]
+      return this.obj[this.name];
     }
     set modify(v) {
-      this.obj[this.name] = v
+      this.obj[this.name] = v;
     }
   }
-  const folder = gui.addFolder('全局Position')
-  folder.add(new PositionGUI(camera.position, 'x'), 'modify', 0, 200).name('x')
-  folder.add(new PositionGUI(camera.position, 'y'), 'modify', 0, 200).name('y')
-  folder.add(new PositionGUI(camera.position, 'z'), 'modify', 0, 200).name('z')
+  const folder = gui.addFolder("全局Position");
+  folder.add(new PositionGUI(camera.position, "x"), "modify", 0, 200).name("x");
+  folder.add(new PositionGUI(camera.position, "y"), "modify", 0, 200).name("y");
+  folder.add(new PositionGUI(camera.position, "z"), "modify", 0, 200).name("z");
 
   // 场景
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('black')
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("black");
 
   // 地面
   const planeSize = 20;
   // 加载纹理
   const loader = new THREE.TextureLoader();
-  const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png')
-  texture.wrapS = THREE.RepeatWrapping
-  texture.wrapT = THREE.RepeatWrapping
-  texture.magFilter = THREE.NearestFilter
-  const repeats = planeSize / 2
-  texture.repeat.set(repeats, repeats)
+  const texture = loader.load(
+    "https://threejs.org/manual/examples/resources/images/checker.png"
+  );
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.magFilter = THREE.NearestFilter;
+  const repeats = planeSize / 2;
+  texture.repeat.set(repeats, repeats);
   // 创建二维平面作为地面
-  const planGeo = new THREE.PlaneGeometry(planeSize, planeSize)
+  const planGeo = new THREE.PlaneGeometry(planeSize, planeSize);
   const planeMat = new THREE.MeshPhongMaterial({
     map: texture,
-    side: THREE.DoubleSide
-  })
+    side: THREE.DoubleSide,
+  });
   const mesh = new THREE.Mesh(planGeo, planeMat);
-  mesh.rotation.x = Math.PI * -0.5
-  scene.add(mesh)
+  mesh.rotation.x = Math.PI * -0.5;
+  scene.add(mesh);
 
   // 立方体
-  const cubeSize = 4
-  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
-  const cubeMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
-  const cubMesh = new THREE.Mesh(cubeGeo, cubeMat)
-  cubMesh.position.y = 2
-  scene.add(cubMesh)
-
+  const cubeSize = 4;
+  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  const cubeMat = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
+  const cubMesh = new THREE.Mesh(cubeGeo, cubeMat);
+  cubMesh.position.y = 2;
+  scene.add(cubMesh);
 
   // 灯光
-  const color = 0xffffff
-  const intensity = 1
+  const color = 0xffffff;
+  const intensity = 1;
   // 方向光
-  const light = new THREE.DirectionalLight(color, intensity)
-  light.position.set(0, 10, 0)
-  light.target.position.set(-5, 0, 0)
-  scene.add(light)
-  scene.add(light.target)
-
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(0, 10, 0);
+  light.target.position.set(-5, 0, 0);
+  scene.add(light);
+  scene.add(light.target);
 
   //  渲染
   function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+    controls.update(delta);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -508,9 +511,9 @@ div {
 
 ## 5. 几何体
 
-- 在three.js中如球体、立方体、平面、狗、猫、人、树、建筑等物体，都是几何体。它们都是根据大量顶点参数生成。
+- 在 three.js 中如球体、立方体、平面、狗、猫、人、树、建筑等物体，都是几何体。它们都是根据大量顶点参数生成。
 
-- 在three.js中内置了许多基本几何体，也提供了自定义几何体的方法。在开发中常见的做法是让美术在 3D 建模软件中创建 3D 模型，在由开发人员进行交互开发。
+- 在 three.js 中内置了许多基本几何体，也提供了自定义几何体的方法。在开发中常见的做法是让美术在 3D 建模软件中创建 3D 模型，在由开发人员进行交互开发。
 
 **BoxGeometry 盒子**
 
@@ -518,84 +521,98 @@ div {
 
 **SphereGeometry 球**
 
-SphereGeometry是通过扫描并计算围绕着Y轴和X轴的顶点来创建的。我们可以通过修改水平、垂直扫描角度的大来实现球体切片。
+SphereGeometry 是通过扫描并计算围绕着 Y 轴和 X 轴的顶点来创建的。我们可以通过修改水平、垂直扫描角度的大来实现球体切片。
 
 **BufferGeometry 自定义几何体**
 
-- BufferGeometry是面片、线或点几何体的有效表述。通过顶点位置、法相量、颜色值、UV 坐标等值来绘制几何体
-- 使用BufferGeometry可以有效减少向 GPU 传输顶点数据所需的开销。
-  - 定义面的顶点位置，法线坐标（法线是面朝向的信息）。一个面是两个三角形组成，所以需要6个顶点，一个立方体就需要36个顶点信息。
+- BufferGeometry 是面片、线或点几何体的有效表述。通过顶点位置、法相量、颜色值、UV 坐标等值来绘制几何体
+- 使用 BufferGeometry 可以有效减少向 GPU 传输顶点数据所需的开销。
+  - 定义面的顶点位置，法线坐标（法线是面朝向的信息）。一个面是两个三角形组成，所以需要 6 个顶点，一个立方体就需要 36 个顶点信息。
   - 通过.setAttribute()设置定义好的顶点信息。这里需要注意的是.BufferAttribute()第二个参数是确认，数组中连续的几个值组合为一组信息。
-- 自定义几何体的优势是它和GPU传输的数度快，缺点是顶点信息难以修改，在开发中需要根据需求判断是否使用。
+- 自定义几何体的优势是它和 GPU 传输的数度快，缺点是顶点信息难以修改，在开发中需要根据需求判断是否使用。
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import THREE from '@/global/three';
+import { onMounted, ref } from "vue";
+import THREE from "@/global/three";
 const container = ref(null);
 
 onMounted(() => {
   const clock = new THREE.Clock();
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 20)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
   // 控制相机
-  const controls = new THREE.CameraControls(camera, container.value)
+  const controls = new THREE.CameraControls(camera, container.value);
 
   // 场景
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('black')
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("black");
 
   // 立方体
   {
-    const width = 8 // 宽度
-    const height = 8 // 高度
-    const depth = 8 // 深度
-    const widthSegments = 4 // ui: 宽度的分段数
-    const heightSegments = 4 // ui: 高度的分段数
-    const depthSegments = 4 // ui: 深度的分段数
-    const boxGeometry = new THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments)
-    const boxMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
-    const boxMesh = new THREE.Mesh(boxGeometry, boxMat)
-    boxMesh.position.y = 2
-    scene.add(boxMesh)
+    const width = 8; // 宽度
+    const height = 8; // 高度
+    const depth = 8; // 深度
+    const widthSegments = 4; // ui: 宽度的分段数
+    const heightSegments = 4; // ui: 高度的分段数
+    const depthSegments = 4; // ui: 深度的分段数
+    const boxGeometry = new THREE.BoxGeometry(
+      width,
+      height,
+      depth,
+      widthSegments,
+      heightSegments,
+      depthSegments
+    );
+    const boxMat = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
+    const boxMesh = new THREE.Mesh(boxGeometry, boxMat);
+    boxMesh.position.y = 2;
+    scene.add(boxMesh);
   }
 
-  const material =  new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
+  const material = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
   {
-    const radius = 2 // 球体半径
-    const widthSegments = 32 // 水平分段数
-    const heightSegments = 16 // 垂直分段数
-    const geometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments)
+    const radius = 2; // 球体半径
+    const widthSegments = 32; // 水平分段数
+    const heightSegments = 16; // 垂直分段数
+    const geometry = new THREE.SphereGeometry(
+      radius,
+      widthSegments,
+      heightSegments
+    );
 
     // 网格
-    const mesh = new THREE.Mesh(geometry, material)
-    mesh.position.x = 10
-    scene.add(mesh)
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.x = 10;
+    scene.add(mesh);
   }
 
   // 圆环
   {
-    const radius = 2 // 球体半径
-    const widthSegments = 32 // 水平分段数
-    const heightSegments = 16 // 垂直分段数
-    const phiStart = Math.PI * 0.25 // 水平（经线）起始角度
-    const phiLength = Math.PI * 2 // 水平（经线）扫描角度的大小
-    const thetaStart = Math.PI * 0.25 // 垂直（纬线）起始角度
-    const thetaLength = Math.PI * 0.5 // 垂直（纬线）扫描角度大小
+    const radius = 2; // 球体半径
+    const widthSegments = 32; // 水平分段数
+    const heightSegments = 16; // 垂直分段数
+    const phiStart = Math.PI * 0.25; // 水平（经线）起始角度
+    const phiLength = Math.PI * 2; // 水平（经线）扫描角度的大小
+    const thetaStart = Math.PI * 0.25; // 垂直（纬线）起始角度
+    const thetaLength = Math.PI * 0.5; // 垂直（纬线）扫描角度大小
     const geometry1 = new THREE.SphereGeometry(
       radius,
       widthSegments,
@@ -604,39 +621,38 @@ onMounted(() => {
       phiLength,
       thetaStart,
       thetaLength
-    )
+    );
 
     // 网格
-    const mesh1 = new THREE.Mesh(geometry1, material)
-    mesh1.position.x = -10
-    scene.add(mesh1)
+    const mesh1 = new THREE.Mesh(geometry1, material);
+    mesh1.position.x = -10;
+    scene.add(mesh1);
   }
 
   // 灯光
-  const color = 0xffffff
-  const intensity = 1
+  const color = 0xffffff;
+  const intensity = 1;
   // 方向光
-  const light = new THREE.DirectionalLight(color, intensity)
-  light.position.set(0, 10, 0)
-  light.target.position.set(-5, 0, 0)
-  scene.add(light)
-  scene.add(light.target)
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(0, 10, 0);
+  light.target.position.set(-5, 0, 0);
+  scene.add(light);
+  scene.add(light.target);
 
   // 环境光
   const ambientLight = new THREE.AmbientLight(0x404040); // 设置环境光的颜色
   scene.add(ambientLight);
 
-
   //  渲染
-  function render () {
+  function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+    controls.update(delta);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -651,7 +667,7 @@ div {
 </style>
 ```
 
-## 6.  材质
+## 6. 材质
 
 - 材质简单理解就是设置几何体各个面的颜色。但它不是单纯的颜色，它能模拟在不同光照下颜色的表现。比如太阳光照射光滑的物体，表面会出现白色的反光，都能模拟。
 
@@ -663,7 +679,7 @@ div {
 
     ```js
     const material = new THREE.MeshPhongMaterial({
-          color: 0xFF0000, // 也可以使用CSS的颜色字符串
+      color: 0xff0000, // 也可以使用CSS的颜色字符串
     });
     ```
 
@@ -671,8 +687,8 @@ div {
 
     ```js
     const material = new THREE.MeshPhongMaterial();
-    material.color.setHSL(0, 1, 0.5); 
-    material.color.set(0x00FFFF); // 同 CSS的 #RRGGBB 风格
+    material.color.setHSL(0, 1, 0.5);
+    material.color.set(0x00ffff); // 同 CSS的 #RRGGBB 风格
     ```
 
 ### 6.1 MeshBasicMaterial 基础材质
@@ -681,63 +697,66 @@ div {
 - 不受灯光的影响。
 
 ```js
-const color = 0xeeeeee
-const intensity = 1
+const color = 0xeeeeee;
+const intensity = 1;
 // 创建光源
-const light = new THREE.DirectionalLight(color, intensity)
+const light = new THREE.DirectionalLight(color, intensity);
 // 光源 加入场景
-scene.add(light)
+scene.add(light);
 
 // 基础材质
-const material = new THREE.MeshBasicMaterial({ color: 0x44aa88 })
+const material = new THREE.MeshBasicMaterial({ color: 0x44aa88 });
 // 网格
-const mesh = new THREE.Mesh(sphereGeometry, material)
-mesh.position.x = 10
-scene.add(mesh)
+const mesh = new THREE.Mesh(sphereGeometry, material);
+mesh.position.x = 10;
+scene.add(mesh);
 
 // 基础材质
-const material2 = new THREE.MeshBasicMaterial({ color: 0x44aa88, wireframe: true })
+const material2 = new THREE.MeshBasicMaterial({
+  color: 0x44aa88,
+  wireframe: true,
+});
 // 网格
-const mesh2 = new THREE.Mesh(sphereGeometry, material2)
-mesh2.position.x = 0
-scene.add(mesh2)
+const mesh2 = new THREE.Mesh(sphereGeometry, material2);
+mesh2.position.x = 0;
+scene.add(mesh2);
 ```
 
-- wireframe 基础材质的属性，设置true，只渲染线框。
+- wireframe 基础材质的属性，设置 true，只渲染线框。
 - 创建球几何体使用基础材质，和平面没区别。
 - 通常用于显示几何体线框时使用。
 
-### 6.2 MeshLambertMaterial Lambert网格材质
+### 6.2 MeshLambertMaterial Lambert 网格材质
 
 - 表面光滑的材质。
 - 受灯光的影响，不过只在顶点计算光照。
 - 能很好的模拟一些表面（例如未经处理的木材或石材）。因为只在顶点计算光照，不能模拟具有镜面高光的表面（如地板砖这些）。
 
 ```js
-const material = new THREE.MeshLambertMaterial({ color: 0x44aa88 })
+const material = new THREE.MeshLambertMaterial({ color: 0x44aa88 });
 // 网格
-const mesh = new THREE.Mesh(sphereGeometry, material)
-mesh.position.x = 5
-scene.add(mesh)
+const mesh = new THREE.Mesh(sphereGeometry, material);
+mesh.position.x = 5;
+scene.add(mesh);
 ```
 
-emissive是材质的属性，用于设置材质发出的颜色，这种颜色不受光照影响。
+emissive 是材质的属性，用于设置材质发出的颜色，这种颜色不受光照影响。
 
-### 6.3 MeshPhongMaterial Phong网格材质
+### 6.3 MeshPhongMaterial Phong 网格材质
 
 - 具有镜面高光的材质。
 - 每个像素都会计算光照。
 - 模拟具有镜面高光的表面（如地板砖）。
 
 ```js
-const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 })
+const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
 // 网格
-const mesh = new THREE.Mesh(sphereGeometry, material)
-mesh.position.x = 5
-scene.add(mesh)
+const mesh = new THREE.Mesh(sphereGeometry, material);
+mesh.position.x = 5;
+scene.add(mesh);
 ```
 
-shininess属性，决定高光的光泽，值越大光泽越亮。默认是30。
+shininess 属性，决定高光的光泽，值越大光泽越亮。默认是 30。
 
 ## 7. 纹理
 
@@ -748,21 +767,22 @@ shininess属性，决定高光的光泽，值越大光泽越亮。默认是30。
 
 ```js
 // 立体几何
-const boxWidth = 4
-const boxHeight = 4
-const boxDepth = 4
-const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
+const boxWidth = 4;
+const boxHeight = 4;
+const boxDepth = 4;
+const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-const loader = new THREE.TextureLoader()
+const loader = new THREE.TextureLoader();
 // 基础材质
 const material = new THREE.MeshBasicMaterial({
-    map: loader.load( 			                                'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg'
-    )
-})
+  map: loader.load(
+    "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg"
+  ),
+});
 // 网格
-const mesh = new THREE.Mesh(geometry, material)
-mesh.position.x = 5
-scene.add(mesh)
+const mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = 5;
+scene.add(mesh);
 ```
 
 - 使用`.TextureLoader()`加载图片，转化为纹理，通过属性`map`设置材质纹理。就实现了简单的纹理加载。
@@ -773,31 +793,34 @@ scene.add(mesh)
 - 简单加载。
 
   ```js
-   const texture = loader.load('https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg');
+  const texture = loader.load(
+    "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg"
+  );
   ```
 
 - 等待纹理加载完成。loader.load()的第二个参数是个回调函数，当纹理加载完后执行。
 
   ```js
-  const loader = new THREE.TextureLoader()
-  let mesh = null
-  loader.load( 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg',
-      (texture) => {
-        // 基础材质
-        const material = new THREE.MeshBasicMaterial({
-          map: texture
-        })
-        // 网格
-        mesh = new THREE.Mesh(geometry, material)
-        mesh.position.x = 5
-        scene.add(mesh)
-      }
-  )
+  const loader = new THREE.TextureLoader();
+  let mesh = null;
+  loader.load(
+    "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg",
+    (texture) => {
+      // 基础材质
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+      });
+      // 网格
+      mesh = new THREE.Mesh(geometry, material);
+      mesh.position.x = 5;
+      scene.add(mesh);
+    }
+  );
   ```
 
 ### 7.3 重复
 
-1. 设置重复的方式需要属性.wrapS水平包裹、.wrapT垂直包裹。对应纹理UV映射中UV。
+1. 设置重复的方式需要属性.wrapS 水平包裹、.wrapT 垂直包裹。对应纹理 UV 映射中 UV。
 
    ```js
    // THREE.js 中的常量
@@ -821,7 +844,7 @@ scene.add(mesh)
 
 1. 设置水平和垂直的偏移需要使用`.offset`。
 
-2. 需要注意这里的1个单位=1个纹理大小，换句话说，0 = 没有偏移，1 = 偏移一个完整的纹理数量。
+2. 需要注意这里的 1 个单位=1 个纹理大小，换句话说，0 = 没有偏移，1 = 偏移一个完整的纹理数量。
 
    ```js
    // 水平
@@ -833,7 +856,7 @@ scene.add(mesh)
 ### 7.5 旋转
 
 1. 设置纹理的旋转需要两个属性，以弧度为单位的 `.rotation` 以及设置旋转中心点的`.center`。
-2. `.center`单位也是1个单位=1个纹理大小。
+2. `.center`单位也是 1 个单位=1 个纹理大小。
 
 ```js
 // 水平
@@ -847,98 +870,106 @@ texture.rotation = THREE.MathUtils.degToRad(45);
 ## 8. 网格
 
 - 表示基于以三角形组合成的几何体的类。
-- three.js中几何体是不能直接渲染的。在three.js有一种类型物体，这种类型放入场景中才能直接渲染图形。网格（Mesh）是这种类型中的一种。
+- three.js 中几何体是不能直接渲染的。在 three.js 有一种类型物体，这种类型放入场景中才能直接渲染图形。网格（Mesh）是这种类型中的一种。
 
 ### 8.1 创建使用
 
-构造参数new THREE.Mesh( geometry, material )
+构造参数 new THREE.Mesh( geometry, material )
 
 - geometry 几何体实例。
 - material 一个材质(material)或多个材质(material)，多个材质对应几何体的各个面。
 
 ```js
- // 立体几何
-const boxWidth = 6
-const boxHeight = 6
-const boxDepth = 6
-const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
+// 立体几何
+const boxWidth = 6;
+const boxHeight = 6;
+const boxDepth = 6;
+const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-const loader = new THREE.TextureLoader()
+const loader = new THREE.TextureLoader();
 const texture = loader.load(
-'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg'
-)
+  "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg"
+);
 
 // 基础材质
 const material = new THREE.MeshBasicMaterial({
-    map: texture
-})
+  map: texture,
+});
 
 // 网格
-const mesh = new THREE.Mesh(geometry, material)
-mesh.position.x = 5
-scene.add(mesh)
+const mesh = new THREE.Mesh(geometry, material);
+mesh.position.x = 5;
+scene.add(mesh);
 ```
 
 ### 8.2 位置、缩放、旋转
 
-因为网格(Mesh)的基类是.Object3D。因此包含scale、rotation、position三个属性，设置网站在场景中的位置。
+因为网格(Mesh)的基类是.Object3D。因此包含 scale、rotation、position 三个属性，设置网站在场景中的位置。
 
-- .position网格相对于父级坐标的位置。
+- .position 网格相对于父级坐标的位置。
 
   ```js
-  mesh.position.x = x
-  mesh.position.y = y
-  mesh.position.z = z
+  mesh.position.x = x;
+  mesh.position.y = y;
+  mesh.position.z = z;
   ```
 
-- .rotation 围绕x、y、z轴旋转的弧度，需注意是弧度值。
+- .rotation 围绕 x、y、z 轴旋转的弧度，需注意是弧度值。
 
   ```js
-  mesh.rotation.x = x
-  mesh.rotation.y = y
-  mesh.rotation.z = z
+  mesh.rotation.x = x;
+  mesh.rotation.y = y;
+  mesh.rotation.z = z;
   ```
 
-- .scale 在x、y、z轴缩放的大小。
+- .scale 在 x、y、z 轴缩放的大小。
 
   ```js
-  mesh.scale.x = x
-  mesh.scale.y = y
-  mesh.scale.z = z
+  mesh.scale.x = x;
+  mesh.scale.y = y;
+  mesh.scale.z = z;
   ```
 
 ### 8.3 使用多个材质
 
 ```js
-const loader = new THREE.TextureLoader()
-const texture = loader.load( 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg'
-)
+const loader = new THREE.TextureLoader();
+const texture = loader.load(
+  "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic.16pic.com%2F00%2F07%2F46%2F16pic_746871_b.jpg"
+);
 const texture2 = loader.load(
-'https://img2.baidu.com/it/u=363752184,2041904643&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500'
-)
+  "https://img2.baidu.com/it/u=363752184,2041904643&fm=253&fmt=auto&app=138&f=JPEG?w=747&h=500"
+);
 // 基础材质
 const material = new THREE.MeshBasicMaterial({
-    map: texture
-})
+  map: texture,
+});
 const material2 = new THREE.MeshBasicMaterial({
-    map: texture2
-})
+  map: texture2,
+});
 // 网格
-const mesh = new THREE.Mesh(geometry, [material, material, material, material, material, material2])
+const mesh = new THREE.Mesh(geometry, [
+  material,
+  material,
+  material,
+  material,
+  material,
+  material2,
+]);
 ```
 
 - 通过网格的第二个参数，传入多个材质就能实现。
-- 并不是所有的几何体类型都支持多种材质，立方体可以使用6种材料，每个面一个。圆锥体可以使用2种材料，一种用于底部，一种用于侧面。
+- 并不是所有的几何体类型都支持多种材质，立方体可以使用 6 种材料，每个面一个。圆锥体可以使用 2 种材料，一种用于底部，一种用于侧面。
 
 ### 8.4 网格组
 
 在物体类中有一个组（Group）对象。使用.add()方法将网格加入到组。用于同时操作网格组在场景中的坐标。
 
 ```js
-const group = new THREE.Group()
-group.add(sphere)
-group.add(cube)
-scene.add(group)
+const group = new THREE.Group();
+group.add(sphere);
+group.add(cube);
+scene.add(group);
 ```
 
 1. 在使用了组后。我们修改组的位置、缩放、旋转，是会同步到子对象的，他们被视为一个整体。当我们单独修改**网格对象**时，它的位置、缩放、旋转，都是相对于其父对象所在位置上进行变化。
@@ -946,28 +977,28 @@ scene.add(group)
 
 ```js
 // 网格
-const mesh = new THREE.Mesh(geometry, material)
+const mesh = new THREE.Mesh(geometry, material);
 // 相对坐标 x 移动5
-mesh.position.x = 5
+mesh.position.x = 5;
 
-const mesh2 = new THREE.Mesh(geometry, material)
+const mesh2 = new THREE.Mesh(geometry, material);
 // 相对坐标 z 移动-10
-mesh2.position.z = -10
+mesh2.position.z = -10;
 
-const group = new THREE.Group()
-group.add(mesh)
-group.add(mesh2)
+const group = new THREE.Group();
+group.add(mesh);
+group.add(mesh2);
 
 // 全局坐标x 移动10
-group.position.x = 10
-scene.add(group)
+group.position.x = 10;
+scene.add(group);
 ```
 
 ## 9. 光源
 
-为了模拟物体在不同情况下的样式，three.js中提供了多种光源。需要注意光源和材质是相互的，简单来说物体表面的颜色是光源和材质的乘积。在材质中的基础材质是不受灯光影响的。
+为了模拟物体在不同情况下的样式，three.js 中提供了多种光源。需要注意光源和材质是相互的，简单来说物体表面的颜色是光源和材质的乘积。在材质中的基础材质是不受灯光影响的。
 
-**使用Phong材质，在没有灯光的情况下，渲染的物体都是黑色。**
+**使用 Phong 材质，在没有灯光的情况下，渲染的物体都是黑色。**
 
 ### 9.1 环境光 AmbientLight
 
@@ -975,10 +1006,10 @@ scene.add(group)
 - 环境光，它没有方向，无法产生阴影，场景内任何一点受到的光照强度都是相同的。
 
 ```js
-const color = 0xffffff
-const intensity = 1
-const light = new THREE.AmbientLight(color, intensity)
-scene.add(light)
+const color = 0xffffff;
+const intensity = 1;
+const light = new THREE.AmbientLight(color, intensity);
+scene.add(light);
 ```
 
 ### 9.2 半球光 HemisphereLight
@@ -987,11 +1018,11 @@ scene.add(light)
 - 一般都是与其他光源一起使用。
 
 ```js
-const skyColor = 0xb1e1ff // 天空 蓝色
-const groundColor = 0xffffff // 地面白色
-const intensity = 1
-const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
-scene.add(light)
+const skyColor = 0xb1e1ff; // 天空 蓝色
+const groundColor = 0xffffff; // 地面白色
+const intensity = 1;
+const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+scene.add(light);
 ```
 
 ### 9.3 方向光 DirectionalLight
@@ -1000,15 +1031,15 @@ scene.add(light)
 - 一般用于模仿太阳光。
 
 ```js
-const color = 0xffffff
-const intensity = 1
-const light = new THREE.DirectionalLight(color, intensity)
-light.position.set(0, 10, 10)
-scene.add(light)
+const color = 0xffffff;
+const intensity = 1;
+const light = new THREE.DirectionalLight(color, intensity);
+light.position.set(0, 10, 10);
+scene.add(light);
 
 // 光源辅助线
-const helper = new THREE.DirectionalLightHelper(light)
-scene.add(helper)
+const helper = new THREE.DirectionalLightHelper(light);
+scene.add(helper);
 ```
 
 ### 9.4 点光源 PointLight
@@ -1018,92 +1049,96 @@ scene.add(helper)
 - 使用`.PointLightHelper()`生成点光源辅助线。
 
 ```js
-const color = 0xffffff
-const intensity = 1
-const light = new THREE.PointLight(color, intensity)
-light.position.set(0, 5, 10)
-scene.add(light)
+const color = 0xffffff;
+const intensity = 1;
+const light = new THREE.PointLight(color, intensity);
+light.position.set(0, 5, 10);
+scene.add(light);
 
 // 光源辅助线
-const helper = new THREE.PointLightHelper(light)
-scene.add(helper)
+const helper = new THREE.PointLightHelper(light);
+scene.add(helper);
 ```
 
 ### 9.5 光源强度
 
 - 在`WebGLRenderer`中有一个设置项 `.physicallyCorrectLights`。开启后可设置随着离光源的距离增加光照如何减弱。点光源和聚光灯等灯光受其影响。
-- 在光源上有两个属性。`.power`以"流明（光通量单位）"为单位的光功率,`.decay`沿着光照距离的衰退量，默认值1。
+- 在光源上有两个属性。`.power`以"流明（光通量单位）"为单位的光功率,`.decay`沿着光照距离的衰退量，默认值 1。
 
 ```js
-renderer.physicallyCorrectLights = true
+renderer.physicallyCorrectLights = true;
 
 // 点光源修改
-light.power = 800
-light.decay = 2
+light.power = 800;
+light.decay = 2;
 ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import THREE from '@/global/three';
+import { onMounted, ref } from "vue";
+import THREE from "@/global/three";
 const container = ref(null);
 
 onMounted(() => {
   const clock = new THREE.Clock();
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 20)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 20);
+  camera.lookAt(0, 0, 0);
   // 控制相机
-  const controls = new THREE.CameraControls(camera, container.value)
+  const controls = new THREE.CameraControls(camera, container.value);
 
   // 场景
-  const scene = new THREE.Scene()
-  scene.background = new THREE.Color('black')
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color("black");
 
   {
     // 地面 平铺
-    const planeSize = 20
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('https://threejs.org/manual/examples/resources/images/checker.png')
+    const planeSize = 20;
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(
+      "https://threejs.org/manual/examples/resources/images/checker.png"
+    );
     // THREE.RepeatWrapping 纹理重复
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
     // 当一个纹素覆盖大于一个像素时，贴图将如何采样。 THREE.NearestFilter，它将使用最接近的纹素的值。
-    texture.magFilter = THREE.NearestFilter
-    const repeats = planeSize / 2
+    texture.magFilter = THREE.NearestFilter;
+    const repeats = planeSize / 2;
     // 重复次数
-    texture.repeat.set(repeats, repeats)
-    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize)
+    texture.repeat.set(repeats, repeats);
+    const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
     // Phong材质
     const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
-      side: THREE.DoubleSide
-    })
-    const mesh = new THREE.Mesh(planeGeo, planeMat)
-    mesh.rotation.x = Math.PI * -0.5
-    scene.add(mesh)
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
+    scene.add(mesh);
   }
 
-
   // 立方体
-  const boxGeometry = new THREE.BoxGeometry(8, 8, 8, 4, 4, 4)
-  const boxMat = new THREE.MeshPhongMaterial({ color: '#8f4b2e' })
-  const boxMesh = new THREE.Mesh(boxGeometry, boxMat)
-  boxMesh.position.y = 2
-  scene.add(boxMesh)
+  const boxGeometry = new THREE.BoxGeometry(8, 8, 8, 4, 4, 4);
+  const boxMat = new THREE.MeshPhongMaterial({ color: "#8f4b2e" });
+  const boxMesh = new THREE.Mesh(boxGeometry, boxMat);
+  boxMesh.position.y = 2;
+  scene.add(boxMesh);
 
   {
     // 环境光
@@ -1132,33 +1167,32 @@ onMounted(() => {
   //   const helper = new THREE.DirectionalLightHelper(light)
   //   scene.add(helper)
   // }
-  renderer.physicallyCorrectLights = true
+  renderer.physicallyCorrectLights = true;
   {
-  // 点光源 PointLight
-    const color = 0xffffff
-    const intensity = 1
-    const light = new THREE.PointLight(color, intensity)
-    light.position.set(0, 5, 10)
-    light.power = 800
-    light.decay = 2
-    scene.add(light)
+    // 点光源 PointLight
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.PointLight(color, intensity);
+    light.position.set(0, 5, 10);
+    light.power = 800;
+    light.decay = 2;
+    scene.add(light);
 
     // 光源辅助线
-    const helper = new THREE.PointLightHelper(light)
-    scene.add(helper)
+    const helper = new THREE.PointLightHelper(light);
+    scene.add(helper);
   }
-
 
   //  渲染
-  function render () {
+  function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+    controls.update(delta);
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1176,7 +1210,7 @@ div {
 ## 10. 场景
 
 - 在`three.js`中使用的是右手坐标系，原因是`webGL`默认的就是这种坐标系。
-- 简单理解就是，**x轴正方向向右，y轴正方向向上，z轴正方向由屏幕从里向外**。
+- 简单理解就是，**x 轴正方向向右，y 轴正方向向上，z 轴正方向由屏幕从里向外**。
 - 在场景中所有的物体在容器的位置都是依靠这个坐标系设置的。
 
 ![](./img/10.1.场景.webp)
@@ -1193,252 +1227,262 @@ div {
 - .add() 添加对象。
 
 - .remove() 删除已添加对象。
-- .getObjectByName(name,recursive) 在创建对象时可以指定唯一的标识name，使用该方法可以查找特定名字的对象。recursive布尔对象，false：子元素上查找。true：所有后代对象上查找。
+- .getObjectByName(name,recursive) 在创建对象时可以指定唯一的标识 name，使用该方法可以查找特定名字的对象。recursive 布尔对象，false：子元素上查找。true：所有后代对象上查找。
 
 ## 11. 模拟太阳、地球、月亮的运动
 
 ### 11.1 布置基础场景
 
 ```js
- const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.precision = 'highp';
-  // 检查设备的像素比例
-  const pixelRatio = window.devicePixelRatio || 1;
+const renderer = new THREE.WebGLRenderer({
+  canvas: container.value,
+  antialias: true,
+});
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.precision = "highp";
+// 检查设备的像素比例
+const pixelRatio = window.devicePixelRatio || 1;
 
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
-  // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 50)
-  camera.up.set(0, 0, 1)
-  camera.lookAt(0, 0, 0)
-  // 场景
-  const scene = new THREE.Scene()
-  const loader = new THREE.TextureLoader()
-  const bgTexture = loader.load(bg);
-  bgTexture.minFilter = THREE.LinearFilter; // 设置纹理过滤方式，避免模糊
-  scene.background = bgTexture;
+const fov = 40; // 视野范围
+const aspect = 2; // 相机默认值 画布的宽高比
+const near = 0.1; // 近平面
+const far = 1000; // 远平面
+// 透视投影相机
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.set(0, 10, 50);
+camera.up.set(0, 0, 1);
+camera.lookAt(0, 0, 0);
+// 场景
+const scene = new THREE.Scene();
+const loader = new THREE.TextureLoader();
+const bgTexture = loader.load(bg);
+bgTexture.minFilter = THREE.LinearFilter; // 设置纹理过滤方式，避免模糊
+scene.background = bgTexture;
 
-  {
-    const color = 0xffffff
-    const intensity = 1
-    // 创建光源
-    const light = new THREE.PointLight(color, intensity)
-    // 光源 加入场景
-    scene.add(light)
-  }
+{
+  const color = 0xffffff;
+  const intensity = 1;
+  // 创建光源
+  const light = new THREE.PointLight(color, intensity);
+  // 光源 加入场景
+  scene.add(light);
+}
 
-
-  // 设置渲染器的像素比例
-  renderer.setPixelRatio(pixelRatio);
-  //  渲染
-  function render () {
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
-  }
-requestAnimationFrame(render)
+// 设置渲染器的像素比例
+renderer.setPixelRatio(pixelRatio);
+//  渲染
+function render() {
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
 ```
 
 ### 11.2 添加太阳
 
 ```js
- // 物体网格对象
-const objects = []
+// 物体网格对象
+const objects = [];
 {
-    const radius = 2
-    const widthSegments = 36
-    const heightSegments = 36
-    const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments)
+  const radius = 2;
+  const widthSegments = 36;
+  const heightSegments = 36;
+  const sphereGeometry = new THREE.SphereGeometry(
+    radius,
+    widthSegments,
+    heightSegments
+  );
 
-    // 太阳
-    const sunTexture = loader.load('../img/1.jpg')
-    const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture })
-    const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial)
-    // 放大3倍
-    sunMesh.scale.set(3, 3, 3)
-    scene.add(sunMesh)
-    // 放入控制对象
-    objects.push(sunMesh)
+  // 太阳
+  const sunTexture = loader.load("../img/1.jpg");
+  const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture });
+  const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
+  // 放大3倍
+  sunMesh.scale.set(3, 3, 3);
+  scene.add(sunMesh);
+  // 放入控制对象
+  objects.push(sunMesh);
 }
 ```
 
 1. 创建一个球几何体，太阳、地球、月亮都是球形，我们可以公用一个球体。
 2. 使用**基础材质**加载太阳纹理。因为灯光是点光源，发光点在中心，太阳也在中心，使用其他材质是无法接收光源。
-3. 太阳比其他球体大，放大3倍。
+3. 太阳比其他球体大，放大 3 倍。
 
 ### 11.3 添加地球
 
 ```js
 // 地球
-const earthTexture = loader.load('../img/3.jpg')
+const earthTexture = loader.load("../img/3.jpg");
 const earthMaterial = new THREE.MeshPhongMaterial({
-    map: earthTexture
-})
-const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial)
-earthMesh.position.x = 20
-scene.add(earthMesh)
+  map: earthTexture,
+});
+const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
+earthMesh.position.x = 20;
+scene.add(earthMesh);
 // 放入控制对象
-objects.push(earthMesh)
+objects.push(earthMesh);
 ```
 
-- 这里重复使用`sphereGeometry`球几何体，创建`.MeshPhongMaterial()`材质。将其定位在太阳的左边 20个单位。
+- 这里重复使用`sphereGeometry`球几何体，创建`.MeshPhongMaterial()`材质。将其定位在太阳的左边 20 个单位。
 
 1. 可以看到太阳和地球都在自转，但地球并没有绕着太阳转。
 2. 如果我们通过计算的方式修改地球的全局坐标围绕太阳转是可以的，但是这样很麻烦。这里我们添加一个新场景**太阳系**，把地球和太阳都放入场景中，旋转太阳系这个场景，因为太阳在中心，实现的效果就是地球围绕太阳转。
 
 ```js
 // 太阳系 物体对象
-const solarSystem = new THREE.Object3D()
-scene.add(solarSystem)
-objects.push(solarSystem)
+const solarSystem = new THREE.Object3D();
+scene.add(solarSystem);
+objects.push(solarSystem);
 
-solarSystem.add(sunMesh)
-solarSystem.add(earthMesh)
+solarSystem.add(sunMesh);
+solarSystem.add(earthMesh);
 ```
 
 ### 11.4 添加月球
 
 ```js
-const landOrbit = new THREE.Object3D()
-landOrbit.position.x = 20
-solarSystem.add(landOrbit)
-objects.push(landOrbit)
+const landOrbit = new THREE.Object3D();
+landOrbit.position.x = 20;
+solarSystem.add(landOrbit);
+objects.push(landOrbit);
 // 月球
-const moonTexture = loader.load('../img/2.jpg')
-const moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture })
-const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial)
-moonMesh.scale.set(0.5, 0.5, 0.5)
-moonMesh.position.x = 5
-objects.push(moonMesh)
+const moonTexture = loader.load("../img/2.jpg");
+const moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture });
+const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
+moonMesh.scale.set(0.5, 0.5, 0.5);
+moonMesh.position.x = 5;
+objects.push(moonMesh);
 
 // 加入地月系
-landOrbit.add(earthMesh)
-landOrbit.add(moonMesh)
+landOrbit.add(earthMesh);
+landOrbit.add(moonMesh);
 ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import THREE from '@/global/three';
-import bg from '@/assets/img/4.jpg'
-import sun from '@/assets/img/1.jpg'
-import earth from '@/assets/img/3.jpg'
-import moon from '@/assets/img/2.jpg'
+import { onMounted, ref } from "vue";
+import THREE from "@/global/three";
+import bg from "@/assets/img/4.jpg";
+import sun from "@/assets/img/1.jpg";
+import earth from "@/assets/img/3.jpg";
+import moon from "@/assets/img/2.jpg";
 
 const container = ref(null);
 
 onMounted(() => {
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.precision = 'highp';
+  renderer.precision = "highp";
   // 检查设备的像素比例
   const pixelRatio = window.devicePixelRatio || 1;
 
-  const fov = 40 // 视野范围
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
+  const fov = 40; // 视野范围
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
   // 透视投影相机
-  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-  camera.position.set(0, 10, 50)
-  camera.up.set(0, 0, 1)
-  camera.lookAt(0, 0, 0)
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.set(0, 10, 50);
+  camera.up.set(0, 0, 1);
+  camera.lookAt(0, 0, 0);
   // 场景
-  const scene = new THREE.Scene()
-  const loader = new THREE.TextureLoader()
+  const scene = new THREE.Scene();
+  const loader = new THREE.TextureLoader();
   const bgTexture = loader.load(bg);
   bgTexture.minFilter = THREE.LinearFilter; // 设置纹理过滤方式，避免模糊
   scene.background = bgTexture;
 
   {
-    const color = 0xffffff
-    const intensity = 1
+    const color = 0xffffff;
+    const intensity = 1;
     // 创建光源
-    const light = new THREE.PointLight(color, intensity)
+    const light = new THREE.PointLight(color, intensity);
     // 光源 加入场景
-    scene.add(light)
+    scene.add(light);
   }
   // 物体网格对象
-  const objects = []
+  const objects = [];
   {
-    const radius = 2
-    const widthSegments = 36
-    const heightSegments = 36
-    const sphereGeometry = new THREE.SphereGeometry(radius, widthSegments, heightSegments)
+    const radius = 2;
+    const widthSegments = 36;
+    const heightSegments = 36;
+    const sphereGeometry = new THREE.SphereGeometry(
+      radius,
+      widthSegments,
+      heightSegments
+    );
 
     // 太阳
-    const sunTexture = loader.load(sun)
-    const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture })
-    const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial)
+    const sunTexture = loader.load(sun);
+    const sunMaterial = new THREE.MeshBasicMaterial({ map: sunTexture });
+    const sunMesh = new THREE.Mesh(sphereGeometry, sunMaterial);
     // 放大3倍
-    sunMesh.scale.set(3, 3, 3)
+    sunMesh.scale.set(3, 3, 3);
     // scene.add(sunMesh)
     // 放入控制对象
-    objects.push(sunMesh)
+    objects.push(sunMesh);
 
     // 地球
-    const earthTexture = loader.load(earth)
+    const earthTexture = loader.load(earth);
     const earthMaterial = new THREE.MeshPhongMaterial({
-      map: earthTexture
-    })
-    const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial)
+      map: earthTexture,
+    });
+    const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
     // earthMesh.position.x = 20
     // scene.add(earthMesh)
     // 放入控制对象
-    objects.push(earthMesh)
+    objects.push(earthMesh);
 
-    const solarSystem = new THREE.Object3D()
-    scene.add(solarSystem)
-    objects.push(solarSystem)
+    const solarSystem = new THREE.Object3D();
+    scene.add(solarSystem);
+    objects.push(solarSystem);
 
-    solarSystem.add(sunMesh)
+    solarSystem.add(sunMesh);
 
-    const landOrbit = new THREE.Object3D()
-    landOrbit.position.x = 20
-    solarSystem.add(landOrbit)
-    objects.push(landOrbit)
+    const landOrbit = new THREE.Object3D();
+    landOrbit.position.x = 20;
+    solarSystem.add(landOrbit);
+    objects.push(landOrbit);
     // 月球
-    const moonTexture = loader.load(moon)
-    const moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture })
-    const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial)
-    moonMesh.scale.set(0.5, 0.5, 0.5)
-    moonMesh.position.x = 5
-    objects.push(moonMesh)
+    const moonTexture = loader.load(moon);
+    const moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture });
+    const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
+    moonMesh.scale.set(0.5, 0.5, 0.5);
+    moonMesh.position.x = 5;
+    objects.push(moonMesh);
 
     // 加入地月系
-    landOrbit.add(earthMesh)
-    landOrbit.add(moonMesh)
-
+    landOrbit.add(earthMesh);
+    landOrbit.add(moonMesh);
   }
-
-
 
   // 设置渲染器的像素比例
   renderer.setPixelRatio(pixelRatio);
 
   //  渲染
-  function render (time) {
-    time *= 0.001
+  function render(time) {
+    time *= 0.001;
     // 网格对象 旋转
     objects.forEach((obj) => {
-      obj.rotation.y = time
-    })
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+      obj.rotation.y = time;
+    });
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render)
-})
+  requestAnimationFrame(render);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1460,83 +1504,84 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import THREE from '@/global/three';
-import { onMounted, ref } from 'vue';
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
 
 const container = ref(null);
 const clock = new THREE.Clock();
 
 // 创建相机
 const makeCamera = (fov = 40) => {
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
-  return new THREE.PerspectiveCamera(fov, aspect, near, far)
-}
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  return new THREE.PerspectiveCamera(fov, aspect, near, far);
+};
 
 const initThree = () => {
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  document.querySelector('#app').appendChild(renderer.domElement);
-  renderer.setClearColor(0xeeeeee, 0.5)
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  document.querySelector("#app").appendChild(renderer.domElement);
+  renderer.setClearColor(0xeeeeee, 0.5);
 
   // 透视投影相机
-  const camera = makeCamera()
+  const camera = makeCamera();
   // .multiplyScalar() 矩阵的每个元素乘以参数。
-  camera.position.set(8, 4, 10).multiplyScalar(3)
-  camera.lookAt(0, 0, 0) // 相机朝向
+  camera.position.set(8, 4, 10).multiplyScalar(3);
+  camera.lookAt(0, 0, 0); // 相机朝向
   const controls = new THREE.CameraControls(camera, container.value);
-  controls.update()
+  controls.update();
 
   // 创建场景
-  const scene = new THREE.Scene()
+  const scene = new THREE.Scene();
 
   {
     // 方向光
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(0, 20, 0)
-    scene.add(light)
+    light.position.set(0, 20, 0);
+    scene.add(light);
   }
   {
     // 方向光
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 2, 4)
-    scene.add(light)
+    light.position.set(1, 2, 4);
+    scene.add(light);
   }
 
   // 创建一个平面，旋转一下。
   {
     // 平面几何
-    const groundGeometry = new THREE.PlaneGeometry(50, 50)
-    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866 })
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
-    groundMesh.rotation.x = Math.PI * -0.5
-    scene.add(groundMesh)
+    const groundGeometry = new THREE.PlaneGeometry(50, 50);
+    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866 });
+    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    groundMesh.rotation.x = Math.PI * -0.5;
+    scene.add(groundMesh);
   }
 
-
-  function render () {
+  function render() {
     const delta = clock.getDelta();
-    controls.update(delta)
+    controls.update(delta);
     // 加载渲染器
-    renderer.render(scene, camera)
+    renderer.render(scene, camera);
     // 开始动画
-    requestAnimationFrame(render)
+    requestAnimationFrame(render);
   }
 
   // 开始渲染
-  requestAnimationFrame(render)
-
-}
+  requestAnimationFrame(render);
+};
 
 onMounted(() => {
-  initThree()
-})
+  initThree();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -1556,7 +1601,7 @@ div {
 
 1. 创建坦克局部空间，几何体都放入这个局部空间。在全局空间中移动这个局部空间，就是移动整个坦克。
 
-   ```js 
+   ```js
    const tank = new THREE.Object3D();
    scene.add(tank);
    ```
@@ -1565,92 +1610,96 @@ div {
 
    ```js
    // 创建底盘
-   const carWidth = 4
-   const carHeight = 1
-   const carLength = 8
+   const carWidth = 4;
+   const carHeight = 1;
+   const carLength = 8;
    // 几何体
-   const bodyGeometry = new THREE.BoxGeometry(carWidth, carHeight, carLength)
-   const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6688aa })
-   const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial)
-   bodyMesh.position.y = 1.4
-   tank.add(bodyMesh)
-   
-   const wheelRadius = 1
-   const wheelThickness = 0.5
-   const wheelSegments = 36
+   const bodyGeometry = new THREE.BoxGeometry(carWidth, carHeight, carLength);
+   const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6688aa });
+   const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+   bodyMesh.position.y = 1.4;
+   tank.add(bodyMesh);
+
+   const wheelRadius = 1;
+   const wheelThickness = 0.5;
+   const wheelSegments = 36;
    // 圆柱体
    const wheelGeometry = new THREE.CylinderGeometry(
-       wheelRadius, // 圆柱顶部圆的半径
-       wheelRadius, // 圆柱底部圆的半径
-       wheelThickness, // 高度
-       wheelSegments // X轴分成多少段
-   )
-   const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 })
+     wheelRadius, // 圆柱顶部圆的半径
+     wheelRadius, // 圆柱底部圆的半径
+     wheelThickness, // 高度
+     wheelSegments // X轴分成多少段
+   );
+   const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 });
    // 根据底盘 定位轮胎位置
    const wheelPositions = [
-       [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, carLength / 3],
-       [carWidth / 2 + wheelThickness / 2, -carHeight / 2, carLength / 3],
-       [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, 0],
-       [carWidth / 2 + wheelThickness / 2, -carHeight / 2, 0],
-       [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, -carLength / 3],
-       [carWidth / 2 + wheelThickness / 2, -carHeight / 2, -carLength / 3]
-   ]
+     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, carLength / 3],
+     [carWidth / 2 + wheelThickness / 2, -carHeight / 2, carLength / 3],
+     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, 0],
+     [carWidth / 2 + wheelThickness / 2, -carHeight / 2, 0],
+     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, -carLength / 3],
+     [carWidth / 2 + wheelThickness / 2, -carHeight / 2, -carLength / 3],
+   ];
    const wheelMeshes = wheelPositions.map((position) => {
-       const mesh = new THREE.Mesh(wheelGeometry, wheelMaterial)
-       mesh.position.set(...position)
-       mesh.rotation.z = Math.PI * 0.5
-       bodyMesh.add(mesh)
-       return mesh
-   })
+     const mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
+     mesh.position.set(...position);
+     mesh.rotation.z = Math.PI * 0.5;
+     bodyMesh.add(mesh);
+     return mesh;
+   });
    ```
 
 3. 添加局部相机到底盘上。它父节点是底盘，所以它的位移和旋转都是在底盘局部空间变化的。
 
    ```js
    // 底盘局部相机
-   const tankCameraFov = 75
-   const tankCamera = makeCamera(tankCameraFov)
-   tankCamera.position.y = 3
-   tankCamera.position.z = -6
-   tankCamera.rotation.y = Math.PI
-   bodyMesh.add(tankCamera)
+   const tankCameraFov = 75;
+   const tankCamera = makeCamera(tankCameraFov);
+   tankCamera.position.y = 3;
+   tankCamera.position.z = -6;
+   tankCamera.rotation.y = Math.PI;
+   bodyMesh.add(tankCamera);
    ```
 
 4. 绘制坦克头
 
    ```js
    // 坦克头
-   const domeRadius = 2
-   const domeWidthSubdivisions = 12
-   const domeHeightSubdivisions = 12
-   const domePhiStart = 0
-   const domePhiEnd = Math.PI * 2
-   const domeThetaStart = 0
-   const domeThetaEnd = Math.PI * 0.5
+   const domeRadius = 2;
+   const domeWidthSubdivisions = 12;
+   const domeHeightSubdivisions = 12;
+   const domePhiStart = 0;
+   const domePhiEnd = Math.PI * 2;
+   const domeThetaStart = 0;
+   const domeThetaEnd = Math.PI * 0.5;
    const domeGeometry = new THREE.SphereGeometry(
-       domeRadius,
-       domeWidthSubdivisions,
-       domeHeightSubdivisions,
-       domePhiStart,
-       domePhiEnd,
-       domeThetaStart,
-       domeThetaEnd
-   )
-   const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial)
-   bodyMesh.add(domeMesh)
-   domeMesh.position.y = 0.5
-   
+     domeRadius,
+     domeWidthSubdivisions,
+     domeHeightSubdivisions,
+     domePhiStart,
+     domePhiEnd,
+     domeThetaStart,
+     domeThetaEnd
+   );
+   const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial);
+   bodyMesh.add(domeMesh);
+   domeMesh.position.y = 0.5;
+
    // 炮干
-   const turretWidth = 0.5
-   const turretHeight = 0.5
-   const turretLength = 5
-   const turretGeometry = new THREE.BoxGeometry(turretWidth, turretHeight, turretLength)
-   const turretMesh = new THREE.Mesh(turretGeometry, bodyMaterial)
-   const turretPivot = new THREE.Object3D()
-   turretPivot.position.y = 0.5
-   turretMesh.position.z = turretLength * 0.5
-   turretPivot.add(turretMesh)
-   bodyMesh.add(turretPivot)
+   const turretWidth = 0.5;
+   const turretHeight = 0.5;
+   const turretLength = 5;
+   const turretGeometry = new THREE.BoxGeometry(
+     turretWidth,
+     turretHeight,
+     turretLength
+   );
+   const turretMesh = new THREE.Mesh(turretGeometry, bodyMaterial);
+   const turretPivot = new THREE.Object3D();
+   turretPivot.position.y = 0.5;
+   turretMesh.position.z = turretLength * 0.5;
+   turretPivot.add(turretMesh);
+   bodyMesh.add(turretPivot);
    ```
 
 ### 12.3 绘制目标
@@ -1659,29 +1708,32 @@ div {
 
 ```js
 // 目标
-const targetGeometry = new THREE.SphereGeometry(0.5, 36, 36)
-const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, flatShading: true })
-const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial)
-const targetElevation = new THREE.Object3D()
-const targetBob = new THREE.Object3D()
-scene.add(targetElevation)
-targetElevation.position.z = carLength * 2
-targetElevation.position.y = 8
-targetElevation.add(targetBob)
-targetBob.add(targetMesh)
+const targetGeometry = new THREE.SphereGeometry(0.5, 36, 36);
+const targetMaterial = new THREE.MeshPhongMaterial({
+  color: 0x00ff00,
+  flatShading: true,
+});
+const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
+const targetElevation = new THREE.Object3D();
+const targetBob = new THREE.Object3D();
+scene.add(targetElevation);
+targetElevation.position.z = carLength * 2;
+targetElevation.position.y = 8;
+targetElevation.add(targetBob);
+targetBob.add(targetMesh);
 
 // 获取目标全局坐标
-const targetPosition = new THREE.Vector3()
-targetMesh.getWorldPosition(targetPosition)
+const targetPosition = new THREE.Vector3();
+targetMesh.getWorldPosition(targetPosition);
 // 炮台瞄准目标
-turretPivot.lookAt(targetPosition)
+turretPivot.lookAt(targetPosition);
 
 // 目标上的相机
-const targetCamera = makeCamera()
-targetCamera.position.y = 1
-targetCamera.position.z = -2
-targetCamera.rotation.y = Math.PI
-targetBob.add(targetCamera)
+const targetCamera = makeCamera();
+targetCamera.position.y = 1;
+targetCamera.position.z = -2;
+targetCamera.rotation.y = Math.PI;
+targetBob.add(targetCamera);
 ```
 
 ### 12.4 绘制移动路径
@@ -1691,25 +1743,25 @@ targetBob.add(targetCamera)
 ```js
 // 绘制移动路径
 const curve = new THREE.SplineCurve([
-    new THREE.Vector2(-10, 20),
-    new THREE.Vector2(-5, 5),
-    new THREE.Vector2(0, 0),
-    new THREE.Vector2(5, -5),
-    new THREE.Vector2(10, 0),
-    new THREE.Vector2(5, 10),
-    new THREE.Vector2(-5, 10),
-    new THREE.Vector2(-10, -10),
-    new THREE.Vector2(-15, -8),
-    new THREE.Vector2(-10, 20)
-])
+  new THREE.Vector2(-10, 20),
+  new THREE.Vector2(-5, 5),
+  new THREE.Vector2(0, 0),
+  new THREE.Vector2(5, -5),
+  new THREE.Vector2(10, 0),
+  new THREE.Vector2(5, 10),
+  new THREE.Vector2(-5, 10),
+  new THREE.Vector2(-10, -10),
+  new THREE.Vector2(-15, -8),
+  new THREE.Vector2(-10, 20),
+]);
 
-const points = curve.getPoints(50)
-const geometry = new THREE.BufferGeometry().setFromPoints(points)
-const material = new THREE.LineBasicMaterial({ color: 0xff0000 })
-const splineObject = new THREE.Line(geometry, material)
-splineObject.rotation.x = Math.PI * 0.5
-splineObject.position.y = 0.05
-scene.add(splineObject)
+const points = curve.getPoints(50);
+const geometry = new THREE.BufferGeometry().setFromPoints(points);
+const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+const splineObject = new THREE.Line(geometry, material);
+splineObject.rotation.x = Math.PI * 0.5;
+splineObject.position.y = 0.05;
+scene.add(splineObject);
 ```
 
 ### 12.5 加入动画
@@ -1733,7 +1785,7 @@ scene.add(splineObject)
        targetMesh.getWorldPosition(targetPosition2)
        // 炮台瞄准目标
        turretPivot.lookAt(targetPosition2)
-   
+
        // 根据路线移动坦克
        const tankTime = time * 0.05
        curve.getPointAt(tankTime % 1, tankPosition)
@@ -1762,7 +1814,7 @@ scene.add(splineObject)
        tank.getWorldPosition(targetPosition2)
        // 看向坦克
        targetCamera.lookAt(targetPosition2)
-   
+
        // 加载渲染器 tankCamera targetCamera
        renderer.render(scene, camera1.cam)
        ...
@@ -1772,90 +1824,93 @@ scene.add(splineObject)
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
 <script setup>
-import THREE from '@/global/three';
-import { onMounted, ref } from 'vue';
+import THREE from "@/global/three";
+import { onMounted, ref } from "vue";
 
 const container = ref(null);
 const clock = new THREE.Clock();
 
 // 创建相机
 const makeCamera = (fov = 40) => {
-  const aspect = 2 // 相机默认值 画布的宽高比
-  const near = 0.1 // 近平面
-  const far = 1000 // 远平面
-  return new THREE.PerspectiveCamera(fov, aspect, near, far)
-}
+  const aspect = 2; // 相机默认值 画布的宽高比
+  const near = 0.1; // 近平面
+  const far = 1000; // 远平面
+  return new THREE.PerspectiveCamera(fov, aspect, near, far);
+};
 
 const initThree = () => {
   // 渲染器
-  const renderer = new THREE.WebGLRenderer({ canvas: container.value, antialias: true });
-  document.querySelector('#app').appendChild(renderer.domElement);
-  renderer.setClearColor(0xeeeeee, 0.5)
+  const renderer = new THREE.WebGLRenderer({
+    canvas: container.value,
+    antialias: true,
+  });
+  document.querySelector("#app").appendChild(renderer.domElement);
+  renderer.setClearColor(0xeeeeee, 0.5);
 
   // 透视投影相机
-  const camera = makeCamera()
+  const camera = makeCamera();
   // .multiplyScalar() 矩阵的每个元素乘以参数。
-  camera.position.set(8, 4, 10).multiplyScalar(3)
-  camera.lookAt(0, 0, 0) // 相机朝向
+  camera.position.set(8, 4, 10).multiplyScalar(3);
+  camera.lookAt(0, 0, 0); // 相机朝向
   const controls = new THREE.CameraControls(camera, container.value);
-  controls.update()
+  controls.update();
 
   // 创建场景
-  const scene = new THREE.Scene()
+  const scene = new THREE.Scene();
 
   {
     // 方向光
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(0, 20, 0)
-    scene.add(light)
+    light.position.set(0, 20, 0);
+    scene.add(light);
   }
   {
     // 方向光
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 2, 4)
-    scene.add(light)
+    light.position.set(1, 2, 4);
+    scene.add(light);
   }
 
   // 创建一个平面，旋转一下。
   {
     // 平面几何
-    const groundGeometry = new THREE.PlaneGeometry(50, 50)
-    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866 })
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
-    groundMesh.rotation.x = Math.PI * -0.5
-    scene.add(groundMesh)
+    const groundGeometry = new THREE.PlaneGeometry(50, 50);
+    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866 });
+    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    groundMesh.rotation.x = Math.PI * -0.5;
+    scene.add(groundMesh);
   }
 
   // ============================ 创建坦克 start =============================
   // 创建坦克局部空间
   const tank = new THREE.Object3D();
-  scene.add(tank)
+  scene.add(tank);
   // 创建轮胎和底盘。
-  const carWidth = 4
-  const carHeight = 1
-  const carLength = 8
+  const carWidth = 4;
+  const carHeight = 1;
+  const carLength = 8;
   // 几何体
-  const bodyGeometry = new THREE.BoxGeometry(carWidth, carHeight, carLength)
-  const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6688aa })
-  const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial)
-  bodyMesh.position.y = 1.4
-  tank.add(bodyMesh)
-  const wheelRadius = 1
-  const wheelThickness = 0.5
-  const wheelSegments = 36
+  const bodyGeometry = new THREE.BoxGeometry(carWidth, carHeight, carLength);
+  const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6688aa });
+  const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+  bodyMesh.position.y = 1.4;
+  tank.add(bodyMesh);
+  const wheelRadius = 1;
+  const wheelThickness = 0.5;
+  const wheelSegments = 36;
   // 圆柱体
   const wheelGeometry = new THREE.CylinderGeometry(
     wheelRadius, // 圆柱顶部圆的半径
     wheelRadius, // 圆柱底部圆的半径
     wheelThickness, // 高度
     wheelSegments // X轴分成多少段
-  )
-  const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 })
+  );
+  const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x888888 });
   // 根据底盘 定位轮胎位置
   const wheelPositions = [
     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, carLength / 3],
@@ -1863,30 +1918,30 @@ const initThree = () => {
     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, 0],
     [carWidth / 2 + wheelThickness / 2, -carHeight / 2, 0],
     [-carWidth / 2 - wheelThickness / 2, -carHeight / 2, -carLength / 3],
-    [carWidth / 2 + wheelThickness / 2, -carHeight / 2, -carLength / 3]
-  ]
+    [carWidth / 2 + wheelThickness / 2, -carHeight / 2, -carLength / 3],
+  ];
   const wheelMeshes = wheelPositions.map((position) => {
-    const mesh = new THREE.Mesh(wheelGeometry, wheelMaterial)
-    mesh.position.set(...position)
-    mesh.rotation.z = Math.PI * 0.5
-    bodyMesh.add(mesh)
-    return mesh
-  })
+    const mesh = new THREE.Mesh(wheelGeometry, wheelMaterial);
+    mesh.position.set(...position);
+    mesh.rotation.z = Math.PI * 0.5;
+    bodyMesh.add(mesh);
+    return mesh;
+  });
   // 底盘局部相机
-  const tankCameraFov = 75
-  const tankCamera = makeCamera(tankCameraFov)
-  tankCamera.position.y = 3
-  tankCamera.position.z = -6
-  tankCamera.rotation.y = Math.PI
-  bodyMesh.add(tankCamera)
+  const tankCameraFov = 75;
+  const tankCamera = makeCamera(tankCameraFov);
+  tankCamera.position.y = 3;
+  tankCamera.position.z = -6;
+  tankCamera.rotation.y = Math.PI;
+  bodyMesh.add(tankCamera);
   // 绘制坦克头
-  const domeRadius = 2
-  const domeWidthSubdivisions = 12
-  const domeHeightSubdivisions = 12
-  const domePhiStart = 0
-  const domePhiEnd = Math.PI * 2
-  const domeThetaStart = 0
-  const domeThetaEnd = Math.PI * 0.5
+  const domeRadius = 2;
+  const domeWidthSubdivisions = 12;
+  const domeHeightSubdivisions = 12;
+  const domePhiStart = 0;
+  const domePhiEnd = Math.PI * 2;
+  const domeThetaStart = 0;
+  const domeThetaEnd = Math.PI * 0.5;
   const domeGeometry = new THREE.SphereGeometry(
     domeRadius,
     domeWidthSubdivisions,
@@ -1895,50 +1950,56 @@ const initThree = () => {
     domePhiEnd,
     domeThetaStart,
     domeThetaEnd
-  )
-  const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial)
-  bodyMesh.add(domeMesh)
-  domeMesh.position.y = 0.5
+  );
+  const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial);
+  bodyMesh.add(domeMesh);
+  domeMesh.position.y = 0.5;
 
   // 炮干
-  const turretWidth = 0.5
-  const turretHeight = 0.5
-  const turretLength = 5
-  const turretGeometry = new THREE.BoxGeometry(turretWidth, turretHeight, turretLength)
-  const turretMesh = new THREE.Mesh(turretGeometry, bodyMaterial)
-  const turretPivot = new THREE.Object3D()
-  turretPivot.position.y = 0.5
-  turretMesh.position.z = turretLength * 0.5
-  turretPivot.add(turretMesh)
-  bodyMesh.add(turretPivot)
+  const turretWidth = 0.5;
+  const turretHeight = 0.5;
+  const turretLength = 5;
+  const turretGeometry = new THREE.BoxGeometry(
+    turretWidth,
+    turretHeight,
+    turretLength
+  );
+  const turretMesh = new THREE.Mesh(turretGeometry, bodyMaterial);
+  const turretPivot = new THREE.Object3D();
+  turretPivot.position.y = 0.5;
+  turretMesh.position.z = turretLength * 0.5;
+  turretPivot.add(turretMesh);
+  bodyMesh.add(turretPivot);
   // ============================ 创建坦克 end =============================
-
 
   // ============================ 绘制目标 start =============================
   // 目标
-  const targetGeometry = new THREE.SphereGeometry(0.5, 36, 36)
-  const targetMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, flatShading: true })
-  const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial)
-  const targetElevation = new THREE.Object3D()
-  const targetBob = new THREE.Object3D()
-  scene.add(targetElevation)
-  targetElevation.position.z = carLength * 2
-  targetElevation.position.y = 8
-  targetElevation.add(targetBob)
-  targetBob.add(targetMesh)
+  const targetGeometry = new THREE.SphereGeometry(0.5, 36, 36);
+  const targetMaterial = new THREE.MeshPhongMaterial({
+    color: 0x00ff00,
+    flatShading: true,
+  });
+  const targetMesh = new THREE.Mesh(targetGeometry, targetMaterial);
+  const targetElevation = new THREE.Object3D();
+  const targetBob = new THREE.Object3D();
+  scene.add(targetElevation);
+  targetElevation.position.z = carLength * 2;
+  targetElevation.position.y = 8;
+  targetElevation.add(targetBob);
+  targetBob.add(targetMesh);
 
   // 获取目标全局坐标
-  const targetPosition = new THREE.Vector3()
-  targetMesh.getWorldPosition(targetPosition)
+  const targetPosition = new THREE.Vector3();
+  targetMesh.getWorldPosition(targetPosition);
   // 炮台瞄准目标
-  turretPivot.lookAt(targetPosition)
+  turretPivot.lookAt(targetPosition);
 
   // 目标上的相机
-  const targetCamera = makeCamera()
-  targetCamera.position.y = 1
-  targetCamera.position.z = -2
-  targetCamera.rotation.y = Math.PI
-  targetBob.add(targetCamera)
+  const targetCamera = makeCamera();
+  targetCamera.position.y = 1;
+  targetCamera.position.z = -2;
+  targetCamera.rotation.y = Math.PI;
+  targetBob.add(targetCamera);
   // ============================ 绘制目标 end =============================
 
   // ============================== 绘制移动路径 start ======================
@@ -1952,72 +2013,71 @@ const initThree = () => {
     new THREE.Vector2(-5, 10),
     new THREE.Vector2(-10, -10),
     new THREE.Vector2(-15, -8),
-    new THREE.Vector2(-10, 20)
-  ])
+    new THREE.Vector2(-10, 20),
+  ]);
 
-  const points = curve.getPoints(50)
-  const geometry = new THREE.BufferGeometry().setFromPoints(points)
-  const material = new THREE.LineBasicMaterial({ color: 0xff0000 })
-  const splineObject = new THREE.Line(geometry, material)
-  splineObject.rotation.x = Math.PI * 0.5
-  splineObject.position.y = 0.05
-  scene.add(splineObject)
+  const points = curve.getPoints(50);
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const splineObject = new THREE.Line(geometry, material);
+  splineObject.rotation.x = Math.PI * 0.5;
+  splineObject.position.y = 0.05;
+  scene.add(splineObject);
   // ============================== 绘制移动路径 end ======================
 
-  const targetPosition2 = new THREE.Vector3()
-  const tankPosition = new THREE.Vector2()
-  const tankTarget = new THREE.Vector2()
+  const targetPosition2 = new THREE.Vector3();
+  const tankPosition = new THREE.Vector2();
+  const tankTarget = new THREE.Vector2();
 
   const cameras = [
-    { cam: camera, desc: '全局相机' },
-    { cam: targetCamera, desc: '目标上的相机' },
-    { cam: tankCamera, desc: '底盘 局部相机' }
-  ]
+    { cam: camera, desc: "全局相机" },
+    { cam: targetCamera, desc: "目标上的相机" },
+    { cam: tankCamera, desc: "底盘 局部相机" },
+  ];
 
-  function render (time) {
-    time *= 0.001
+  function render(time) {
+    time *= 0.001;
     // 上下移动目标
-    targetBob.position.y = Math.sin(time * 2) * 4
-    targetMaterial.emissive.setHSL((time * 10) % 1, 1, 0.25)
-    targetMaterial.color.setHSL((time * 10) % 1, 1, 0.25)
+    targetBob.position.y = Math.sin(time * 2) * 4;
+    targetMaterial.emissive.setHSL((time * 10) % 1, 1, 0.25);
+    targetMaterial.color.setHSL((time * 10) % 1, 1, 0.25);
     // 获取目标全局坐标
-    targetMesh.getWorldPosition(targetPosition2)
+    targetMesh.getWorldPosition(targetPosition2);
     // 炮台瞄准目标
-    turretPivot.lookAt(targetPosition2)
+    turretPivot.lookAt(targetPosition2);
 
     // 根据路线移动坦克
-    const tankTime = time * 0.05
-    curve.getPointAt(tankTime % 1, tankPosition)
+    const tankTime = time * 0.05;
+    curve.getPointAt(tankTime % 1, tankPosition);
     // 获取 路径 坦克前一点坐标 用于坦克头 向前
-    curve.getPointAt((tankTime + 0.01) % 1, tankTarget)
+    curve.getPointAt((tankTime + 0.01) % 1, tankTarget);
     // 位移
-    tank.position.set(tankPosition.x, 0, tankPosition.y)
-    tank.lookAt(tankTarget.x, 0, tankTarget.y)
+    tank.position.set(tankPosition.x, 0, tankPosition.y);
+    tank.lookAt(tankTarget.x, 0, tankTarget.y);
     const delta = clock.getDelta();
-    controls.update(delta)
+    controls.update(delta);
     // 加载渲染器
-    renderer.render(scene, camera)
+    renderer.render(scene, camera);
     // // 切换相机
-    const camera1 = cameras[time % cameras.length | 0]
+    const camera1 = cameras[time % cameras.length | 0];
     // 获取坦克的 全局坐标
-    tank.getWorldPosition(targetPosition2)
+    tank.getWorldPosition(targetPosition2);
     // 看向坦克
-    targetCamera.lookAt(targetPosition2)
+    targetCamera.lookAt(targetPosition2);
 
     // 加载渲染器 tankCamera targetCamera
-    renderer.render(scene, camera1.cam)
+    renderer.render(scene, camera1.cam);
     // 开始动画
-    requestAnimationFrame(render)
+    requestAnimationFrame(render);
   }
 
   // 开始渲染
-  requestAnimationFrame(render)
-
-}
+  requestAnimationFrame(render);
+};
 
 onMounted(() => {
-  initThree()
-})
+  initThree();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -2031,14 +2091,14 @@ div {
 </style>
 ```
 
-## 13.  阴影
+## 13. 阴影
 
-- three.js中使用的是阴影贴图，阴影贴图的工作方式就是具有投射阴影的光能对所有能被投射阴影的物体从光源渲染阴影。
+- three.js 中使用的是阴影贴图，阴影贴图的工作方式就是具有投射阴影的光能对所有能被投射阴影的物体从光源渲染阴影。
 - 注意事项：
   - 每多一个能投射阴影光源，就会重复绘制一次场景。阴影的计算是一个光源一个光源的依次计算的。
   - 要展示阴影需要，渲染器开启阴影渲染、灯光投开启投射阴影、物体开启接收阴影
-  - 只有DirectionalLight、PointLight、RectAreaLight、SpotLight这4种光源才能投谁阴影。
-  - MeshLambertMaterial材质是不能接受投射阴影的。
+  - 只有 DirectionalLight、PointLight、RectAreaLight、SpotLight 这 4 种光源才能投谁阴影。
+  - MeshLambertMaterial 材质是不能接受投射阴影的。
 
 ### 13.1 开启阴影想过配置
 
@@ -2051,51 +2111,54 @@ renderer.shadowMap.enabled = true;
 
 ```js
 {
-    // 灯光
-    const color = 0xffffff
-    const intensity = 2
-    const light = new THREE.DirectionalLight(color, intensity)
-    light.castShadow = true // 投射阴影
-    light.position.set(10, 10, 10)
-    light.target.position.set(-4, 0, -4)
-    scene.add(light)
-    scene.add(light.target)
+  // 灯光
+  const color = 0xffffff;
+  const intensity = 2;
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.castShadow = true; // 投射阴影
+  light.position.set(10, 10, 10);
+  light.target.position.set(-4, 0, -4);
+  scene.add(light);
+  scene.add(light.target);
 
-    const helper = new THREE.DirectionalLightHelper(light)
-    scene.add(helper)
+  const helper = new THREE.DirectionalLightHelper(light);
+  scene.add(helper);
 }
 ```
 
 ### 13.3 绘制物体开启接收阴影
 
 ```js
-  {
-    // 平面几何
-    const groundGeometry = new THREE.PlaneGeometry(50, 50)
-    const groundMaterial = new THREE.MeshPhongMaterial({ color: 0xcc8866, side: THREE.DoubleSide })
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial)
-    groundMesh.rotation.x = Math.PI * -0.5
-    groundMesh.receiveShadow = true // 接受阴影
-    scene.add(groundMesh)
-  }
-  {
-    // 几何体
-    const cubeSize = 4
-    const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize)
-    const cubeMat = new THREE.MeshPhongMaterial({ color: '#8AC' })
-    const mesh = new THREE.Mesh(cubeGeo, cubeMat)
-    mesh.castShadow = true // 投射阴影
-    mesh.receiveShadow = true // 接受阴影
-    mesh.position.set(cubeSize + 1, cubeSize / 2, 0)
-    scene.add(mesh)
-  }
+{
+  // 平面几何
+  const groundGeometry = new THREE.PlaneGeometry(50, 50);
+  const groundMaterial = new THREE.MeshPhongMaterial({
+    color: 0xcc8866,
+    side: THREE.DoubleSide,
+  });
+  const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+  groundMesh.rotation.x = Math.PI * -0.5;
+  groundMesh.receiveShadow = true; // 接受阴影
+  scene.add(groundMesh);
+}
+{
+  // 几何体
+  const cubeSize = 4;
+  const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  const cubeMat = new THREE.MeshPhongMaterial({ color: "#8AC" });
+  const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+  mesh.castShadow = true; // 投射阴影
+  mesh.receiveShadow = true; // 接受阴影
+  mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
+  scene.add(mesh);
+}
 ```
 
 - 从结果中看，阴影少了一部分。是因为光源阴影相机决定了阴影投射的区域。使用`.CameraHelper(light.shadow.camera)`来获取光源的阴影相机的辅助线。
 
 ```js
-const cameraHelper = new THREE.CameraHelper(light.shadow.camera)
-scene.add(cameraHelper)
+const cameraHelper = new THREE.CameraHelper(light.shadow.camera);
+scene.add(cameraHelper);
 ```
 
 ### 13.4 设置阴影相机
@@ -2103,19 +2166,19 @@ scene.add(cameraHelper)
 - 通过设置`light.shadow.camera`修改阴影相机的区域。
 
 ```js
-const d = 50
-light.shadow.camera.left = -d
-light.shadow.camera.right = d
-light.shadow.camera.top = d
-light.shadow.camera.bottom = -d
-light.shadow.camera.near = 1
-light.shadow.camera.far = 60
+const d = 50;
+light.shadow.camera.left = -d;
+light.shadow.camera.right = d;
+light.shadow.camera.top = d;
+light.shadow.camera.bottom = -d;
+light.shadow.camera.near = 1;
+light.shadow.camera.far = 60;
 ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -2227,7 +2290,7 @@ div {
 ## 14. 雾
 
 - 雾通常是基于离摄像机的距离褪色至某种特定颜色的方式。
-- 在three.js中有两种设置雾的对象：
+- 在 three.js 中有两种设置雾的对象：
   - .Fog() 定义了线性雾。简单来说就是雾的密度是随着距离线性增大的。
   - .FogExp2() 定义了指数雾。在相机附近提供清晰的视野，且距离相机越远，雾的浓度随着指数增长越快。
 
@@ -2247,31 +2310,31 @@ div {
 
 ```js
 {
-    const near = 1
-    const far = 11
-    const color = 'lightblue'
-    scene.fog = new THREE.Fog(color, near, far)
-    scene.background = new THREE.Color(color)
+  const near = 1;
+  const far = 11;
+  const color = "lightblue";
+  scene.fog = new THREE.Fog(color, near, far);
+  scene.background = new THREE.Color(color);
 }
 
 {
-    const color = 0xffffff
-    const intensity = 1
-    const light = new THREE.DirectionalLight(color, intensity)
-    light.position.set(-1, 2, 4)
-    scene.add(light)
+  const color = 0xffffff;
+  const intensity = 1;
+  const light = new THREE.DirectionalLight(color, intensity);
+  light.position.set(-1, 2, 4);
+  scene.add(light);
 }
-const box = 3
-const geometry = new THREE.BoxGeometry(box, box, box)
-const material = new THREE.MeshPhongMaterial({ color: 0x8844aa })
-const cube = new THREE.Mesh(geometry, material)
-scene.add(cube)
+const box = 3;
+const geometry = new THREE.BoxGeometry(box, box, box);
+const material = new THREE.MeshPhongMaterial({ color: 0x8844aa });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 ```
 
-- fog在材质上有个布尔属性，用来设置材质是否会受到雾的影响。默认是true
+- fog 在材质上有个布尔属性，用来设置材质是否会受到雾的影响。默认是 true
 
 ```js
-material.fog = false
+material.fog = false;
 ```
 
 ### 14.2 FogExp2
@@ -2286,17 +2349,17 @@ material.fog = false
 
 ```js
 {
-    const color = 'lightblue'
-    const density = 0.1
-    scene.fog = new THREE.FogExp2(color, density)
-    scene.background = new THREE.Color(color)
+  const color = "lightblue";
+  const density = 0.1;
+  scene.fog = new THREE.FogExp2(color, density);
+  scene.background = new THREE.Color(color);
 }
 ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -2405,19 +2468,19 @@ div {
   const renderTarget = new THREE.WebGLRenderTarget(rtWidth, rtHeight);
   ```
 
-- 使用渲染器就需要一个Camera（相机） 和一个 Scene（场景）。
+- 使用渲染器就需要一个 Camera（相机） 和一个 Scene（场景）。
 
 - 这里使用的相机比例（rtAspect）是几何体面的比例，不是画布的比例
 
   ```js
-  const rtFov = 75
-  const rtAspect = rtWidth / rtHeight
-  const rtNear = 0.1
-  const rtFar = 5
-  const rtCamera = new THREE.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar)
-  rtCamera.position.z = 2
-  const rtScene = new THREE.Scene()
-  rtScene.background = new THREE.Color('white')
+  const rtFov = 75;
+  const rtAspect = rtWidth / rtHeight;
+  const rtNear = 0.1;
+  const rtFar = 5;
+  const rtCamera = new THREE.PerspectiveCamera(rtFov, rtAspect, rtNear, rtFar);
+  rtCamera.position.z = 2;
+  const rtScene = new THREE.Scene();
+  rtScene.background = new THREE.Color("white");
   ```
 
 - 有了场景，需要展示的纹理就和普通的绘制是一样的。
@@ -2426,29 +2489,29 @@ div {
 
   ```js
   // 几何体
-  const rtBox = 1
-  const rtGeometry = new THREE.BoxGeometry(rtBox, rtBox, rtBox)
-  const rtMaterial = new THREE.MeshBasicMaterial({ color: 0x44aa88 })
-  const rtCube = new THREE.Mesh(rtGeometry, rtMaterial)
-  rtScene.add(rtCube)
+  const rtBox = 1;
+  const rtGeometry = new THREE.BoxGeometry(rtBox, rtBox, rtBox);
+  const rtMaterial = new THREE.MeshBasicMaterial({ color: 0x44aa88 });
+  const rtCube = new THREE.Mesh(rtGeometry, rtMaterial);
+  rtScene.add(rtCube);
   ```
 
--  在几何体中使用缓存画面。
+- 在几何体中使用缓存画面。
 
-  ```js
-  // 材质
-  const material = new THREE.MeshPhongMaterial({
-      map: renderTarget.texture
-  })
-  ```
+```js
+// 材质
+const material = new THREE.MeshPhongMaterial({
+  map: renderTarget.texture,
+});
+```
 
 - 渲染时，我们首先渲染目标的场景(rtScene)，在渲染要在画布上展示的场景。
 
   ```js
   function render(time) {
-      renderer.setRenderTarget(renderTarget)
-      renderer.render(rtScene, rtCamera)
-      renderer.setRenderTarget(null)
+    renderer.setRenderTarget(renderTarget);
+    renderer.render(rtScene, rtCamera);
+    renderer.setRenderTarget(null);
   }
   ```
 
@@ -2458,8 +2521,8 @@ div {
 
   ```js
   function render(time) {
-      rtCube.rotation.y = time
-      rtCube.rotation.x = time
+    rtCube.rotation.y = time;
+    rtCube.rotation.x = time;
   }
   ```
 
@@ -2470,7 +2533,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -2578,13 +2641,13 @@ div {
 
 ## 16. 加载 .OBJ 格式模型
 
-- `obj`文件是3D模型文件格式。
+- `obj`文件是 3D 模型文件格式。
 - 它包含的信息都是几何体顶点相关数据，不包含动画、材质特性、粒子等信息。
 
 **使用**
 
-- 引入官方插件OBJLoader解析文件。
-- 创建实例。通过url加载.obj文件，并在回调函数中将已加载完的模型添加到场景里。
+- 引入官方插件 OBJLoader 解析文件。
+- 创建实例。通过 url 加载.obj 文件，并在回调函数中将已加载完的模型添加到场景里。
 
 ```js
 import * as THREE from "three";
@@ -2609,38 +2672,38 @@ export default THREE;
 ```js
 const objLoader = new THREE.OBJLoader();
 objLoader.load("./windmill/windmill.obj", (root) => {
-    scene.add(root);
+  scene.add(root);
 });
 ```
 
-**加载.mtl文件**
+**加载.mtl 文件**
 
-- 因为.obj文件是没有材质信息的，我们还需要加载一个和它配套的.mtl文件。
-- 每一个newmtl Material代表一个材质信息，这里有两个材质。材质里面使用了图片，图片需要和文件在同级目录。
-- 首先要引用 MTLLoader解析文件。
-- 然后实例化，加载.mtl文件。通过OBJLoader的方法.setMaterials()加载材质。
+- 因为.obj 文件是没有材质信息的，我们还需要加载一个和它配套的.mtl 文件。
+- 每一个 newmtl Material 代表一个材质信息，这里有两个材质。材质里面使用了图片，图片需要和文件在同级目录。
+- 首先要引用 MTLLoader 解析文件。
+- 然后实例化，加载.mtl 文件。通过 OBJLoader 的方法.setMaterials()加载材质。
 
 ```js
 const mtlLoader = new THREE.MTLLoader();
-  mtlLoader.load("./windmill/windmill.mtl", (mtl) => {
-    mtl.preload();
-    const objLoader = new THREE.OBJLoader();
-    objLoader.setMaterials(mtl);
-    objLoader.load("./windmill/windmill.obj", (root) => {
-      scene.add(root);
-    });
+mtlLoader.load("./windmill/windmill.mtl", (mtl) => {
+  mtl.preload();
+  const objLoader = new THREE.OBJLoader();
+  objLoader.setMaterials(mtl);
+  objLoader.load("./windmill/windmill.obj", (root) => {
+    scene.add(root);
+  });
 });
 ```
 
 **修改材质**
 
-- 通过MTLLoader对象的.materials属性获取材质。
+- 通过 MTLLoader 对象的.materials 属性获取材质。
 
   ```js
   for (const material of Object.values(mtl.materials)) {
-      console.log('material', material)
-      // 设置材质双面
-      material.side = THREE.DoubleSide
+    console.log("material", material);
+    // 设置材质双面
+    material.side = THREE.DoubleSide;
   }
   ```
 
@@ -2648,12 +2711,12 @@ const mtlLoader = new THREE.MTLLoader();
 
 **总结**
 
-一般情况下我们都会使用模型进行开发，用代码绘制图像会浪费大量时间。除.OBJ格式，还有很多其他格式的模型。当然我们都是使用官方插件进行加载，不过插件不同代表对象的属性不同，使用的方式就会有差异。
+一般情况下我们都会使用模型进行开发，用代码绘制图像会浪费大量时间。除.OBJ 格式，还有很多其他格式的模型。当然我们都是使用官方插件进行加载，不过插件不同代表对象的属性不同，使用的方式就会有差异。
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -2751,8 +2814,8 @@ div {
 
 ## 17. 加载 .GLTF 格式模型
 
-- 用于显示图形的格式。也是各种3D编辑器之间的传输格式。
-- `.gltf格式`本质上是一个JSON文件。它能描述一整个3D场景，比如一个模型使用多少个网格，网格的旋转、位移等信息。
+- 用于显示图形的格式。也是各种 3D 编辑器之间的传输格式。
+- `.gltf格式`本质上是一个 JSON 文件。它能描述一整个 3D 场景，比如一个模型使用多少个网格，网格的旋转、位移等信息。
 
 **使用**
 
@@ -2760,13 +2823,13 @@ div {
 - 这里加载的`.glb格式`，它是`.GLTF格式`的压缩文件。
 
 ```js
- {
-    const gltfLoader = new THREE.GLTFLoader()
-    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
-      const root = gltf.scene
-      scene.add(root)
-    })
-  }
+{
+  const gltfLoader = new THREE.GLTFLoader();
+  gltfLoader.load("./file/bingdundun.glb", (gltf) => {
+    const root = gltf.scene;
+    scene.add(root);
+  });
+}
 ```
 
 **修改模型**
@@ -2774,37 +2837,37 @@ div {
 - 解析完成后，生成的就是一个场景对象。
 
   ```js
-  console.log('root', root)
+  console.log("root", root);
   ```
 
-- 可以看见最后生成的是一个Group组场景对象。
+- 可以看见最后生成的是一个 Group 组场景对象。
 
 - 使用.traverse()操作场景中的所有对象。
 
   ```js
-    // 遍历所有子对象
-    root.traverse((child) => {
-      if (child.isMesh) {
-        // 内部
-        if (child.name === 'oldtiger001') {
-          // 金属度
-          child.material.metalness = 0.5
-          // 粗糙度
-          child.material.roughness = 0.8
-        }
-        // 半透明外壳
-        if (child.name === 'oldtiger002') {
-          // 启用透明
-          child.material.transparent = true
-          // 透明度
-          child.material.opacity = 0.5
-          // 透明反射效果
-          child.material.refractionRatio = 1
-          child.material.metalness = 0.2
-          child.material.roughness = 0
-        }
+  // 遍历所有子对象
+  root.traverse((child) => {
+    if (child.isMesh) {
+      // 内部
+      if (child.name === "oldtiger001") {
+        // 金属度
+        child.material.metalness = 0.5;
+        // 粗糙度
+        child.material.roughness = 0.8;
       }
-    })
+      // 半透明外壳
+      if (child.name === "oldtiger002") {
+        // 启用透明
+        child.material.transparent = true;
+        // 透明度
+        child.material.opacity = 0.5;
+        // 透明反射效果
+        child.material.refractionRatio = 1;
+        child.material.metalness = 0.2;
+        child.material.roughness = 0;
+      }
+    }
+  });
   ```
 
 - `.isMesh`网格对象的属性，`true`表示是网格对象。
@@ -2814,7 +2877,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -2869,37 +2932,37 @@ onMounted(() => {
   }
 
   {
-    const gltfLoader = new THREE.GLTFLoader()
-    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
-      const root = gltf.scene
-      scene.add(root)
+    const gltfLoader = new THREE.GLTFLoader();
+    gltfLoader.load("./file/bingdundun.glb", (gltf) => {
+      const root = gltf.scene;
+      scene.add(root);
       // 遍历所有子对象
       root.traverse((child) => {
         if (child.isMesh) {
           // 内部
-          if (child.name === 'oldtiger001') {
+          if (child.name === "oldtiger001") {
             // 金属度
-            child.material.metalness = 0.5
+            child.material.metalness = 0.5;
             // 粗糙度
-            child.material.roughness = 0.8
+            child.material.roughness = 0.8;
           }
           // 半透明外壳
-          if (child.name === 'oldtiger002') {
+          if (child.name === "oldtiger002") {
             // 启用透明
-            child.material.transparent = true
+            child.material.transparent = true;
             // 透明度
-            child.material.opacity = 0.5
+            child.material.opacity = 0.5;
             // 透明反射效果
-            child.material.refractionRatio = 1
-            child.material.metalness = 0.2
-            child.material.roughness = 0
+            child.material.refractionRatio = 1;
+            child.material.metalness = 0.2;
+            child.material.roughness = 0;
           }
         }
-      })
-    })
+      });
+    });
   }
 
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 
@@ -2928,9 +2991,9 @@ div {
 
 ## 18. 天空盒
 
-在3D场景中，为了增强场景表现力，我们通常会为场景添加天空盒。就是在整个场景的上方绘制天空这一类图片。
+在 3D 场景中，为了增强场景表现力，我们通常会为场景添加天空盒。就是在整个场景的上方绘制天空这一类图片。
 
-最简单的做法是，制作一个很大的立方体为6个面添加纹理，这里要注意我们渲染的是内部。**纹理是特殊处理了的能组合成一个整体**。当然还有其他的方式比如创建球体或半圆的穹顶等。
+最简单的做法是，制作一个很大的立方体为 6 个面添加纹理，这里要注意我们渲染的是内部。**纹理是特殊处理了的能组合成一个整体**。当然还有其他的方式比如创建球体或半圆的穹顶等。
 
 **创建**
 
@@ -2939,71 +3002,70 @@ div {
 - 需要注意材质要设置`THREE.BackSide`渲染内部，相机的远平面必须大于盒子的长度。`directions[]`数组中的图片也是有序的。
 
   ```js
-        {
-          var directions = [
-            './file/18/pos-x.jpg',
-            './file/18/neg-x.jpg',
-            './file/18/pos-y.jpg',
-            './file/18/neg-y.jpg',
-            './file/18/pos-z.jpg',
-            './file/18/neg-z.jpg'
-          ] // 获取对象
-  
-          const loader = new THREE.TextureLoader()
-          // 创建盒子，并设置盒子的大小为( 5000, 5000, 5000 )
-          const skyGeometry = new THREE.BoxGeometry(5000, 5000, 5000)
-          // 设置盒子材质
-          const materialArray = []
-          for (let i = 0; i < 6; i++)
-            materialArray.push(
-              new THREE.MeshBasicMaterial({
-                map: loader.load(directions[i]), // 将图片纹理贴上
-                side: THREE.BackSide // 镜像翻转
-              })
-            )
-          // 创建一个完整的天空盒，填入几何模型和材质的参数
-          const skyBox = new THREE.Mesh(skyGeometry, materialArray) 
-          scene.add(skyBox) // 在场景中加入天空盒
-        }
+  {
+    var directions = [
+      "./file/18/pos-x.jpg",
+      "./file/18/neg-x.jpg",
+      "./file/18/pos-y.jpg",
+      "./file/18/neg-y.jpg",
+      "./file/18/pos-z.jpg",
+      "./file/18/neg-z.jpg",
+    ]; // 获取对象
+
+    const loader = new THREE.TextureLoader();
+    // 创建盒子，并设置盒子的大小为( 5000, 5000, 5000 )
+    const skyGeometry = new THREE.BoxGeometry(5000, 5000, 5000);
+    // 设置盒子材质
+    const materialArray = [];
+    for (let i = 0; i < 6; i++)
+      materialArray.push(
+        new THREE.MeshBasicMaterial({
+          map: loader.load(directions[i]), // 将图片纹理贴上
+          side: THREE.BackSide, // 镜像翻转
+        })
+      );
+    // 创建一个完整的天空盒，填入几何模型和材质的参数
+    const skyBox = new THREE.Mesh(skyGeometry, materialArray);
+    scene.add(skyBox); // 在场景中加入天空盒
+  }
   ```
 
-- three.js提供了一种特殊的纹理CubeTextureLoader，可以模拟正方形的6个边。只需要很少的代码就能实现上面的效果。
+- three.js 提供了一种特殊的纹理 CubeTextureLoader，可以模拟正方形的 6 个边。只需要很少的代码就能实现上面的效果。
 
   ```js
   {
-      const loader = new THREE.CubeTextureLoader()
-      const texture = loader.load([
-        './file/18/pos-x.jpg',
-        './file/18//neg-x.jpg',
-        './file/18//pos-y.jpg',
-        './file/18//neg-y.jpg',
-        './file/18//pos-z.jpg',
-        './file/18//neg-z.jpg'
-      ])
-      scene.background = texture
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load([
+      "./file/18/pos-x.jpg",
+      "./file/18//neg-x.jpg",
+      "./file/18//pos-y.jpg",
+      "./file/18//neg-y.jpg",
+      "./file/18//pos-z.jpg",
+      "./file/18//neg-z.jpg",
+    ]);
+    scene.background = texture;
   }
-  
   ```
 
-- three.js中除几张图组合的方式，还可以使用360度的全景图来设置天空。
+- three.js 中除几张图组合的方式，还可以使用 360 度的全景图来设置天空。
 
-- 使用WebGLCubeRenderTarget渲染器的.fromEquirectangularTexture，把全景图转换为立方体贴图格式。
+- 使用 WebGLCubeRenderTarget 渲染器的.fromEquirectangularTexture，把全景图转换为立方体贴图格式。
 
   ```js
-   {
-      const loader = new THREE.TextureLoader()
-      const texture = loader.load('./file/18/2.webp', () => {
-        const rt = new THREE.WebGLCubeRenderTarget(texture.image.height)
-        rt.fromEquirectangularTexture(renderer, texture)
-        scene.background = rt.texture
-      })
-    }
+  {
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/18/2.webp", () => {
+      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+      rt.fromEquirectangularTexture(renderer, texture);
+      scene.background = rt.texture;
+    });
+  }
   ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -3078,16 +3140,15 @@ onMounted(() => {
   // }
 
   {
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('./file/18/2.webp', () => {
-      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height)
-      rt.fromEquirectangularTexture(renderer, texture)
-      scene.background = rt.texture
-    })
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/18/2.webp", () => {
+      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+      rt.fromEquirectangularTexture(renderer, texture);
+      scene.background = rt.texture;
+    });
   }
 
-
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 
@@ -3124,11 +3185,11 @@ div {
 - 属性
   - origin 光线投射的原点。
   - direction 射线的方向。
-  - near 投射近点，不能大于far，不能为负值，其默认值为0。
-  - far 投射远点，不能小于near，其默认值为无穷大。
+  - near 投射近点，不能大于 far，不能为负值，其默认值为 0。
+  - far 投射远点，不能小于 near，其默认值为无穷大。
 - 方法
-  - .setFromCamera(coords,camera) 更新原点坐标和相机视椎。coords原点坐标，camera相机。
-  - .intersectObject(scenes,recursive,optionalTarget) 检查射线与场景对象和其子集是否有交集。scenes 要检查的场景对象数组格式。recursive为true检查所有后代。optionalTarget返回交集结果，可选。
+  - .setFromCamera(coords,camera) 更新原点坐标和相机视椎。coords 原点坐标，camera 相机。
+  - .intersectObject(scenes,recursive,optionalTarget) 检查射线与场景对象和其子集是否有交集。scenes 要检查的场景对象数组格式。recursive 为 true 检查所有后代。optionalTarget 返回交集结果，可选。
 
 **使用.Raycaster()**
 
@@ -3139,34 +3200,32 @@ div {
   ```js
   // 计算 以画布 开始为（0，0）点 的鼠标坐标
   function getCanvasRelativePosition(event) {
-      const rect = canvas.getBoundingClientRect()
-      return {
-          x: ((event.clientX - rect.left) * canvas.width) / rect.width,
-          y: ((event.clientY - rect.top) * canvas.height) / rect.height
-      }
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) * canvas.width) / rect.width,
+      y: ((event.clientY - rect.top) * canvas.height) / rect.height,
+    };
   }
-  
   ```
 
 - 归一化鼠标坐标。
 
   ```js
   /**
-  * 获取鼠标在three.js 中归一化坐标
-  * */
+   * 获取鼠标在three.js 中归一化坐标
+   * */
   function setPickPosition(event) {
-      let pickPosition = { x: 0, y: 0 }
-  
-      // 计算后 以画布 开始为 （0，0）点
-      const pos = getCanvasRelativePosition(event)
-  
-      // 数据归一化
-      pickPosition.x = (pos.x / canvas.width) * 2 - 1
-      pickPosition.y = (pos.y / canvas.height) * -2 + 1
-  
-      return pickPosition
+    let pickPosition = { x: 0, y: 0 };
+
+    // 计算后 以画布 开始为 （0，0）点
+    const pos = getCanvasRelativePosition(event);
+
+    // 数据归一化
+    pickPosition.x = (pos.x / canvas.width) * 2 - 1;
+    pickPosition.y = (pos.y / canvas.height) * -2 + 1;
+
+    return pickPosition;
   }
-  
   ```
 
 - 监听鼠标事件，获取归一化坐标。使用.intersectObjects()发出射线计算相交对象。
@@ -3175,43 +3234,43 @@ div {
 
   ```js
   // 监听鼠标
-  window.addEventListener('mousemove', onRay)
+  window.addEventListener("mousemove", onRay);
   // 全局对象
-  let lastPick = null
+  let lastPick = null;
   function onRay(event) {
-      let pickPosition = setPickPosition(event)
-  
-      const raycaster = new THREE.Raycaster()
-      raycaster.setFromCamera(pickPosition, camera)
-      // 计算物体和射线的交点
-      const intersects = raycaster.intersectObjects(scene.children, true)
-  
-      // 数组大于0 表示有相交对象
-      if (intersects.length > 0) {
-          if (lastPick) {
-              lastPick.object.material.color.set('yellow')
-          }
-          lastPick = intersects[0]
-      } else {
-          if (lastPick) {
-              // 复原
-              lastPick.object.material.color.set(0x6688aa)
-              lastPick = null
-          }
+    let pickPosition = setPickPosition(event);
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(pickPosition, camera);
+    // 计算物体和射线的交点
+    const intersects = raycaster.intersectObjects(scene.children, true);
+
+    // 数组大于0 表示有相交对象
+    if (intersects.length > 0) {
+      if (lastPick) {
+        lastPick.object.material.color.set("yellow");
       }
+      lastPick = intersects[0];
+    } else {
+      if (lastPick) {
+        // 复原
+        lastPick.object.material.color.set(0x6688aa);
+        lastPick = null;
+      }
+    }
   }
   ```
 
 - 就这样一个简单鼠标拾取就完成了。
 
-- 除了射线追踪法还可以使用**GPU拾取**，它是利用颜色的6位16进制表示，以颜色作为ID，在后台渲染出纹理后。然后，检查鼠标位置关联的像素的颜色，通过颜色来确认相交的对象是哪个。
+- 除了射线追踪法还可以使用**GPU 拾取**，它是利用颜色的 6 位 16 进制表示，以颜色作为 ID，在后台渲染出纹理后。然后，检查鼠标位置关联的像素的颜色，通过颜色来确认相交的对象是哪个。
 
 **完整代码**
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -3342,8 +3401,8 @@ div {
 - moveTo(x, y) 将绘图点移动到指定的 x、y 坐标处。
 
 - lineTo(x, y) 从当前位置创建一条到 x、y 坐标的线。
-- quadricCurveTo(cpx, cpy, x, y) 创建一条到x、y 坐标的二次曲线。
-- bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x, y) 创建一条到x、y 坐标的贝塞尔曲线。
+- quadricCurveTo(cpx, cpy, x, y) 创建一条到 x、y 坐标的二次曲线。
+- bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x, y) 创建一条到 x、y 坐标的贝塞尔曲线。
 - splineThru(points) 沿着参数指定的坐标集合绘制一条光滑的样条曲线。
 
 ### 20.2 ShapeGeometry 形状缓冲几何体
@@ -3368,12 +3427,12 @@ div {
 
   ```js
   {
-      // 灯光
-      const color = 0xffffff
-      const intensity = 1
-      const light = new THREE.DirectionalLight(color, intensity)
-      light.position.set(-1, -10, -4)
-      scene.add(light)
+    // 灯光
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, -10, -4);
+    scene.add(light);
   }
   ```
 
@@ -3381,32 +3440,35 @@ div {
 
   ```js
   const extrudeSettings = {
-      steps: 2,
-      depth: 3
-  }
+    steps: 2,
+    depth: 3,
+  };
   ```
 
 - 使用.ExtrudeGeometry，拉伸为三维图形。
 
   ```js
-  const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings)
-  const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, side: THREE.DoubleSide })
-  const mesh = new THREE.Mesh(geometry, material)
-  scene.add(mesh)
+  const geometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+  const material = new THREE.MeshPhongMaterial({
+    color: 0x00ff00,
+    side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
   ```
 
 **挖洞**
 
-- 使用.Path创建路径。放入形状的.holes中。
+- 使用.Path 创建路径。放入形状的.holes 中。
 
   ```js
-  const shape_c = new THREE.Path()
-  shape_c.moveTo(-1, 1)
-  shape_c.lineTo(-1, -1)
-  shape_c.lineTo(1, -1)
-  shape_c.lineTo(1, 1)
-  shape_c.lineTo(-1, 1)
-  heartShape.holes.push(shape_c)
+  const shape_c = new THREE.Path();
+  shape_c.moveTo(-1, 1);
+  shape_c.lineTo(-1, -1);
+  shape_c.lineTo(1, -1);
+  shape_c.lineTo(1, 1);
+  shape_c.lineTo(-1, 1);
+  heartShape.holes.push(shape_c);
   ```
 
 **完整代码**
@@ -3414,7 +3476,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -3519,43 +3581,43 @@ div {
 - THREE.FileLoader() 用于加载任何没有对应加载器的文件类型。
 
   ```js
-  const loader = new THREE.FileLoader()
-  loader.load('./file/100000_full.json', (data) => {
-      const jsondata = JSON.parse(data)
-      console.log('jsondata', jsondata)
-  })
+  const loader = new THREE.FileLoader();
+  loader.load("./file/100000_full.json", (data) => {
+    const jsondata = JSON.parse(data);
+    console.log("jsondata", jsondata);
+  });
   ```
 
 - 每个省的数据是分开的，会多次创建图形。创建图形公用方法。
 
   ```js
   /**
-  * 立体几何图形
-  * @param polygon 多边形 点数组
-  * @param color 材质颜色
-  * */
+   * 立体几何图形
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
   function drawExtrudeMesh(polygon, color) {
-      const shape = new THREE.Shape()
-      polygon.forEach((row, i) => {
-          const [x, y] = [row[0], row[1]]
-  
-          if (i === 0) {
-              shape.moveTo(x, y)
-          }
-          shape.lineTo(x, y)
-      })
-  
-      // 拉伸
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-          depth: 10,
-          bevelEnabled: false
-      })
-      const material = new THREE.MeshBasicMaterial({
-          color: color,
-          transparent: true,
-          opacity: 0.5
-      })
-      return new THREE.Mesh(geometry, material)
+    const shape = new THREE.Shape();
+    polygon.forEach((row, i) => {
+      const [x, y] = [row[0], row[1]];
+
+      if (i === 0) {
+        shape.moveTo(x, y);
+      }
+      shape.lineTo(x, y);
+    });
+
+    // 拉伸
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 10,
+      bevelEnabled: false,
+    });
+    const material = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.5,
+    });
+    return new THREE.Mesh(geometry, material);
   }
   ```
 
@@ -3564,71 +3626,71 @@ div {
   ```js
   // 坐标轴 辅助
   var axes = new THREE.AxesHelper(700);
-  scene.add(axes)
+  scene.add(axes);
   ```
 
 - 解析全球几何信息，对每一个多边形绘制图形。
 
   ```js
-  const map = new THREE.Object3D()
+  const map = new THREE.Object3D();
   // 解析数据
   function operationData(jsondata) {
-      // 全国信息
-      const features = jsondata.features
-  
-      features.forEach((feature) => {
-          // 单个省份
-          const province = new THREE.Object3D()
-          // 地址
-          province.properties = feature.properties.name
-          const coordinates = feature.geometry.coordinates
-          const color = 'yellow'
-  
-          if (feature.geometry.type === 'MultiPolygon') {
-              // 多个，多边形
-              coordinates.forEach((coordinate) => {
-                  // coordinate 多边形数据
-                  coordinate.forEach((rows) => {
-                      const mesh = drawExtrudeMesh(rows, color)
-                      province.add(mesh)
-                  })
-              })
-          }
-  
-          if (feature.geometry.type === 'Polygon') {
-              // 多边形
-              coordinates.forEach((coordinate) => {
-                  const mesh = drawExtrudeMesh(coordinate, color)
-                  province.add(mesh)
-              })
-          }
-          map.add(province)
-      })
-      scene.add(map)
+    // 全国信息
+    const features = jsondata.features;
+
+    features.forEach((feature) => {
+      // 单个省份
+      const province = new THREE.Object3D();
+      // 地址
+      province.properties = feature.properties.name;
+      const coordinates = feature.geometry.coordinates;
+      const color = "yellow";
+
+      if (feature.geometry.type === "MultiPolygon") {
+        // 多个，多边形
+        coordinates.forEach((coordinate) => {
+          // coordinate 多边形数据
+          coordinate.forEach((rows) => {
+            const mesh = drawExtrudeMesh(rows, color);
+            province.add(mesh);
+          });
+        });
+      }
+
+      if (feature.geometry.type === "Polygon") {
+        // 多边形
+        coordinates.forEach((coordinate) => {
+          const mesh = drawExtrudeMesh(coordinate, color);
+          province.add(mesh);
+        });
+      }
+      map.add(province);
+    });
+    scene.add(map);
   }
   ```
 
 ### 21.2 优化地图
 
-- 引入d3.geoMercator()经纬度坐标转换。使用第三方控件帮助我们计算坐标转换。
+- 引入 d3.geoMercator()经纬度坐标转换。使用第三方控件帮助我们计算坐标转换。
 
   ```js
   import * as d3 from "d3";
   // 修改北京的坐标为中心
-    const projection = d3
-      .geoMercator()
-      .center([116.412318, 39.909843])
-      .translate([0, 0]);
+  const projection = d3
+    .geoMercator()
+    .center([116.412318, 39.909843])
+    .translate([0, 0]);
   ```
 
-- 修改drawExtrudeMesh()函数，坐标转换部分。
+- 修改 drawExtrudeMesh()函数，坐标转换部分。
 
   ```js
    ...
    const shape = new THREE.Shape();
       polygon.forEach((row, i) => {
         const [x, y] = projection(row);
-  
+
         if (i === 0) {
           shape.moveTo(x, -y);
         }
@@ -3641,50 +3703,52 @@ div {
 
   ```js
   /**
-  * 边框 图形绘制
-  * @param polygon 多边形 点数组
-  * @param color 材质颜色
-  * */
+   * 边框 图形绘制
+   * @param polygon 多边形 点数组
+   * @param color 材质颜色
+   * */
   function lineDraw(polygon, color) {
-      const lineGeometry = new THREE.BufferGeometry()
-      const pointsArray = new Array()
-      polygon.forEach((row) => {
-          const [x, y] = projection(row)
-          // 创建三维点
-          pointsArray.push(new THREE.Vector3(x, -y, 9))
-      })
-      // 放入多个点
-      lineGeometry.setFromPoints(pointsArray)
-  
-      const lineMaterial = new THREE.LineBasicMaterial({
-          color: color
-      })
-      return new THREE.Line(lineGeometry, lineMaterial)
+    const lineGeometry = new THREE.BufferGeometry();
+    const pointsArray = new Array();
+    polygon.forEach((row) => {
+      const [x, y] = projection(row);
+      // 创建三维点
+      pointsArray.push(new THREE.Vector3(x, -y, 9));
+    });
+    // 放入多个点
+    lineGeometry.setFromPoints(pointsArray);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: color,
+    });
+    return new THREE.Line(lineGeometry, lineMaterial);
   }
   ```
 
-- 修改operationData()方法，在绘制立体图像（drawExtrudeMesh(rows, color)）的后面绘制边框图形。
+- 修改 operationData()方法，在绘制立体图像（drawExtrudeMesh(rows, color)）的后面绘制边框图形。
 
   ```js
   // coordinate 多边形数据
   coordinate.forEach((rows) => {
-      const mesh = drawExtrudeMesh(rows, color)
-      const line = lineDraw(rows, color)
-      province.add(line)
-      province.add(mesh)
-  })
+    const mesh = drawExtrudeMesh(rows, color);
+    const line = lineDraw(rows, color);
+    province.add(line);
+    province.add(mesh);
+  });
   ```
 
 - 在数据操作方法中，我们还可以根据省份名字做一些特殊操作。比如修改省份颜色等。
 
   ```js
-  const color = ['重庆市', '上海市'].includes(feature.properties.name) ? 'blue' : 'yellow'
+  const color = ["重庆市", "上海市"].includes(feature.properties.name)
+    ? "blue"
+    : "yellow";
   ```
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -3888,7 +3952,7 @@ div {
        // 绘制地图时 y轴取反 这里同步
        circle.position.set(spot[0], -spot[1], spot[2] + 0.1)
        scene.add(circle)
-   
+
        // 圆环
        const geometry2 = new THREE.RingGeometry(0.5, 0.7, 50)
        // transparent 设置 true 开启透明
@@ -3897,7 +3961,7 @@ div {
        // 绘制地图时 y轴取反 这里同步
        circleY.position.set(spot[0], -spot[1], spot[2] + 0.1)
        scene.add(circleY)
-   
+
        circleYs.push(circleY)
      }
    ```
@@ -3907,16 +3971,16 @@ div {
    ```js
    // 渲染函数
    function render() {
-       circleYs.forEach(function (mesh) {
-         // 目标 圆环放大 并 透明
-         mesh._s += 0.01
-         mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s)
-         if (mesh._s <= 2) {
-           mesh.material.opacity = 2 - mesh._s
-         } else {
-           mesh._s = 1
-         }
-       })
+     circleYs.forEach(function (mesh) {
+       // 目标 圆环放大 并 透明
+       mesh._s += 0.01;
+       mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s);
+       if (mesh._s <= 2) {
+         mesh.material.opacity = 2 - mesh._s;
+       } else {
+         mesh._s = 1;
+       }
+     });
    }
    ```
 
@@ -3929,54 +3993,66 @@ div {
 3. 为了线更好看使用`.BufferGeometry()`对线的每一个顶点设置颜色，让线有渐变色。
 
    ```js
-     /**
-      * 两点链接飞线
-      * */
-     function lineConnect(posStart, posEnd) {
-       // 根据目标坐标设置3D坐标  z轴位置在地图表面
-       const [x0, y0, z0] = [...posStart, 10.01]
-       const [x1, y1, z1] = [...posEnd, 10.01]
-   
-       // 使用QuadraticBezierCurve3() 创建 三维二次贝塞尔曲线
-       const curve = new THREE.QuadraticBezierCurve3(
-         new THREE.Vector3(x0, -y0, z0),
-         new THREE.Vector3((x0 + x1) / 2, -(y0 + y1) / 2, 20),
-         new THREE.Vector3(x1, -y1, z1)
-       )
-   
-       // 绘制 目标位置
-       spotCircle([x0, y0, z0])
-       spotCircle([x1, y1, z1])
-   
-       const lineGeometry = new THREE.BufferGeometry()
-       // 获取曲线 上的50个点
-       var points = curve.getPoints(50)
-       var positions = []
-       var colors = []
-       var color = new THREE.Color()
-   
-       // 给每个顶点设置演示 实现渐变
-       for (var j = 0; j < points.length; j++) {
-         color.setHSL(0.81666 + j, 0.88, 0.715 + j * 0.0025) // 粉色
-         colors.push(color.r, color.g, color.b)
-         positions.push(points[j].x, points[j].y, points[j].z)
-       }
-       // 放入顶点 和 设置顶点颜色
-       lineGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3, true))
-       lineGeometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3, true))
-   
-       const material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors, side: THREE.DoubleSide })
-       const line = new THREE.Line(lineGeometry, material)
-   
-       return line
+   /**
+    * 两点链接飞线
+    * */
+   function lineConnect(posStart, posEnd) {
+     // 根据目标坐标设置3D坐标  z轴位置在地图表面
+     const [x0, y0, z0] = [...posStart, 10.01];
+     const [x1, y1, z1] = [...posEnd, 10.01];
+
+     // 使用QuadraticBezierCurve3() 创建 三维二次贝塞尔曲线
+     const curve = new THREE.QuadraticBezierCurve3(
+       new THREE.Vector3(x0, -y0, z0),
+       new THREE.Vector3((x0 + x1) / 2, -(y0 + y1) / 2, 20),
+       new THREE.Vector3(x1, -y1, z1)
+     );
+
+     // 绘制 目标位置
+     spotCircle([x0, y0, z0]);
+     spotCircle([x1, y1, z1]);
+
+     const lineGeometry = new THREE.BufferGeometry();
+     // 获取曲线 上的50个点
+     var points = curve.getPoints(50);
+     var positions = [];
+     var colors = [];
+     var color = new THREE.Color();
+
+     // 给每个顶点设置演示 实现渐变
+     for (var j = 0; j < points.length; j++) {
+       color.setHSL(0.81666 + j, 0.88, 0.715 + j * 0.0025); // 粉色
+       colors.push(color.r, color.g, color.b);
+       positions.push(points[j].x, points[j].y, points[j].z);
      }
+     // 放入顶点 和 设置顶点颜色
+     lineGeometry.addAttribute(
+       "position",
+       new THREE.BufferAttribute(new Float32Array(positions), 3, true)
+     );
+     lineGeometry.addAttribute(
+       "color",
+       new THREE.BufferAttribute(new Float32Array(colors), 3, true)
+     );
+
+     const material = new THREE.LineBasicMaterial({
+       vertexColors: THREE.VertexColors,
+       side: THREE.DoubleSide,
+     });
+     const line = new THREE.Line(lineGeometry, material);
+
+     return line;
+   }
    ```
 
-4. 使用`projection()`方法，转换经纬度为3D坐标。
+4. 使用`projection()`方法，转换经纬度为 3D 坐标。
 
    ```js
-   const line = lineConnect(projection([106.557691, 29.559296]), projection([121.495721, 31.236797]))
-   scene.add(line)
+   const line = lineConnect(
+     projection([106.557691, 29.559296]),
+     projection([121.495721, 31.236797])
+   );
+   scene.add(line);
    ```
 
 #### 21.3.3 绘制移动物体
@@ -3986,23 +4062,26 @@ div {
 2. 移动物体是在飞线上的，这里需要传入三维二次贝塞尔曲线的实例，在渲染函数中使用。
 
    ```js
-     // 移动物体网格对象组
-     const moveSpots = []
-     /**
-      * 线上移动物体
-      * */
-     function moveSpot(curve) {
-       // 线上的移动物体
-       const aGeo = new THREE.SphereGeometry(0.4, 0.4, 0.4)
-       const aMater = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide })
-       const aMesh = new THREE.Mesh(aGeo, aMater)
-       // 保存曲线实例
-       aMesh.curve = curve
-       aMesh._s = 0
-       scene.add(aMesh)
-   
-       moveSpots.push(aMesh)
-     }
+   // 移动物体网格对象组
+   const moveSpots = [];
+   /**
+    * 线上移动物体
+    * */
+   function moveSpot(curve) {
+     // 线上的移动物体
+     const aGeo = new THREE.SphereGeometry(0.4, 0.4, 0.4);
+     const aMater = new THREE.MeshPhongMaterial({
+       color: 0xff0000,
+       side: THREE.DoubleSide,
+     });
+     const aMesh = new THREE.Mesh(aGeo, aMater);
+     // 保存曲线实例
+     aMesh.curve = curve;
+     aMesh._s = 0;
+     scene.add(aMesh);
+
+     moveSpots.push(aMesh);
+   }
    ```
 
 3. 在渲染函数中修改移动物体的位置。
@@ -4014,12 +4093,12 @@ div {
    ```js
    function lineConnect(posStart, posEnd) {
        ...
-       
+
        // 绘制 目标位置
        spotCircle([x0, y0, z0])
        spotCircle([x1, y1, z1])
        moveSpot(curve)
-       
+
        ...
    }
    ```
@@ -4029,7 +4108,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -4357,64 +4436,64 @@ div {
 - 使用`Raycaster()`射线追踪法，监听鼠标事件。
 
   ```js
-    // 计算 以画布 开始为（0，0）点 的鼠标坐标
-    function getCanvasRelativePosition(event) {
-      const rect = canvas.getBoundingClientRect()
-      return {
-        x: ((event.clientX - rect.left) * canvas.width) / rect.width,
-        y: ((event.clientY - rect.top) * canvas.height) / rect.height
-      }
-    }
-    /**
-     * 获取鼠标在three.js 中归一化坐标
-     * */
-    function setPickPosition(event) {
-      let pickPosition = { x: 0, y: 0 }
-      // 计算后 以画布 开始为 （0，0）点
-      const pos = getCanvasRelativePosition(event)
-      // 数据归一化
-      pickPosition.x = (pos.x / canvas.width) * 2 - 1
-      pickPosition.y = (pos.y / canvas.height) * -2 + 1
-      return pickPosition
-    }
+  // 计算 以画布 开始为（0，0）点 的鼠标坐标
+  function getCanvasRelativePosition(event) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) * canvas.width) / rect.width,
+      y: ((event.clientY - rect.top) * canvas.height) / rect.height,
+    };
+  }
+  /**
+   * 获取鼠标在three.js 中归一化坐标
+   * */
+  function setPickPosition(event) {
+    let pickPosition = { x: 0, y: 0 };
+    // 计算后 以画布 开始为 （0，0）点
+    const pos = getCanvasRelativePosition(event);
+    // 数据归一化
+    pickPosition.x = (pos.x / canvas.width) * 2 - 1;
+    pickPosition.y = (pos.y / canvas.height) * -2 + 1;
+    return pickPosition;
+  }
   ```
 
 - 监听鼠标点击事件。
 
   ```js
   // 监听鼠标
-  window.addEventListener('click', onRay)
+  window.addEventListener("click", onRay);
   // 全局对象
-  let lastPick = null
+  let lastPick = null;
   function onRay(event) {
-      let pickPosition = setPickPosition(event)
-      const raycaster = new THREE.Raycaster()
-      raycaster.setFromCamera(pickPosition, camera)
-      // 计算物体和射线的交点
-      const intersects = raycaster.intersectObjects([map], true)
-      // 数组大于0 表示有相交对象
-      if (intersects.length > 0) {
-          if (lastPick) {
-              if (lastPick.object.properties !== intersects[0].object.properties) {
-                  lastPick.object.material.color.set('yellow')
-                  lastPick = null
-              }
-          }
-          
-          if (intersects[0].object.properties) {
-              intersects[0].object.material.color.set('blue')
-          }
-          
-          lastPick = intersects[0]
-      } else {
-          if (lastPick) {
-              // 复原
-              if (lastPick.object.properties) {
-                  lastPick.object.material.color.set('yellow')
-                  lastPick = null
-              }
-          }
+    let pickPosition = setPickPosition(event);
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(pickPosition, camera);
+    // 计算物体和射线的交点
+    const intersects = raycaster.intersectObjects([map], true);
+    // 数组大于0 表示有相交对象
+    if (intersects.length > 0) {
+      if (lastPick) {
+        if (lastPick.object.properties !== intersects[0].object.properties) {
+          lastPick.object.material.color.set("yellow");
+          lastPick = null;
+        }
       }
+
+      if (intersects[0].object.properties) {
+        intersects[0].object.material.color.set("blue");
+      }
+
+      lastPick = intersects[0];
+    } else {
+      if (lastPick) {
+        // 复原
+        if (lastPick.object.properties) {
+          lastPick.object.material.color.set("yellow");
+          lastPick = null;
+        }
+      }
+    }
   }
   ```
 
@@ -4423,7 +4502,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -4648,54 +4727,54 @@ div {
 
 **思考：点击某个区域如何将地图切换到那个区域。**
 
-- 可以创建不同的场景然后为其添加不同的相机，在场景里面加载地图。render的时候改变相机。
+- 可以创建不同的场景然后为其添加不同的相机，在场景里面加载地图。render 的时候改变相机。
 
 ## 22. 绘制一个有房子的场景
 
 ### 22.1 绘制地面
 
-1. 添加AxisHelper()增加坐标轴辅助，方便绘制几何体时定位。
+1. 添加 AxisHelper()增加坐标轴辅助，方便绘制几何体时定位。
 
    ```js
    // 辅助
-   const axes = new THREE.AxisHelper(700)
-   scene.add(axes)
+   const axes = new THREE.AxisHelper(700);
+   scene.add(axes);
    ```
 
 2. 添加光源，增强场景立体感。
 
    ```js
    {
-       // 灯光
-       const skyColor = 0xffffff // 天空 白色
-       const groundColor = 0x000000 // 地面 黑色
-       const intensity = 1
-       const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
-       scene.add(light)
+     // 灯光
+     const skyColor = 0xffffff; // 天空 白色
+     const groundColor = 0x000000; // 地面 黑色
+     const intensity = 1;
+     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+     scene.add(light);
    }
    ```
 
-3. 通过TextureLoader加载地面纹理，添加到平面几何体上，旋转平面几，地面就绘制好了。
+3. 通过 TextureLoader 加载地面纹理，添加到平面几何体上，旋转平面几，地面就绘制好了。
 
    ```js
    {
-       const loader = new THREE.TextureLoader()
-       const texture = loader.load('./file/23/1.jpg')
-       texture.wrapS = THREE.RepeatWrapping
-       texture.wrapT = THREE.RepeatWrapping
-       texture.magFilter = THREE.NearestFilter
-       // 纹理 重复
-       texture.repeat.set(100, 100)
-   
-       const planeGeo = new THREE.PlaneGeometry(10000, 10000)
-       const planeMat = new THREE.MeshPhongMaterial({
+     const loader = new THREE.TextureLoader();
+     const texture = loader.load("./file/23/1.jpg");
+     texture.wrapS = THREE.RepeatWrapping;
+     texture.wrapT = THREE.RepeatWrapping;
+     texture.magFilter = THREE.NearestFilter;
+     // 纹理 重复
+     texture.repeat.set(100, 100);
+
+     const planeGeo = new THREE.PlaneGeometry(10000, 10000);
+     const planeMat = new THREE.MeshPhongMaterial({
        map: texture,
-       side: THREE.DoubleSide
-       })
-       const mesh = new THREE.Mesh(planeGeo, planeMat)
-       mesh.rotation.x = Math.PI * -0.5
-   
-       scene.add(mesh)
+       side: THREE.DoubleSide,
+     });
+     const mesh = new THREE.Mesh(planeGeo, planeMat);
+     mesh.rotation.x = Math.PI * -0.5;
+
+     scene.add(mesh);
    }
    ```
 
@@ -4703,11 +4782,10 @@ div {
 
    ```js
    // 背景
-   scene.background = new THREE.Color(0x87ceeb)
+   scene.background = new THREE.Color(0x87ceeb);
    // 雾
-   scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+   scene.fog = new THREE.Fog(0x87ceeb, 200, 10000);
    ```
-
 
 ### 22.2 绘制房子
 
@@ -4715,22 +4793,22 @@ div {
 
    ```js
    {
-   // 地板
-       const loader = new THREE.TextureLoader()
-       const texture = loader.load('./file/23/2.jpg')
-       texture.wrapS = THREE.RepeatWrapping
-       texture.wrapT = THREE.RepeatWrapping
-       texture.magFilter = THREE.NearestFilter
-       texture.repeat.set(2, 2)
-       const planeGeo = new THREE.PlaneGeometry(300, 300)
-       const planeMat = new THREE.MeshPhongMaterial({
-           map: texture,
-           side: THREE.DoubleSide
-       })
-       const mesh = new THREE.Mesh(planeGeo, planeMat)
-       mesh.rotation.x = Math.PI * -0.5
-       mesh.position.y = 1
-       scene.add(mesh)
+     // 地板
+     const loader = new THREE.TextureLoader();
+     const texture = loader.load("./file/23/2.jpg");
+     texture.wrapS = THREE.RepeatWrapping;
+     texture.wrapT = THREE.RepeatWrapping;
+     texture.magFilter = THREE.NearestFilter;
+     texture.repeat.set(2, 2);
+     const planeGeo = new THREE.PlaneGeometry(300, 300);
+     const planeMat = new THREE.MeshPhongMaterial({
+       map: texture,
+       side: THREE.DoubleSide,
+     });
+     const mesh = new THREE.Mesh(planeGeo, planeMat);
+     mesh.rotation.x = Math.PI * -0.5;
+     mesh.position.y = 1;
+     scene.add(mesh);
    }
    ```
 
@@ -4741,41 +4819,44 @@ div {
      ```js
      // 拉伸配置
      const extrudeSettings = {
-         amount: 8,
-         bevelSegments: 2,
-         steps: 2,
-         bevelSize: 1,
-         bevelThickness: 1
-     }
+       amount: 8,
+       bevelSegments: 2,
+       steps: 2,
+       bevelSize: 1,
+       bevelThickness: 1,
+     };
      ```
 
    - 左右墙形状是相同的可以创建公用方法，多次调用绘制。
 
      ```js
      {
-         // 绘制左右墙
-         function wallAdd() {
-             const shape = new THREE.Shape() // 用Shape类绘制二维形状
-             shape.moveTo(-150, 0) // 绘制方法类似canvas中的绘制方法
-             shape.lineTo(150, 0)
-             shape.lineTo(150, 150)
-             shape.lineTo(0, 200)
-             shape.lineTo(-150, 150)
-     
-             const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-     
-             var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
-             const sideWall = new THREE.Mesh(extrudeGeometry, material)
-             sideWall.position.y = 1
-             return sideWall
-         }
-         const sideWall = wallAdd()
-         const sideWall2 = wallAdd()
-         sideWall.position.z = -150
-         sideWall2.position.z = 150
-     
-         scene.add(sideWall)
-         scene.add(sideWall2)
+       // 绘制左右墙
+       function wallAdd() {
+         const shape = new THREE.Shape(); // 用Shape类绘制二维形状
+         shape.moveTo(-150, 0); // 绘制方法类似canvas中的绘制方法
+         shape.lineTo(150, 0);
+         shape.lineTo(150, 150);
+         shape.lineTo(0, 200);
+         shape.lineTo(-150, 150);
+
+         const extrudeGeometry = new THREE.ExtrudeGeometry(
+           shape,
+           extrudeSettings
+         );
+
+         var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 });
+         const sideWall = new THREE.Mesh(extrudeGeometry, material);
+         sideWall.position.y = 1;
+         return sideWall;
+       }
+       const sideWall = wallAdd();
+       const sideWall2 = wallAdd();
+       sideWall.position.z = -150;
+       sideWall2.position.z = 150;
+
+       scene.add(sideWall);
+       scene.add(sideWall2);
      }
      ```
 
@@ -4783,99 +4864,111 @@ div {
 
      ```js
      {
-         // 后墙
-         const shape = new THREE.Shape()
-         shape.moveTo(-150, 0)
-         shape.lineTo(150, 0)
-         shape.lineTo(150, 150)
-         shape.lineTo(-150, 150)
-     
-         const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-     
-         const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
-         const backWall = new THREE.Mesh(extrudeGeometry, material)
-     
-         backWall.position.x = -150
-         backWall.position.y = 1
-         backWall.rotation.y = Math.PI * 0.5
-     
-         scene.add(backWall)
+       // 后墙
+       const shape = new THREE.Shape();
+       shape.moveTo(-150, 0);
+       shape.lineTo(150, 0);
+       shape.lineTo(150, 150);
+       shape.lineTo(-150, 150);
+
+       const extrudeGeometry = new THREE.ExtrudeGeometry(
+         shape,
+         extrudeSettings
+       );
+
+       const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 });
+       const backWall = new THREE.Mesh(extrudeGeometry, material);
+
+       backWall.position.x = -150;
+       backWall.position.y = 1;
+       backWall.rotation.y = Math.PI * 0.5;
+
+       scene.add(backWall);
      }
      ```
 
-3. 绘制前墙，前墙有门和窗户就需要使用.Shape()的.holes属性来挖洞。
+3. 绘制前墙，前墙有门和窗户就需要使用.Shape()的.holes 属性来挖洞。
 
    ```js
    {
-       // 前墙
-       const shape = new THREE.Shape()
-       shape.moveTo(-150, 0)
-       shape.lineTo(150, 0)
-       shape.lineTo(150, 150)
-       shape.lineTo(-150, 150)
-   
-       const shape_a = new THREE.Path()
-       shape_a.moveTo(30, 30)
-       shape_a.lineTo(80, 30)
-       shape_a.lineTo(80, 80)
-       shape_a.lineTo(30, 80)
-       shape_a.lineTo(30, 30)
-       shape.holes.push(shape_a)
-   
-       const shape_b = new THREE.Path()
-       shape_b.moveTo(-20, 0)
-       shape_b.lineTo(-20, 100)
-       shape_b.lineTo(-80, 100)
-       shape_b.lineTo(-80, 0)
-       shape_b.lineTo(-20, 0)
-       shape.holes.push(shape_b)
-   
-       const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-   
-       const material = new THREE.MeshBasicMaterial({ color: 'grey' })
-       const backWall = new THREE.Mesh(extrudeGeometry, material)
-   
-       backWall.position.x = 143
-       backWall.position.y = 1
-       backWall.rotation.y = Math.PI * 0.5
-   
-       scene.add(backWall)
+     // 前墙
+     const shape = new THREE.Shape();
+     shape.moveTo(-150, 0);
+     shape.lineTo(150, 0);
+     shape.lineTo(150, 150);
+     shape.lineTo(-150, 150);
+
+     const shape_a = new THREE.Path();
+     shape_a.moveTo(30, 30);
+     shape_a.lineTo(80, 30);
+     shape_a.lineTo(80, 80);
+     shape_a.lineTo(30, 80);
+     shape_a.lineTo(30, 30);
+     shape.holes.push(shape_a);
+
+     const shape_b = new THREE.Path();
+     shape_b.moveTo(-20, 0);
+     shape_b.lineTo(-20, 100);
+     shape_b.lineTo(-80, 100);
+     shape_b.lineTo(-80, 0);
+     shape_b.lineTo(-20, 0);
+     shape.holes.push(shape_b);
+
+     const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+     const material = new THREE.MeshBasicMaterial({ color: "grey" });
+     const backWall = new THREE.Mesh(extrudeGeometry, material);
+
+     backWall.position.x = 143;
+     backWall.position.y = 1;
+     backWall.rotation.y = Math.PI * 0.5;
+
+     scene.add(backWall);
    }
    ```
 
-4. 最后就是房顶了，使用BoxGeometry()绘制两个几何体，加上贴图。在旋转和位移到适合的位置就好了。
+4. 最后就是房顶了，使用 BoxGeometry()绘制两个几何体，加上贴图。在旋转和位移到适合的位置就好了。
 
    ```js
    {
-       // 房顶
-       function roof() {
-           const roofGeometry = new THREE.BoxGeometry(200, 320, 10)
-           const loader = new THREE.TextureLoader()
-           const roofTexture = loader.load('./file/23/3.jpg')
-           roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping
-           roofTexture.repeat.set(2, 2)
-           const textureMaterial = new THREE.MeshBasicMaterial({ map: roofTexture })
-           const colorMaterial = new THREE.MeshBasicMaterial({ color: 'grey' })
-           const materials = [colorMaterial, colorMaterial, colorMaterial, colorMaterial, colorMaterial, 	                     textureMaterial]
-           const roof = new THREE.Mesh(roofGeometry, materials)
-           return roof
-       }
-   
-       const roof1 = roof()
-   
-       roof1.rotation.x = Math.PI / 2
-       roof1.rotation.y = (-Math.PI / 4) * 0.4
-       roof1.position.y = 170
-       roof1.position.x = 90
-   
-       const roof2 = roof()
-       roof2.rotation.x = Math.PI / 2
-       roof2.rotation.y = (Math.PI / 4) * 0.4
-       roof2.position.y = 170
-       roof2.position.x = -90
-   
-       scene.add(roof1)
-       scene.add(roof2)
+     // 房顶
+     function roof() {
+       const roofGeometry = new THREE.BoxGeometry(200, 320, 10);
+       const loader = new THREE.TextureLoader();
+       const roofTexture = loader.load("./file/23/3.jpg");
+       roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping;
+       roofTexture.repeat.set(2, 2);
+       const textureMaterial = new THREE.MeshBasicMaterial({
+         map: roofTexture,
+       });
+       const colorMaterial = new THREE.MeshBasicMaterial({ color: "grey" });
+       const materials = [
+         colorMaterial,
+         colorMaterial,
+         colorMaterial,
+         colorMaterial,
+         colorMaterial,
+         textureMaterial,
+       ];
+       const roof = new THREE.Mesh(roofGeometry, materials);
+       return roof;
+     }
+
+     const roof1 = roof();
+
+     roof1.rotation.x = Math.PI / 2;
+     roof1.rotation.y = (-Math.PI / 4) * 0.4;
+     roof1.position.y = 170;
+     roof1.position.x = 90;
+
+     const roof2 = roof();
+     roof2.rotation.x = Math.PI / 2;
+     roof2.rotation.y = (Math.PI / 4) * 0.4;
+     roof2.position.y = 170;
+     roof2.position.x = -90;
+
+     scene.add(roof1);
+     scene.add(roof2);
    }
    ```
 
@@ -4885,42 +4978,42 @@ div {
 
 ```js
 {
-    // 门框
-    const shape = new THREE.Shape()
-    shape.moveTo(-20, 0)
-    shape.lineTo(-20, 100)
-    shape.lineTo(-80, 100)
-    shape.lineTo(-80, 0)
-    shape.lineTo(-20, 0)
+  // 门框
+  const shape = new THREE.Shape();
+  shape.moveTo(-20, 0);
+  shape.lineTo(-20, 100);
+  shape.lineTo(-80, 100);
+  shape.lineTo(-80, 0);
+  shape.lineTo(-20, 0);
 
-    const shape_c = new THREE.Path()
-    shape_c.moveTo(-25, 5)
-    shape_c.lineTo(-25, 95)
-    shape_c.lineTo(-75, 95)
-    shape_c.lineTo(-75, 5)
-    shape_c.lineTo(-25, 5)
+  const shape_c = new THREE.Path();
+  shape_c.moveTo(-25, 5);
+  shape_c.lineTo(-25, 95);
+  shape_c.lineTo(-75, 95);
+  shape_c.lineTo(-75, 5);
+  shape_c.lineTo(-25, 5);
 
-    shape.holes.push(shape_c)
-    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-    const material = new THREE.MeshBasicMaterial({ color: 'silver' })
-    const frame = new THREE.Mesh(extrudeGeometry, material)
+  shape.holes.push(shape_c);
+  const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  const material = new THREE.MeshBasicMaterial({ color: "silver" });
+  const frame = new THREE.Mesh(extrudeGeometry, material);
 
-    // 门
-    const doorGeometry = new THREE.BoxGeometry(50, 90, 4) //门的形状
-    const doorTexture = new THREE.TextureLoader().load('./file/23/4.jpg')
-    const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }) //门的材质
-    const door = new THREE.Mesh(doorGeometry, doorMaterial)
-    door.position.set(-50, 50, 5) // 门相对于group的位移和旋转，开关门动画会用到。
+  // 门
+  const doorGeometry = new THREE.BoxGeometry(50, 90, 4); //门的形状
+  const doorTexture = new THREE.TextureLoader().load("./file/23/4.jpg");
+  const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }); //门的材质
+  const door = new THREE.Mesh(doorGeometry, doorMaterial);
+  door.position.set(-50, 50, 5); // 门相对于group的位移和旋转，开关门动画会用到。
 
-    const group = new THREE.Group() // 创建Group
-    group.add(frame) // 往Group加入门框
-    group.add(door) // 往Group加入门板
+  const group = new THREE.Group(); // 创建Group
+  group.add(frame); // 往Group加入门框
+  group.add(door); // 往Group加入门板
 
-    group.position.x = 143
-    group.position.y = 1
-    group.rotation.y = Math.PI / 2
+  group.position.x = 143;
+  group.position.y = 1;
+  group.rotation.y = Math.PI / 2;
 
-    scene.add(group)
+  scene.add(group);
 }
 ```
 
@@ -4930,40 +5023,40 @@ div {
 
 ```js
 const gltfLoader = new THREE.GLTFLoader();
-gltfLoader.load('./file/bingdundun.glb', (gltf) => {
-  const root = gltf.scene
-  root.scale.set(110, 110, 110)
-  root.position.x = 200
-  root.position.y = -7.5
+gltfLoader.load("./file/bingdundun.glb", (gltf) => {
+  const root = gltf.scene;
+  root.scale.set(110, 110, 110);
+  root.position.x = 200;
+  root.position.y = -7.5;
   // 遍历所有子对象
   root.traverse((child) => {
     if (child.isMesh) {
       // 内部
-      if (child.name === 'oldtiger001') {
+      if (child.name === "oldtiger001") {
         // 辅助
         // const axes = new THREE.AxesHelper(700)
         // child.add(axes)
 
         // 金属度
-        child.material.metalness = 0.5
+        child.material.metalness = 0.5;
         // 粗糙度
-        child.material.roughness = 0.8
+        child.material.roughness = 0.8;
       }
       //  半透明外壳
-      if (child.name === 'oldtiger002') {
+      if (child.name === "oldtiger002") {
         // 启用透明
-        child.material.transparent = true
+        child.material.transparent = true;
         // 透明度
-        child.material.opacity = 0.5
+        child.material.opacity = 0.5;
         // 透明反射效果
-        child.material.refractionRatio = 1
-        child.material.metalness = 0.2
-        child.material.roughness = 0
+        child.material.refractionRatio = 1;
+        child.material.metalness = 0.2;
+        child.material.roughness = 0;
       }
     }
-    scene.add(root)
-  })
-})
+    scene.add(root);
+  });
+});
 ```
 
 ### 22.5 添加键盘监听
@@ -4982,7 +5075,7 @@ gltfLoader.load('./file/bingdundun.glb', (gltf) => {
   cameraBin.position.x = 1
   cameraBin.rotation.y = Math.PI
   ...
-  
+
   // 辅助
   const axes = new THREE.AxisHelper(700)
   child.add(axes)
@@ -4994,41 +5087,41 @@ gltfLoader.load('./file/bingdundun.glb', (gltf) => {
 - 因为要操作模型位移，修改模型为全局变量。
 
   ```js
-  let root = null
+  let root = null;
   ```
 
 - 添加键盘监听事件。
 
   ```js
-  let cameraBinBol = false
+  let cameraBinBol = false;
   document.onkeydown = function (e) {
-      if (root) {
-            if (e && e.keyCode == 87) {
-              // w 
-              root.position.x += 1
-            }
-            if (e && e.keyCode == 83) {
-              // s
-              root.position.x -= 1
-            }
-            if (e && e.keyCode == 65) {
-              // a
-              root.position.z += 1
-            }
-            if (e && e.keyCode == 68) {
-              // d
-              root.position.z -= 1
-            }
+    if (root) {
+      if (e && e.keyCode == 87) {
+        // w
+        root.position.x += 1;
       }
-      if (e && e.keyCode == 13) {
-        // 切换相机
-        if (cameraBinBol) {
-          cameraBinBol = false
-        } else {
-          cameraBinBol = true
-        }
+      if (e && e.keyCode == 83) {
+        // s
+        root.position.x -= 1;
       }
-  }
+      if (e && e.keyCode == 65) {
+        // a
+        root.position.z += 1;
+      }
+      if (e && e.keyCode == 68) {
+        // d
+        root.position.z -= 1;
+      }
+    }
+    if (e && e.keyCode == 13) {
+      // 切换相机
+      if (cameraBinBol) {
+        cameraBinBol = false;
+      } else {
+        cameraBinBol = true;
+      }
+    }
+  };
   ```
 
 - 修改渲染函数。
@@ -5036,13 +5129,13 @@ gltfLoader.load('./file/bingdundun.glb', (gltf) => {
   ```js
   // 渲染
   function render() {
-      //  cameraBin
-      if (cameraBinBol) {
-          renderer.render(scene, cameraBin)
-      } else {
-          renderer.render(scene, camera)
-      }
-      requestAnimationFrame(render)
+    //  cameraBin
+    if (cameraBinBol) {
+      renderer.render(scene, cameraBin);
+    } else {
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(render);
   }
   ```
 
@@ -5051,7 +5144,7 @@ gltfLoader.load('./file/bingdundun.glb', (gltf) => {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -5061,7 +5154,7 @@ import { onMounted, ref } from "vue";
 
 const container = ref(null);
 // 因为要操作模型位移，修改模型为全局变量。
-let root = null
+let root = null;
 
 onMounted(() => {
   const clock = new THREE.Clock();
@@ -5121,29 +5214,29 @@ onMounted(() => {
   }
 
   // 背景
-  scene.background = new THREE.Color(0x87ceeb)
+  scene.background = new THREE.Color(0x87ceeb);
   // 雾
-  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000);
 
   // ================================= 绘制房子 start========================================
   // 使用绘制地面的方式，绘制房子的地板。
   {
     // 地板
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('./file/23/2.jpg')
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.magFilter = THREE.NearestFilter
-    texture.repeat.set(2, 2)
-    const planeGeo = new THREE.PlaneGeometry(300, 300)
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/23/2.jpg");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
+    texture.repeat.set(2, 2);
+    const planeGeo = new THREE.PlaneGeometry(300, 300);
     const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
-      side: THREE.DoubleSide
-    })
-    const mesh = new THREE.Mesh(planeGeo, planeMat)
-    mesh.rotation.x = Math.PI * -0.5
-    mesh.position.y = 1
-    scene.add(mesh)
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
+    mesh.position.y = 1;
+    scene.add(mesh);
   }
 
   // 拉伸配置
@@ -5152,254 +5245,258 @@ onMounted(() => {
     bevelSegments: 2,
     steps: 2,
     bevelSize: 1,
-    bevelThickness: 1
-  }
+    bevelThickness: 1,
+  };
 
   {
     // 绘制左右墙
-    function wallAdd () {
-      const shape = new THREE.Shape() // 用Shape类绘制二维形状
-      shape.moveTo(-150, 0) // 绘制方法类似canvas中的绘制方法
-      shape.lineTo(150, 0)
-      shape.lineTo(150, 150)
-      shape.lineTo(0, 200)
-      shape.lineTo(-150, 150)
+    function wallAdd() {
+      const shape = new THREE.Shape(); // 用Shape类绘制二维形状
+      shape.moveTo(-150, 0); // 绘制方法类似canvas中的绘制方法
+      shape.lineTo(150, 0);
+      shape.lineTo(150, 150);
+      shape.lineTo(0, 200);
+      shape.lineTo(-150, 150);
 
-      const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+      const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-      var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
-      const sideWall = new THREE.Mesh(extrudeGeometry, material)
-      sideWall.position.y = 1
-      return sideWall
+      var material = new THREE.MeshBasicMaterial({ color: 0xe5d890 });
+      const sideWall = new THREE.Mesh(extrudeGeometry, material);
+      sideWall.position.y = 1;
+      return sideWall;
     }
-    const sideWall = wallAdd()
-    const sideWall2 = wallAdd()
-    sideWall.position.z = -150
-    sideWall2.position.z = 150
+    const sideWall = wallAdd();
+    const sideWall2 = wallAdd();
+    sideWall.position.z = -150;
+    sideWall2.position.z = 150;
 
-    scene.add(sideWall)
-    scene.add(sideWall2)
+    scene.add(sideWall);
+    scene.add(sideWall2);
   }
 
   {
     // 后墙
-    const shape = new THREE.Shape()
-    shape.moveTo(-150, 0)
-    shape.lineTo(150, 0)
-    shape.lineTo(150, 150)
-    shape.lineTo(-150, 150)
+    const shape = new THREE.Shape();
+    shape.moveTo(-150, 0);
+    shape.lineTo(150, 0);
+    shape.lineTo(150, 150);
+    shape.lineTo(-150, 150);
 
-    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 })
-    const backWall = new THREE.Mesh(extrudeGeometry, material)
+    const material = new THREE.MeshBasicMaterial({ color: 0xe5d890 });
+    const backWall = new THREE.Mesh(extrudeGeometry, material);
 
-    backWall.position.x = -150
-    backWall.position.y = 1
-    backWall.rotation.y = Math.PI * 0.5
+    backWall.position.x = -150;
+    backWall.position.y = 1;
+    backWall.rotation.y = Math.PI * 0.5;
 
-    scene.add(backWall)
+    scene.add(backWall);
   }
 
   {
     // 前墙
-    const shape = new THREE.Shape()
-    shape.moveTo(-150, 0)
-    shape.lineTo(150, 0)
-    shape.lineTo(150, 150)
-    shape.lineTo(-150, 150)
+    const shape = new THREE.Shape();
+    shape.moveTo(-150, 0);
+    shape.lineTo(150, 0);
+    shape.lineTo(150, 150);
+    shape.lineTo(-150, 150);
 
-    const shape_a = new THREE.Path()
-    shape_a.moveTo(30, 30)
-    shape_a.lineTo(80, 30)
-    shape_a.lineTo(80, 80)
-    shape_a.lineTo(30, 80)
-    shape_a.lineTo(30, 30)
-    shape.holes.push(shape_a)
+    const shape_a = new THREE.Path();
+    shape_a.moveTo(30, 30);
+    shape_a.lineTo(80, 30);
+    shape_a.lineTo(80, 80);
+    shape_a.lineTo(30, 80);
+    shape_a.lineTo(30, 30);
+    shape.holes.push(shape_a);
 
-    const shape_b = new THREE.Path()
-    shape_b.moveTo(-20, 0)
-    shape_b.lineTo(-20, 100)
-    shape_b.lineTo(-80, 100)
-    shape_b.lineTo(-80, 0)
-    shape_b.lineTo(-20, 0)
-    shape.holes.push(shape_b)
+    const shape_b = new THREE.Path();
+    shape_b.moveTo(-20, 0);
+    shape_b.lineTo(-20, 100);
+    shape_b.lineTo(-80, 100);
+    shape_b.lineTo(-80, 0);
+    shape_b.lineTo(-20, 0);
+    shape.holes.push(shape_b);
 
-    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-    const material = new THREE.MeshBasicMaterial({ color: 'grey' })
-    const backWall = new THREE.Mesh(extrudeGeometry, material)
+    const material = new THREE.MeshBasicMaterial({ color: "grey" });
+    const backWall = new THREE.Mesh(extrudeGeometry, material);
 
-    backWall.position.x = 143
-    backWall.position.y = 1
-    backWall.rotation.y = Math.PI * 0.5
+    backWall.position.x = 143;
+    backWall.position.y = 1;
+    backWall.rotation.y = Math.PI * 0.5;
 
-    scene.add(backWall)
+    scene.add(backWall);
   }
 
   {
     // 房顶
-    function roof () {
-      const roofGeometry = new THREE.BoxGeometry(200, 320, 10)
-      const loader = new THREE.TextureLoader()
-      const roofTexture = loader.load('./file/23/3.jpg')
-      roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping
-      roofTexture.repeat.set(2, 2)
-      const textureMaterial = new THREE.MeshBasicMaterial({ map: roofTexture })
-      const colorMaterial = new THREE.MeshBasicMaterial({ color: 'grey' })
-      const materials = [colorMaterial, colorMaterial, colorMaterial, colorMaterial, colorMaterial, textureMaterial]
-      const roof = new THREE.Mesh(roofGeometry, materials)
-      return roof
+    function roof() {
+      const roofGeometry = new THREE.BoxGeometry(200, 320, 10);
+      const loader = new THREE.TextureLoader();
+      const roofTexture = loader.load("./file/23/3.jpg");
+      roofTexture.wrapS = roofTexture.wrapT = THREE.RepeatWrapping;
+      roofTexture.repeat.set(2, 2);
+      const textureMaterial = new THREE.MeshBasicMaterial({ map: roofTexture });
+      const colorMaterial = new THREE.MeshBasicMaterial({ color: "grey" });
+      const materials = [
+        colorMaterial,
+        colorMaterial,
+        colorMaterial,
+        colorMaterial,
+        colorMaterial,
+        textureMaterial,
+      ];
+      const roof = new THREE.Mesh(roofGeometry, materials);
+      return roof;
     }
 
-    const roof1 = roof()
+    const roof1 = roof();
 
-    roof1.rotation.x = Math.PI / 2
-    roof1.rotation.y = (-Math.PI / 4) * 0.4
-    roof1.position.y = 170
-    roof1.position.x = 90
+    roof1.rotation.x = Math.PI / 2;
+    roof1.rotation.y = (-Math.PI / 4) * 0.4;
+    roof1.position.y = 170;
+    roof1.position.x = 90;
 
-    const roof2 = roof()
-    roof2.rotation.x = Math.PI / 2
-    roof2.rotation.y = (Math.PI / 4) * 0.4
-    roof2.position.y = 170
-    roof2.position.x = -90
+    const roof2 = roof();
+    roof2.rotation.x = Math.PI / 2;
+    roof2.rotation.y = (Math.PI / 4) * 0.4;
+    roof2.position.y = 170;
+    roof2.position.x = -90;
 
-    scene.add(roof1)
-    scene.add(roof2)
+    scene.add(roof1);
+    scene.add(roof2);
   }
   // ================================= 绘制房子 end  ========================================
-
 
   // ================================= 添加门和门框 start ========================================
   {
     // 门框
-    const shape = new THREE.Shape()
-    shape.moveTo(-20, 0)
-    shape.lineTo(-20, 100)
-    shape.lineTo(-80, 100)
-    shape.lineTo(-80, 0)
-    shape.lineTo(-20, 0)
+    const shape = new THREE.Shape();
+    shape.moveTo(-20, 0);
+    shape.lineTo(-20, 100);
+    shape.lineTo(-80, 100);
+    shape.lineTo(-80, 0);
+    shape.lineTo(-20, 0);
 
-    const shape_c = new THREE.Path()
-    shape_c.moveTo(-25, 5)
-    shape_c.lineTo(-25, 95)
-    shape_c.lineTo(-75, 95)
-    shape_c.lineTo(-75, 5)
-    shape_c.lineTo(-25, 5)
+    const shape_c = new THREE.Path();
+    shape_c.moveTo(-25, 5);
+    shape_c.lineTo(-25, 95);
+    shape_c.lineTo(-75, 95);
+    shape_c.lineTo(-75, 5);
+    shape_c.lineTo(-25, 5);
 
-    shape.holes.push(shape_c)
-    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-    const material = new THREE.MeshBasicMaterial({ color: 'silver' })
-    const frame = new THREE.Mesh(extrudeGeometry, material)
+    shape.holes.push(shape_c);
+    const extrudeGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const material = new THREE.MeshBasicMaterial({ color: "silver" });
+    const frame = new THREE.Mesh(extrudeGeometry, material);
 
     // 门
-    const doorGeometry = new THREE.BoxGeometry(50, 90, 4) //门的形状
-    const doorTexture = new THREE.TextureLoader().load('./file/23/4.jpg')
-    const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }) //门的材质
-    const door = new THREE.Mesh(doorGeometry, doorMaterial)
-    door.position.set(-50, 50, 5) // 门相对于group的位移和旋转，开关门动画会用到。
+    const doorGeometry = new THREE.BoxGeometry(50, 90, 4); //门的形状
+    const doorTexture = new THREE.TextureLoader().load("./file/23/4.jpg");
+    const doorMaterial = new THREE.MeshLambertMaterial({ map: doorTexture }); //门的材质
+    const door = new THREE.Mesh(doorGeometry, doorMaterial);
+    door.position.set(-50, 50, 5); // 门相对于group的位移和旋转，开关门动画会用到。
 
-    const group = new THREE.Group() // 创建Group
-    group.add(frame) // 往Group加入门框
-    group.add(door) // 往Group加入门板
+    const group = new THREE.Group(); // 创建Group
+    group.add(frame); // 往Group加入门框
+    group.add(door); // 往Group加入门板
 
-    group.position.x = 143
-    group.position.y = 1
-    group.rotation.y = Math.PI / 2
+    group.position.x = 143;
+    group.position.y = 1;
+    group.rotation.y = Math.PI / 2;
 
-    scene.add(group)
+    scene.add(group);
   }
   // ================================= 添加门和门框 end   ========================================
 
-
   // ================================= 加入模型 start ========================================
   // 创建透视相机
-  let cameraBin = new THREE.PerspectiveCamera(40, aspect, near, far)
-  cameraBin.position.x = 1
-  cameraBin.position.y = 1
-  cameraBin.position.z = 15
-  cameraBin.rotation.y = Math.PI
+  let cameraBin = new THREE.PerspectiveCamera(40, aspect, near, far);
+  cameraBin.position.x = 1;
+  cameraBin.position.y = 1;
+  cameraBin.position.z = 15;
+  cameraBin.rotation.y = Math.PI;
   {
     const gltfLoader = new THREE.GLTFLoader();
-    gltfLoader.load('./file/bingdundun.glb', (gltf) => {
-      root = gltf.scene
-      root.scale.set(110, 110, 110)
-      root.position.x = 200
-      root.position.y = -7.5
+    gltfLoader.load("./file/bingdundun.glb", (gltf) => {
+      root = gltf.scene;
+      root.scale.set(110, 110, 110);
+      root.position.x = 200;
+      root.position.y = -7.5;
 
       // 遍历所有子对象
       root.traverse((child) => {
         if (child.isMesh) {
           // 内部
-          if (child.name === 'oldtiger001') {
+          if (child.name === "oldtiger001") {
             // 辅助
             // const axes = new THREE.AxesHelper(700)
             // child.add(axes)
-            child.add(cameraBin)
+            child.add(cameraBin);
             // 金属度
-            child.material.metalness = 0.5
+            child.material.metalness = 0.5;
             // 粗糙度
-            child.material.roughness = 0.8
+            child.material.roughness = 0.8;
           }
           //  半透明外壳
-          if (child.name === 'oldtiger002') {
+          if (child.name === "oldtiger002") {
             // 启用透明
-            child.material.transparent = true
+            child.material.transparent = true;
             // 透明度
-            child.material.opacity = 0.5
+            child.material.opacity = 0.5;
             // 透明反射效果
-            child.material.refractionRatio = 1
-            child.material.metalness = 0.2
-            child.material.roughness = 0
+            child.material.refractionRatio = 1;
+            child.material.metalness = 0.2;
+            child.material.roughness = 0;
           }
         }
-        scene.add(root)
-      })
-    })
+        scene.add(root);
+      });
+    });
   }
   // ================================= 加入模型 end   ========================================
   // ====================================键盘事件 start=========================================
-  let cameraBinBol = false
+  let cameraBinBol = false;
   document.onkeydown = function (e) {
     if (root) {
       if (e && e.keyCode == 87) {
-        // w 
-        root.position.x += 1
+        // w
+        root.position.x += 1;
       }
       if (e && e.keyCode == 83) {
         // s
-        root.position.x -= 1
+        root.position.x -= 1;
       }
       if (e && e.keyCode == 65) {
         // a
-        root.position.z += 1
+        root.position.z += 1;
       }
       if (e && e.keyCode == 68) {
         // d
-        root.position.z -= 1
+        root.position.z -= 1;
       }
     }
-    if (e && e.keyCode == 13
-    ) {
+    if (e && e.keyCode == 13) {
       // 切换相机
       if (cameraBinBol) {
-        cameraBinBol = false
+        cameraBinBol = false;
       } else {
-        cameraBinBol = true
+        cameraBinBol = true;
       }
     }
-  }
+  };
   // ====================================键盘事件 end  =========================================
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 
     // 加载渲染器
     if (cameraBinBol) {
-      renderer.render(scene, cameraBin)
+      renderer.render(scene, cameraBin);
     } else {
-      renderer.render(scene, camera)
+      renderer.render(scene, camera);
     }
 
     // 开始动画
@@ -5423,13 +5520,14 @@ div {
 </style>
 ```
 
-## 23.  AnimationMixer 动画混合器
+## 23. AnimationMixer 动画混合器
 
 在`three.js`中动画也是很重要的一环。在使用软件创建模型时，一般都会创建模型的骨骼动画用于在开发中使用。下面我们加载`.fbx`格式的文件模型（它除了包含几何、材质信息，可以存储骨骼动画等数据）来实现动画。
 
 - 动画混合器是用于场景中特定对象的动画的播放器。当场景中的多个对象独立动画时，每个对象都可以使用同一个动画混合器。
 - 参数：`rootObject` 混合器播放的动画所属的对象。就是包含动画模型的场景对象。
 - 常用参数和属性：
+
   1. `.time` 全局的混合器时间。
   2. `.clipAction(AnimationClip)` 返回所传入的剪辑参数的`AnimationAction`对象。`AnimationAction`用来调度存储在`AnimationClip`中的动画。
 
@@ -5437,66 +5535,66 @@ div {
   1. `.getRoot()` 返回混合器的根对象。
   2. `.update()` 推进混合器时间并更新动画。在渲染函数中调用更新动画。
 
-### 23.1 加载.fbx模型
+### 23.1 加载.fbx 模型
 
 ```js
 const loader = new THREE.FBXLoader();
-loader.load('./file/Naruto.fbx', function (mesh) {
-    console.log(mesh);
-    mesh.position.y = 110
-    scene.add(mesh)
-})
+loader.load("./file/Naruto.fbx", function (mesh) {
+  console.log(mesh);
+  mesh.position.y = 110;
+  scene.add(mesh);
+});
 ```
 
-- 可以看见解析出来的对象中，存在`animations`属性并且有27条数据，代表有27个动画。
+- 可以看见解析出来的对象中，存在`animations`属性并且有 27 条数据，代表有 27 个动画。
 
-### 23.2 使用AnimationMixer控制动画
+### 23.2 使用 AnimationMixer 控制动画
 
 1. 创建全局参数获取动画相关对象。
 
    ```js
-   let actions = [] // 所有的动画数组
-   let gui = {} // 动画控制
-   let mixer = null // AnimationMixer 对象
+   let actions = []; // 所有的动画数组
+   let gui = {}; // 动画控制
+   let mixer = null; // AnimationMixer 对象
    ```
 
-2. 解析动画，并执行第24个动画。
+2. 解析动画，并执行第 24 个动画。
 
    ```js
-   mixer = new THREE.AnimationMixer(mesh)
+   mixer = new THREE.AnimationMixer(mesh);
    for (var i = 0; i < mesh.animations.length; i++) {
-       actions[i] = mixer.clipAction(mesh.animations[i])
+     actions[i] = mixer.clipAction(mesh.animations[i]);
    }
-   gui['action'] = function (s) {
-       for (var j = 0; j < actions.length; j++) {
-           if (j === s) {
-               actions[j].play()
-           } else {
-               actions[j].stop()
-           }
+   gui["action"] = function (s) {
+     for (var j = 0; j < actions.length; j++) {
+       if (j === s) {
+         actions[j].play();
+       } else {
+         actions[j].stop();
        }
-   }
+     }
+   };
    // 第24个动作是鸣人站立的动作
-   gui['action'](24)
+   gui["action"](24);
    ```
 
 3. 在渲染函数中执行.update()函数，推进动画进行。
 
    ```js
-    function render (time) {
-       const delta = clock.getDelta();
-       controls.update(delta);
-       
-       if (mixer) {
-         mixer.update(delta)
-       }
-   
-       // 加载渲染器
-       renderer.render(scene, camera);
-   
-       // 开始动画
-       requestAnimationFrame(render);
+   function render(time) {
+     const delta = clock.getDelta();
+     controls.update(delta);
+
+     if (mixer) {
+       mixer.update(delta);
      }
+
+     // 加载渲染器
+     renderer.render(scene, camera);
+
+     // 开始动画
+     requestAnimationFrame(render);
+   }
    ```
 
 ### 23.3 通过键盘空格切换动画
@@ -5504,16 +5602,16 @@ loader.load('./file/Naruto.fbx', function (mesh) {
 - 监听键盘事件，调用`gui`对象执行新的动画。
 
   ```js
-  let keyNum = 24 // 动作
+  let keyNum = 24; // 动作
   document.onkeydown = function (e) {
-      if (e && e.keyCode == 13) {
-          if (keyNum === 27) {
-              keyNum = 1
-          }
-          keyNum += 1
-          gui['action'](keyNum)
+    if (e && e.keyCode == 13) {
+      if (keyNum === 27) {
+        keyNum = 1;
       }
-  }
+      keyNum += 1;
+      gui["action"](keyNum);
+    }
+  };
   ```
 
 ### 23.4 完整代码
@@ -5521,7 +5619,7 @@ loader.load('./file/Naruto.fbx', function (mesh) {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -5555,83 +5653,83 @@ onMounted(() => {
   // 创建场景
   const scene = new THREE.Scene();
 
-  scene.background = new THREE.Color(0x87ceeb)
+  scene.background = new THREE.Color(0x87ceeb);
   // 雾
-  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000);
   // 辅助
-  const axes = new THREE.AxesHelper(700)
-  scene.add(axes)
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
   {
     // 灯光
-    const skyColor = 0xffffff // 天空 白色
-    const groundColor = 0x000000 // 地面 黑色
-    const intensity = 1
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
-    scene.add(light)
+    const skyColor = 0xffffff; // 天空 白色
+    const groundColor = 0x000000; // 地面 黑色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
   }
 
   {
     // 地面
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('./file/23/1.jpg')
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.magFilter = THREE.NearestFilter
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/23/1.jpg");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
     // 纹理 重复
-    texture.repeat.set(100, 100)
+    texture.repeat.set(100, 100);
 
-    const planeGeo = new THREE.PlaneGeometry(10000, 10000)
+    const planeGeo = new THREE.PlaneGeometry(10000, 10000);
     const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
-      side: THREE.DoubleSide
-    })
-    const mesh = new THREE.Mesh(planeGeo, planeMat)
-    mesh.rotation.x = Math.PI * -0.5
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
 
-    scene.add(mesh)
+    scene.add(mesh);
   }
-  let actions = [] // 所有的动画数组
-  let gui = {} // 动画控制
-  let mixer = null // AnimationMixer 对象
+  let actions = []; // 所有的动画数组
+  let gui = {}; // 动画控制
+  let mixer = null; // AnimationMixer 对象
   {
     const loader = new THREE.FBXLoader();
-    loader.load('./file/Naruto.fbx', function (mesh) {
-      mesh.position.y = 110
-      scene.add(mesh)
-      mixer = new THREE.AnimationMixer(mesh)
+    loader.load("./file/Naruto.fbx", function (mesh) {
+      mesh.position.y = 110;
+      scene.add(mesh);
+      mixer = new THREE.AnimationMixer(mesh);
       for (var i = 0; i < mesh.animations.length; i++) {
-        actions[i] = mixer.clipAction(mesh.animations[i])
+        actions[i] = mixer.clipAction(mesh.animations[i]);
       }
-      gui['action'] = function (s) {
+      gui["action"] = function (s) {
         for (var j = 0; j < actions.length; j++) {
           if (j === s) {
-            actions[j].play()
+            actions[j].play();
           } else {
-            actions[j].stop()
+            actions[j].stop();
           }
         }
-      }
+      };
       // 第24个动作是鸣人站立的动作
-      gui['action'](24)
-    })
+      gui["action"](24);
+    });
   }
-  let keyNum = 24 // 动作
+  let keyNum = 24; // 动作
   document.onkeydown = function (e) {
     if (e && e.keyCode == 13) {
       if (keyNum === 27) {
-        keyNum = 1
+        keyNum = 1;
       }
-      keyNum += 1
-      gui['action'](keyNum)
+      keyNum += 1;
+      gui["action"](keyNum);
     }
-  }
+  };
 
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 
     if (mixer) {
-      mixer.update(delta)
+      mixer.update(delta);
     }
 
     // 加载渲染器
@@ -5665,35 +5763,35 @@ div {
 
    ```js
    // 开启阴影
-   renderer.shadowMap.enabled = true
+   renderer.shadowMap.enabled = true;
    ```
 
 2. 添加方向光，开启阴影投射。
 
    ```js
-   let dLight = null
+   let dLight = null;
    {
-       const light = new THREE.DirectionalLight(0xaaaaaa)
-       light.position.set(0, 200, 100)
-       light.lookAt(new THREE.Vector3())
-   
-       light.castShadow = true
-       light.shadow.camera.top = 300
-       light.shadow.camera.bottom = -300
-       light.shadow.camera.left = -300
-       light.shadow.camera.right = 300
-   
-       // 开启阴影投射
-       light.castShadow = true
-       dLight = light
-       scene.add(light)
+     const light = new THREE.DirectionalLight(0xaaaaaa);
+     light.position.set(0, 200, 100);
+     light.lookAt(new THREE.Vector3());
+
+     light.castShadow = true;
+     light.shadow.camera.top = 300;
+     light.shadow.camera.bottom = -300;
+     light.shadow.camera.left = -300;
+     light.shadow.camera.right = 300;
+
+     // 开启阴影投射
+     light.castShadow = true;
+     dLight = light;
+     scene.add(light);
    }
    ```
 
 3. 在地面网格上开启阴影接收。
 
    ```js
-   mesh.receiveShadow = true
+   mesh.receiveShadow = true;
    ```
 
 4. 修改模型网格对象，开启阴影投射。并设置方向光的焦点为模型网格对象，用于移动模型时方向光同步移动。
@@ -5701,22 +5799,22 @@ div {
    ```js
    // 设置模型的每个部位都可以投影
    mesh.traverse(function (child) {
-       if (child.isMesh) {
-           child.castShadow = true
-           child.receiveShadow = true
-       }
-   })
-   
+     if (child.isMesh) {
+       child.castShadow = true;
+       child.receiveShadow = true;
+     }
+   });
+
    // 设置光线焦点模型
-   dLight.target = mesh
+   dLight.target = mesh;
    ```
 
 5. 取消`OrbitControls`控件修改全局相机位置，用于模型网格对象移动时相机同步移动。
 
    ```js
    // camera.position.set(1000, 500, 1500)
-   camera.position.set(-1000, 1000, 100)
-   
+   camera.position.set(-1000, 1000, 100);
+
    // 控制相机
    // const controls = new OrbitControls(camera, canvas)
    // controls.update()
@@ -5730,117 +5828,117 @@ div {
 
   ```js
   document.addEventListener(
-  "keydown",
-  (e) => {
+    "keydown",
+    (e) => {
       switch (e.keyCode) {
-      case 87:
+        case 87:
           keyCodeW = true;
           break;
-      case 83:
+        case 83:
           keyCodeS = true;
           break;
-      case 65:
+        case 65:
           keyCodeA = true;
           break;
-      case 68:
+        case 68:
           keyCodeD = true;
           break;
-      case 75:
+        case 75:
           keyCodeK = true;
           break;
-      default:
+        default:
           break;
       }
-  },
-  false
+    },
+    false
   );
   document.addEventListener(
-  "keyup",
-  (e) => {
+    "keyup",
+    (e) => {
       switch (e.keyCode) {
-      case 87:
+        case 87:
           keyCodeW = false;
           break;
-      case 83:
+        case 83:
           keyCodeS = false;
           break;
-      case 65:
+        case 65:
           keyCodeA = false;
           break;
-      case 68:
+        case 68:
           keyCodeD = false;
           break;
-      default:
+        default:
           break;
       }
-  },
-  false
+    },
+    false
   );
   ```
 
 - 根据按键控制模型移动，控制模型的的朝向。同时控制方向光和相机一起跟随模型移动。
 
   ```js
-   // 控制 移动
-    function onCodeMove(mesh) {
-      if (keyCodeW) {
-        mesh.position.x += 2;
-        camera.position.x += 2;
-        dLight.position.x += 2;
-        mesh.rotation.y = Math.PI * 0.5;
-      }
-      if (keyCodeA) {
-        mesh.position.z -= 2;
-        camera.position.z -= 2;
-        dLight.position.z -= 2;
-        mesh.rotation.y = Math.PI;
-      }
-      if (keyCodeS) {
-        mesh.position.x -= 2;
-        camera.position.x -= 2;
-        dLight.position.x -= 2;
-        mesh.rotation.y = Math.PI * 1.5;
-      }
-      if (keyCodeD) {
-        mesh.position.z += 2;
-        camera.position.z += 2;
-        dLight.position.z += 2;
-        mesh.rotation.y = Math.PI * 2;
-      }
-  
-      if (keyCodeW && keyCodeD) {
-        mesh.rotation.y = Math.PI * 0.25;
-      }
-      if (keyCodeW && keyCodeA) {
-        mesh.rotation.y = Math.PI * 0.75;
-      }
-      if (keyCodeA && keyCodeS) {
-        mesh.rotation.y = Math.PI * 1.25;
-      }
-      if (keyCodeS && keyCodeD) {
-        mesh.rotation.y = Math.PI * 1.75;
-      }
-  
-      if (!keyCodeK) {
-        resetMove();
+  // 控制 移动
+  function onCodeMove(mesh) {
+    if (keyCodeW) {
+      mesh.position.x += 2;
+      camera.position.x += 2;
+      dLight.position.x += 2;
+      mesh.rotation.y = Math.PI * 0.5;
+    }
+    if (keyCodeA) {
+      mesh.position.z -= 2;
+      camera.position.z -= 2;
+      dLight.position.z -= 2;
+      mesh.rotation.y = Math.PI;
+    }
+    if (keyCodeS) {
+      mesh.position.x -= 2;
+      camera.position.x -= 2;
+      dLight.position.x -= 2;
+      mesh.rotation.y = Math.PI * 1.5;
+    }
+    if (keyCodeD) {
+      mesh.position.z += 2;
+      camera.position.z += 2;
+      dLight.position.z += 2;
+      mesh.rotation.y = Math.PI * 2;
+    }
+
+    if (keyCodeW && keyCodeD) {
+      mesh.rotation.y = Math.PI * 0.25;
+    }
+    if (keyCodeW && keyCodeA) {
+      mesh.rotation.y = Math.PI * 0.75;
+    }
+    if (keyCodeA && keyCodeS) {
+      mesh.rotation.y = Math.PI * 1.25;
+    }
+    if (keyCodeS && keyCodeD) {
+      mesh.rotation.y = Math.PI * 1.75;
+    }
+
+    if (!keyCodeK) {
+      resetMove();
+    }
+  }
+
+  let moveNum = false;
+  // 重置移动
+  function resetMove() {
+    // 按下键盘 跑步动画
+    if (keyCodeW || keyCodeS || keyCodeA || keyCodeD) {
+      gui["action"](3);
+      moveNum = true;
+    } else {
+      // 只执行一次
+      if (moveNum) {
+        moveNum = false;
+        gui["action"](24);
       }
     }
-  
-    let moveNum = false;
-    // 重置移动
-    function resetMove() {
-      // 按下键盘 跑步动画
-      if (keyCodeW || keyCodeS || keyCodeA || keyCodeD) {
-        gui["action"](3);
-        moveNum = true;
-      } else {
-        // 只执行一次
-        if (moveNum) {
-          moveNum = false;
-          gui["action"](24);
-        }
-      }
-    }
+  }
   ```
 
 - 修改模型为全局变量，修改渲染函数。
@@ -5869,10 +5967,10 @@ div {
 - 攻击动作需要的全局变量
 
   ```js
-  let attackList = [12, 8, 9, 10] // 连招的循序
-  let attackCombo = true
-  let skills = 0 // 下标
-  let clickNum = 0 // 点击次数
+  let attackList = [12, 8, 9, 10]; // 连招的循序
+  let attackCombo = true;
+  let skills = 0; // 下标
+  let clickNum = 0; // 点击次数
   ```
 
 1. 攻击动作是多个动画组合来的，创建一个数组来保存要执行的动画。
@@ -5882,34 +5980,34 @@ div {
 3. 根据`skills`和`clickNum`判断执行几个动画和动画执行后重置参数。
 
    ```js
-    function attack() {
-       clickNum++;
-       if (attackCombo) {
-         attackCombo = false;
-         // 执行第一个动画
+   function attack() {
+     clickNum++;
+     if (attackCombo) {
+       attackCombo = false;
+       // 执行第一个动画
+       gui["action"](attackList[skills]);
+       timeCallback();
+     }
+   }
+
+   function timeCallback() {
+     setTimeout(() => {
+       // 进行下一个动作
+       skills++;
+       // 判断点击次数是否还有下一个动作，如果全部动作完成结束循环
+       if (skills === clickNum || skills > attackList.length - 1) {
+         skills = 0;
+         clickNum = 0;
+         attackCombo = true;
+         keyCodeK = false;
+         moveNum = true;
+         resetMove();
+       } else {
          gui["action"](attackList[skills]);
          timeCallback();
        }
-     }
-   
-     function timeCallback() {
-       setTimeout(() => {
-         // 进行下一个动作
-         skills++;
-         // 判断点击次数是否还有下一个动作，如果全部动作完成结束循环
-         if (skills === clickNum || skills > attackList.length - 1) {
-           skills = 0;
-           clickNum = 0;
-           attackCombo = true;
-           keyCodeK = false;
-           moveNum = true;
-           resetMove();
-         } else {
-           gui["action"](attackList[skills]);
-           timeCallback();
-         }
-       }, meshHY.animations[attackList[skills]].duration * 1000);
-     }
+     }, meshHY.animations[attackList[skills]].duration * 1000);
+   }
    ```
 
 ### 24.4 完整代码
@@ -5917,7 +6015,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -6242,7 +6340,7 @@ div {
 
 - origin — 光线投射的原点向量。
 - direction — 射线的方向向量，应该归一化。
-- near — 所有返回的结果应该比 near 远。near不能为负，默认值为0。
+- near — 所有返回的结果应该比 near 远。near 不能为负，默认值为 0。
 - far — 所有返回的结果应该比 far 近。far 不能小于 near，默认值为无穷大。
 
 > 射线检测法缺点也比较明显，当物体的中心在另一个物体内部时，是不能够检测到碰撞的。而且当两个物体能够互相穿过，且有较大部分重合时，检测效果也不理想。
@@ -6250,29 +6348,29 @@ div {
 ### 25.1 添加键盘控制
 
 ```js
-  document.addEventListener(
-    "keydown",
-    (e) => {
-      var ev = e || window.event;
-      switch (ev.keyCode) {
-        case 87:
-          cube.position.z -= 0.05;
-          break;
-        case 83:
-          cube.position.z += 0.05;
-          break;
-        case 65:
-          cube.position.x -= 0.05;
-          break;
-        case 68:
-          cube.position.x += 0.05;
-          break;
-        default:
-          break;
-      }
-    },
-    false
-  );
+document.addEventListener(
+  "keydown",
+  (e) => {
+    var ev = e || window.event;
+    switch (ev.keyCode) {
+      case 87:
+        cube.position.z -= 0.05;
+        break;
+      case 83:
+        cube.position.z += 0.05;
+        break;
+      case 65:
+        cube.position.x -= 0.05;
+        break;
+      case 68:
+        cube.position.x += 0.05;
+        break;
+      default:
+        break;
+    }
+  },
+  false
+);
 ```
 
 ### 25.2 创建检测方法
@@ -6284,60 +6382,60 @@ div {
 5. 比较射线的长度是否小于物体的长度。
 
 ```js
-  function onIntersect() {
-    // 声明一个变量用来表示是否碰撞
-    let bool = false;
-    // .position 对象局部位置
-    // .clone() 复制一个新的三维向量
-    // 网格中心 世界坐标
-    const centerCoord = cube.position.clone();
-    // 获取网格中 几何对象的顶点对象
-    const position = cube.geometry.attributes.position;
-    // 顶点三维向量
-    const vertices = [];
-    // .count 矢量个数
-    for (let i = 0; i < position.count; i++) {
-      // .getX() 获取给定索引的矢量的第一维元素
-      vertices.push(
-        new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i))
-      );
-    }
+function onIntersect() {
+  // 声明一个变量用来表示是否碰撞
+  let bool = false;
+  // .position 对象局部位置
+  // .clone() 复制一个新的三维向量
+  // 网格中心 世界坐标
+  const centerCoord = cube.position.clone();
+  // 获取网格中 几何对象的顶点对象
+  const position = cube.geometry.attributes.position;
+  // 顶点三维向量
+  const vertices = [];
+  // .count 矢量个数
+  for (let i = 0; i < position.count; i++) {
+    // .getX() 获取给定索引的矢量的第一维元素
+    vertices.push(
+      new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i))
+    );
+  }
 
-    for (let i = 0; i < vertices.length; i++) {
-      // .matrixWorld 物体的世界坐标变换 -- 物体旋转、位移 的四维矩阵
-      // .applyMatrix4() 将该向量乘以四阶矩阵
-      // 获取世界坐标下 网格变换后的坐标
-      let vertexWorldCoord = vertices[i].clone().applyMatrix4(cube.matrixWorld);
-      // .sub(x) 从该向量减去x向量
-      // 获得由中心指向顶点的向量
-      var dir = vertexWorldCoord.clone().sub(centerCoord);
-      // .normalize() 将该向量转换为单位向量
-      // 发射光线 centerCoord 为投射的原点向量  dir 向射线提供方向的方向向量
-      let raycaster = new THREE.Raycaster(centerCoord, dir.clone().normalize());
+  for (let i = 0; i < vertices.length; i++) {
+    // .matrixWorld 物体的世界坐标变换 -- 物体旋转、位移 的四维矩阵
+    // .applyMatrix4() 将该向量乘以四阶矩阵
+    // 获取世界坐标下 网格变换后的坐标
+    let vertexWorldCoord = vertices[i].clone().applyMatrix4(cube.matrixWorld);
+    // .sub(x) 从该向量减去x向量
+    // 获得由中心指向顶点的向量
+    var dir = vertexWorldCoord.clone().sub(centerCoord);
+    // .normalize() 将该向量转换为单位向量
+    // 发射光线 centerCoord 为投射的原点向量  dir 向射线提供方向的方向向量
+    let raycaster = new THREE.Raycaster(centerCoord, dir.clone().normalize());
 
-      // 放入要检测的 物体cube2，返回相交物体
-      let intersects = raycaster.intersectObjects([cube2], true);
-      if (intersects.length > 0) {
-        // intersects[0].distance：射线起点与交叉点之间的距离(交叉点：射线和模型表面交叉点坐标)
-        // dir.length()：几何体顶点和几何体中心构成向量的长度
-        // intersects[0].distance小于dir.length() 表示物体相交
-        if (intersects[0].distance < dir.length()) {
-          bool = true;
-        }
+    // 放入要检测的 物体cube2，返回相交物体
+    let intersects = raycaster.intersectObjects([cube2], true);
+    if (intersects.length > 0) {
+      // intersects[0].distance：射线起点与交叉点之间的距离(交叉点：射线和模型表面交叉点坐标)
+      // dir.length()：几何体顶点和几何体中心构成向量的长度
+      // intersects[0].distance小于dir.length() 表示物体相交
+      if (intersects[0].distance < dir.length()) {
+        bool = true;
       }
     }
-
-    return bool;
   }
+
+  return bool;
+}
 ```
 
 在键盘监听事件中添加网格颜色修改。
 
 ```js
 if (onIntersect()) {
-    cube.material.color.set('yellow')
+  cube.material.color.set("yellow");
 } else {
-    cube.material.color.set(0x6688aa)
+  cube.material.color.set(0x6688aa);
 }
 ```
 
@@ -6348,7 +6446,7 @@ if (onIntersect()) {
 ```js
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -6517,23 +6615,23 @@ div {
 
 ### 26.1 ShaderMaterial 着色器材质
 
-使用自定义着色器渲染的材质。着色器材质是一个用**GLSL**编写的小程序 ，在GPU上运行。需要知道**GLSL**是着色器使用的语言，它和`JavaScript`使用方式完全不同，主要目的是为栅格化图形提供常用的计算功能。常用属性和方法：
+使用自定义着色器渲染的材质。着色器材质是一个用**GLSL**编写的小程序 ，在 GPU 上运行。需要知道**GLSL**是着色器使用的语言，它和`JavaScript`使用方式完全不同，主要目的是为栅格化图形提供常用的计算功能。常用属性和方法：
 
 - `.uniforms` 指定要传递给着色器代码的`uniforms`。`uniforms`是`GLSL`语言中的全局变量，在一次绘制过程中传递给着色器的值都一样。
 - `.fragmentShader` 片元着色器的`GLSL`代码。字符串格式由`webGL`编译。
 - `.vertexShader` 顶点着色器的`GLSL`代码。字符串格式由`webGL`编译。
 - `.defines` 使用 #define 指令在`GLSL`代码为顶点着色器和片段着色器定义自定义常量。
 
-> `ShaderMaterial`只有使用`WebGLRenderer`才可以绘制正常，因为`GLSL`代码必须使用`WebGL`来编译并运行在GPU中。
+> `ShaderMaterial`只有使用`WebGLRenderer`才可以绘制正常，因为`GLSL`代码必须使用`WebGL`来编译并运行在 GPU 中。
 
-### 26.1 编写GLSL代码
+### 26.1 编写 GLSL 代码
 
 - 着色器的使用。简单理解，就是通过顶点着色器设置几何体顶点的位置。通过片元着色器设置从顶点出发点与点之间的颜色。**点与点之间会自动计算颜色值**。
 - `position`变量是几何体传入`GLSL`程序中的顶点信息。
 
 ```js
-  //   顶点着色器代码
-  const vertexShader = `
+//   顶点着色器代码
+const vertexShader = `
   void main(){
     // 设置点的大小为50px
     gl_PointSize = 50;
@@ -6541,8 +6639,8 @@ div {
     gl_Position = vec4(position,1.0);
   }
   `;
-  // 片元着色器代码
-  const fragmentShader = `
+// 片元着色器代码
+const fragmentShader = `
   void main() {
     // 光栅化片元的颜色
     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
@@ -6557,7 +6655,7 @@ const geometry = new THREE.BufferGeometry();
 // 设置顶点数据
 const pos = new Float32Array([0, 0, 0]);
 // 设置几何体顶点信息
-geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+geometry.setAttribute("position", new THREE.BufferAttribute(pos, 3));
 
 const material = new THREE.ShaderMaterial({
   vertexShader,
@@ -6573,7 +6671,7 @@ scene.add(points);
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -6673,7 +6771,7 @@ div {
 - `Varyings` 是从顶点着色器传递到片元着色器的变量。我们需要确保在两个着色器中变量的类型和命名完全一致。
 - `Attributes` 与每个顶点关联的变量。例如，顶点位置，法线和顶点颜色都是存储在`attributes`中的数据。它只能在顶点着色器获取。
 
-### 27.2 绘制一个只有4/1变色的圆
+### 27.2 绘制一个只有 4/1 变色的圆
 
 **创建着色器**。
 
@@ -6683,8 +6781,8 @@ div {
 4. 根据顶点坐标来判断几何体要修改颜色的位置。
 
 ```js
-  // 顶点着色器代码
-  const vertexShader = `
+// 顶点着色器代码
+const vertexShader = `
   varying vec3  position; // 创建变量 在片元着色器 中使用
   void main(){
     vPosition = position ; // 赋值 顶点坐标
@@ -6693,8 +6791,8 @@ div {
   }
   `;
 
-  // 片元着色器代码
-  const fragmentShader = `
+// 片元着色器代码
+const fragmentShader = `
   varying vec3 vPosition; // 获取顶点着色器 设置的变量
   uniform float time; // 获取传入的 全局变量
   void main(){
@@ -6718,26 +6816,26 @@ div {
 **创建全局变量。**
 
 ```js
-  const uniforms = {
-    time: {
-      type: 'f',
-      value: 0.0
-    }
-  }
+const uniforms = {
+  time: {
+    type: "f",
+    value: 0.0,
+  },
+};
 ```
 
 **创建球几何体，使用着色器材质。**
 
 ```js
-const geometry = new THREE.SphereGeometry(15, 32, 16)
+const geometry = new THREE.SphereGeometry(15, 32, 16);
 
 const mate = new THREE.ShaderMaterial({
-    uniforms: uniforms,
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader
-})
-const mesh = new THREE.Mesh(geometry, mate)
-scene.add(mesh)
+  uniforms: uniforms,
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
+});
+const mesh = new THREE.Mesh(geometry, mate);
+scene.add(mesh);
 ```
 
 **修改渲染函数。**
@@ -6748,10 +6846,10 @@ scene.add(mesh)
 ```js
 // 渲染
 function render() {
-    uniforms.time.value += 0.1
+  uniforms.time.value += 0.1;
 
-    renderer.render(scene, camera)
-    requestAnimationFrame(render)
+  renderer.render(scene, camera);
+  requestAnimationFrame(render);
 }
 ```
 
@@ -6760,7 +6858,7 @@ function render() {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -6886,17 +6984,17 @@ div {
 
 - 创建控制变量。
 - 定义顶点着色器
-  1. three.js中的变量。projectionMatrix是投影变换矩阵，modelViewMatrix是相机坐标系的变换矩阵，position顶点坐标。
-  2. 通过uniform全局变量获取外部设置uSize，设置粒子大小。
-  3. 通过varying变量把顶点对应的透明度aOpacity传入片元着色器。
+  1. three.js 中的变量。projectionMatrix 是投影变换矩阵，modelViewMatrix 是相机坐标系的变换矩阵，position 顶点坐标。
+  2. 通过 uniform 全局变量获取外部设置 uSize，设置粒子大小。
+  3. 通过 varying 变量把顶点对应的透明度 aOpacity 传入片元着色器。
 - 定义片元着色器
-  1. 通过uniform全局变量获取外部设置uColor，基础颜色。
-  2. 通过varying变量获取透明度vOpacity。
-  3. 设置透明度小于0.2的片元不执行。
+  1. 通过 uniform 全局变量获取外部设置 uColor，基础颜色。
+  2. 通过 varying 变量获取透明度 vOpacity。
+  3. 设置透明度小于 0.2 的片元不执行。
   4. 根据算法获取当前顶点要展示的颜色，这个算法是网上找的，实现发光效果。
 - 创建着色器材质，放入点材质中绘制透明点。
-  1. 放入顶点和片元着色器，设置uniforms全局变量。
-  2. 创建Points()网格，绘制透明点，加入场景。
+  1. 放入顶点和片元着色器，设置 uniforms 全局变量。
+  2. 创建 Points()网格，绘制透明点，加入场景。
 
 ### 28.3 修改粒子透明度形成炫光效果
 
@@ -6908,7 +7006,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -7155,7 +7253,7 @@ div {
      ```glsl
      void main(){
          ...
-         
+
          // 光线位置 位置
          vec3 eye = vec3(0.,0.,2.5);
          // 方向
@@ -7175,7 +7273,7 @@ div {
 
 3. 让方块动起来
 
-   - 开始我们定义了uTime全局变量，通过修改它来实现旋转方块。
+   - 开始我们定义了 uTime 全局变量，通过修改它来实现旋转方块。
 
    - 矩阵函数。
 
@@ -7185,7 +7283,7 @@ div {
          float s=sin(angle);
          float c=cos(angle);
          float oc=1.-c;
-     
+
          return mat4(oc*axis.x*axis.x+c,oc*axis.x*axis.y-axis.z*s,oc*axis.z*axis.x+axis.y*s,0.,
            oc*axis.x*axis.y+axis.z*s,oc*axis.y*axis.y+c,oc*axis.y*axis.z-axis.x*s,0.,
            oc*axis.z*axis.x-axis.y*s,oc*axis.y*axis.z+axis.x*s,oc*axis.z*axis.z+c,0.,
@@ -7202,7 +7300,7 @@ div {
      }
      ```
 
-   - 修改rayMarch函数，在加载方块之前先旋转方块。这里要注意rotate()函数需要在rayMarch()函数之前加载。
+   - 修改 rayMarch 函数，在加载方块之前先旋转方块。这里要注意 rotate()函数需要在 rayMarch()函数之前加载。
 
      ```glsl
      float rayMarch(vec3 ro,vec3 rd,float end,int maxIter){
@@ -7231,7 +7329,7 @@ div {
 
      ```glsl
      ...
-     
+
      // 方向
      vec2 cUv=centerUv(vUv);
      vec3 ray=normalize(vec3(cUv,-eye.z));
@@ -7244,7 +7342,7 @@ div {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -7408,14 +7506,14 @@ div {
 </style>
 ```
 
-## 30. 实现一个简单的3D地球可视化
+## 30. 实现一个简单的 3D 地球可视化
 
 ### 30.1 基础代码
 
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -7569,14 +7667,14 @@ div {
 
 - 使用图片贴图，让图片中的图形模拟球形，然后动态设置颜色、旋转偏移等，更好的模拟星空效果。
 
-- 这里使用canvas创建图片。我们能更好的控制星星的团，这里使用的圆形。
+- 这里使用 canvas 创建图片。我们能更好的控制星星的团，这里使用的圆形。
 
   ```js
   const generateSprite = () => {
     const canvas = document.createElement("canvas");
     canvas.width = 16;
     canvas.height = 16;
-  
+
     const context = canvas.getContext("2d");
     // 创建颜色渐变
     const gradient = context.createRadialGradient(
@@ -7591,7 +7689,7 @@ div {
     gradient.addColorStop(0.2, "rgba(0,255,255,1)");
     gradient.addColorStop(0.4, "rgba(0,0,64,1)");
     gradient.addColorStop(1, "rgba(0,0,0,1)");
-  
+
     // 绘制方形
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -7602,7 +7700,7 @@ div {
   };
   ```
 
-- 随机生成10000个坐标。
+- 随机生成 10000 个坐标。
 
 - 创建一个几何体，把这些坐标转换为`Vector3`坐标，保存在`position`中。
 
@@ -7659,26 +7757,26 @@ div {
 - 修改渲染函数，添加旋转动画队列。
 
   ```js
-    // 旋转队列
-    const rotateSlowArr = []
-    /**
-     * 渲染函数
-     * */
-    function renders(time) {
-      time *= 0.003
-  
-      // 3D对象 旋转
-      // _y 初始坐标 _s 旋转速度
-      rotateSlowArr.forEach((obj) => {
-        obj.rotation.y = obj._y + time * obj._s
-      })
-  
-      renderer.clear()
-      renderer.render(scene, camera)
-    }
+  // 旋转队列
+  const rotateSlowArr = [];
+  /**
+   * 渲染函数
+   * */
+  function renders(time) {
+    time *= 0.003;
+
+    // 3D对象 旋转
+    // _y 初始坐标 _s 旋转速度
+    rotateSlowArr.forEach((obj) => {
+      obj.rotation.y = obj._y + time * obj._s;
+    });
+
+    renderer.clear();
+    renderer.render(scene, camera);
+  }
   ```
 
-- 创建3个内部场景，用来控制地球和月球单独旋转。只需要设置旋转场景，在场景中固定位置的几何体，就会按场景的原点进行旋转。
+- 创建 3 个内部场景，用来控制地球和月球单独旋转。只需要设置旋转场景，在场景中固定位置的几何体，就会按场景的原点进行旋转。
 
 - 通过`sphereGeometry` 创建球形几何体。
 
@@ -7697,7 +7795,7 @@ div {
   const moonObject = new THREE.Object3D();
   // 地球半径
   const globeRadius = 5;
-  
+
   /**
    * 球相关加载
    * */
@@ -7710,27 +7808,27 @@ div {
       widthSegments,
       heightSegments
     );
-  
+
     // 地球
     const earthTexture = loader.load("./img/3.jpg");
     const earthMaterial = new THREE.MeshStandardMaterial({
       map: earthTexture,
     });
     const earthMesh = new THREE.Mesh(sphereGeometry, earthMaterial);
-  
+
     // 月球
     const moonTexture = loader.load("./img/2.jpg");
     const moonMaterial = new THREE.MeshPhongMaterial({ map: moonTexture });
     const moonMesh = new THREE.Mesh(sphereGeometry, moonMaterial);
     moonMesh.scale.set(0.1, 0.1, 0.1);
     moonMesh.position.x = 10;
-  
+
     moonObject.add(moonMesh);
     // 加入动画队列
     moonObject._y = 0;
     moonObject._s = 1;
     rotateSlowArr.push(moonObject);
-  
+
     // 地球加入 地球3D层
     earthObject.add(earthMesh);
     earthObject.rotation.set(0.5, 2.9, 0.1);
@@ -7738,12 +7836,12 @@ div {
     earthObject._s = 0.1;
     // 加入动画队列
     rotateSlowArr.push(earthObject);
-  
+
     // 加入 地球3D层
     landOrbitObject.add(earthObject);
     // 加入 月亮3D层
     landOrbitObject.add(moonObject);
-  
+
     scene.add(landOrbitObject);
   };
   ```
@@ -7765,7 +7863,7 @@ div {
     const theta = (90 + lng) * (Math.PI / 180);
     // 以y轴正方向为起点的垂直方向弧度值
     const phi = (90 - lat) * (Math.PI / 180);
-  
+
     return new THREE.Vector3().setFromSpherical(
       new THREE.Spherical(radius, phi, theta)
     );
@@ -7778,19 +7876,19 @@ div {
 
   ```js
   // 放大并透明 队列
-  const bigByOpacityArr = []
+  const bigByOpacityArr = [];
   function renders(time) {
-      time *= 0.003
-      bigByOpacityArr.forEach(function (mesh) {
-          //  目标 圆环放大 并 透明
-          mesh._s += 0.01
-          mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s)
-          if (mesh._s <= 2) {
-              mesh.material.opacity = 2 - mesh._s
-          } else {
-              mesh._s = 1
-          }
-      })
+    time *= 0.003;
+    bigByOpacityArr.forEach(function (mesh) {
+      //  目标 圆环放大 并 透明
+      mesh._s += 0.01;
+      mesh.scale.set(1 * mesh._s, 1 * mesh._s, 1 * mesh._s);
+      if (mesh._s <= 2) {
+        mesh.material.opacity = 2 - mesh._s;
+      } else {
+        mesh._s = 1;
+      }
+    });
   }
   ```
 
@@ -7817,7 +7915,7 @@ div {
     //.setFromUnitVectors();计算两个向量之间构成的四元数值
     circle.quaternion.setFromUnitVectors(meshNormal, coordVec3);
     earthObject.add(circle);
-  
+
     // 圆环
     const geometry2 = new THREE.RingGeometry(0.03, 0.04, 100);
     // transparent 设置 true 开启透明
@@ -7828,7 +7926,7 @@ div {
     });
     const circleY = new THREE.Mesh(geometry2, material2);
     circleY.position.set(spot[0], spot[1], spot[2]);
-  
+
     // 指向圆心
     circleY.lookAt(new THREE.Vector3(0, 0, 0));
     earthObject.add(circleY);
@@ -7847,7 +7945,7 @@ div {
 
 ### 30.5 绘制飞线
 
-- 在3D中飞线，都是曲线且都是在球外部进行连接的。所以我们需要使用三维三次贝塞尔曲线。
+- 在 3D 中飞线，都是曲线且都是在球外部进行连接的。所以我们需要使用三维三次贝塞尔曲线。
 
 - 先获取要连线的两个坐标。计算出两点的夹角，根据夹角计算偏移。计算出放大后的终点位置。以这两个值计算出三维三次贝塞尔曲线的中间点。
 
@@ -7862,13 +7960,13 @@ div {
   const lineConnect = (posStart, posEnd) => {
     const v0 = lglt2xyz(posStart[0], posStart[1], globeRadius);
     const v3 = lglt2xyz(posEnd[0], posEnd[1], globeRadius);
-  
+
     // angleTo() 计算向量的夹角
     const angle = v0.angleTo(v3);
     let vtop = v0.clone().add(v3);
     // multiplyScalar 将该向量与所传入的 标量进行相乘
     vtop = vtop.normalize().multiplyScalar(globeRadius);
-  
+
     let n;
     if (angle <= 1) {
       n = (globeRadius / 5) * angle;
@@ -7877,7 +7975,7 @@ div {
     } else {
       n = (globeRadius / 5) * Math.pow(angle, 1.5);
     }
-  
+
     const v1 = v0
       .clone()
       .add(vtop)
@@ -7890,19 +7988,19 @@ div {
       .multiplyScalar(globeRadius + n);
     // 三维三次贝塞尔曲线(v0起点，v1第一个控制点，v2第二个控制点，v3终点)
     const curve = new THREE.CubicBezierCurve3(v0, v1, v2, v3);
-  
+
     // 绘制 目标位置
     spotCircle([v0.x, v0.y, v0.z]);
     spotCircle([v3.x, v3.y, v3.z]);
     moveSpot(curve);
-  
+
     const lineGeometry = new THREE.BufferGeometry();
     // 获取曲线 上的50个点
     var points = curve.getPoints(50);
     var positions = [];
     var colors = [];
     var color = new THREE.Color();
-  
+
     // 给每个顶点设置演示 实现渐变
     for (var j = 0; j < points.length; j++) {
       color.setHSL(0.81666 + j, 0.88, 0.715 + j * 0.0025); // 粉色
@@ -7918,13 +8016,13 @@ div {
       "color",
       new THREE.BufferAttribute(new Float32Array(colors), 3, true)
     );
-  
+
     const material = new THREE.LineBasicMaterial({
       vertexColors: THREE.VertexColors,
       side: THREE.DoubleSide,
     });
     const line = new THREE.Line(lineGeometry, material);
-  
+
     earthObject.add(line);
   };
   ```
@@ -7946,7 +8044,7 @@ div {
     // 保存曲线实例
     aMesh.curve = curve;
     aMesh._s = 0;
-  
+
     moveArr.push(aMesh);
     earthObject.add(aMesh);
   };
@@ -7956,15 +8054,15 @@ div {
 
   ```js
   // 移动 队列
-  const moveArr = []
+  const moveArr = [];
   function renders(time) {
-      time *= 0.003
-      moveArr.forEach(function (mesh) {
-        mesh._s += 0.01
-        let tankPosition = new THREE.Vector3()
-        tankPosition = mesh.curve.getPointAt(mesh._s % 1)
-        mesh.position.set(tankPosition.x, tankPosition.y, tankPosition.z)
-      })
+    time *= 0.003;
+    moveArr.forEach(function (mesh) {
+      mesh._s += 0.01;
+      let tankPosition = new THREE.Vector3();
+      tankPosition = mesh.curve.getPointAt(mesh._s % 1);
+      mesh.position.set(tankPosition.x, tankPosition.y, tankPosition.z);
+    });
   }
   ```
 
@@ -7984,7 +8082,7 @@ div {
     let markPos3 = lglt2xyz(111.553091, 29.57337, 5);
     // 目标点
     spotCircle([markPos3.x, markPos3.y, markPos3.z]);
-  
+
     lineConnect([121.48, 31.23], [116.4, 39.91]);
     lineConnect([121.48, 31.23], [121.564136, 25.071558]);
     lineConnect([121.48, 31.23], [104.896185, 11.598253]);
@@ -8145,7 +8243,7 @@ function lineDraw(polygon, color) {
 ```vue
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -8785,4 +8883,3 @@ div {
 }
 </style>
 ```
-

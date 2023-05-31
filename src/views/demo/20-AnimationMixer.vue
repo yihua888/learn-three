@@ -1,6 +1,6 @@
 <template>
   <div>
-    <canvas ref="container"></canvas>
+    <canvas ref="container" height="600" width="800"></canvas>
   </div>
 </template>
 
@@ -34,83 +34,83 @@ onMounted(() => {
   // 创建场景
   const scene = new THREE.Scene();
 
-  scene.background = new THREE.Color(0x87ceeb)
+  scene.background = new THREE.Color(0x87ceeb);
   // 雾
-  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000)
+  scene.fog = new THREE.Fog(0x87ceeb, 200, 10000);
   // 辅助
-  const axes = new THREE.AxesHelper(700)
-  scene.add(axes)
+  const axes = new THREE.AxesHelper(700);
+  scene.add(axes);
   {
     // 灯光
-    const skyColor = 0xffffff // 天空 白色
-    const groundColor = 0x000000 // 地面 黑色
-    const intensity = 1
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
-    scene.add(light)
+    const skyColor = 0xffffff; // 天空 白色
+    const groundColor = 0x000000; // 地面 黑色
+    const intensity = 1;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);
   }
 
   {
     // 地面
-    const loader = new THREE.TextureLoader()
-    const texture = loader.load('./file/23/1.jpg')
-    texture.wrapS = THREE.RepeatWrapping
-    texture.wrapT = THREE.RepeatWrapping
-    texture.magFilter = THREE.NearestFilter
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load("./file/23/1.jpg");
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.magFilter = THREE.NearestFilter;
     // 纹理 重复
-    texture.repeat.set(100, 100)
+    texture.repeat.set(100, 100);
 
-    const planeGeo = new THREE.PlaneGeometry(10000, 10000)
+    const planeGeo = new THREE.PlaneGeometry(10000, 10000);
     const planeMat = new THREE.MeshPhongMaterial({
       map: texture,
-      side: THREE.DoubleSide
-    })
-    const mesh = new THREE.Mesh(planeGeo, planeMat)
-    mesh.rotation.x = Math.PI * -0.5
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(planeGeo, planeMat);
+    mesh.rotation.x = Math.PI * -0.5;
 
-    scene.add(mesh)
+    scene.add(mesh);
   }
-  let actions = [] // 所有的动画数组
-  let gui = {} // 动画控制
-  let mixer = null // AnimationMixer 对象
+  let actions = []; // 所有的动画数组
+  let gui = {}; // 动画控制
+  let mixer = null; // AnimationMixer 对象
   {
     const loader = new THREE.FBXLoader();
-    loader.load('./file/Naruto.fbx', function (mesh) {
-      mesh.position.y = 110
-      scene.add(mesh)
-      mixer = new THREE.AnimationMixer(mesh)
+    loader.load("./file/Naruto.fbx", function (mesh) {
+      mesh.position.y = 110;
+      scene.add(mesh);
+      mixer = new THREE.AnimationMixer(mesh);
       for (var i = 0; i < mesh.animations.length; i++) {
-        actions[i] = mixer.clipAction(mesh.animations[i])
+        actions[i] = mixer.clipAction(mesh.animations[i]);
       }
-      gui['action'] = function (s) {
+      gui["action"] = function (s) {
         for (var j = 0; j < actions.length; j++) {
           if (j === s) {
-            actions[j].play()
+            actions[j].play();
           } else {
-            actions[j].stop()
+            actions[j].stop();
           }
         }
-      }
+      };
       // 第24个动作是鸣人站立的动作
-      gui['action'](24)
-    })
+      gui["action"](24);
+    });
   }
-  let keyNum = 24 // 动作
+  let keyNum = 24; // 动作
   document.onkeydown = function (e) {
     if (e && e.keyCode == 13) {
       if (keyNum === 27) {
-        keyNum = 1
+        keyNum = 1;
       }
-      keyNum += 1
-      gui['action'](keyNum)
+      keyNum += 1;
+      gui["action"](keyNum);
     }
-  }
+  };
 
-  function render (time) {
+  function render(time) {
     const delta = clock.getDelta();
     controls.update(delta);
 
     if (mixer) {
-      mixer.update(delta)
+      mixer.update(delta);
     }
 
     // 加载渲染器

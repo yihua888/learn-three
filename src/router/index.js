@@ -1,13 +1,19 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import addAsyncRouter from  './async-router'
+import { createRouter, createWebHistory } from "vue-router";
+import addAsyncRouter from "./async-router";
 
-const routes = []
+const routes = [
+  {
+    name: "home",
+    path: "/",
+    component: () => import("@/views/home/index.vue"),
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-addAsyncRouter(router)
+addAsyncRouter(router);
 
-export default router
+export default router;

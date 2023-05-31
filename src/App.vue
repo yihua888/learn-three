@@ -4,4 +4,8 @@
   </div>
 </template>
 
-<style lang="scss"></style>
+<style scoped>
+div {
+  height: 100%;
+}
+</style>
